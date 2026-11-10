@@ -1,0 +1,5 @@
+{{#each success_msg}}
+<div class="flash success" role="status">{{this}}</div>
+{{/each}} {{#each error_msg}}
+<div class="flash error" role="alert">{{this}}</div>
+{{/each}}

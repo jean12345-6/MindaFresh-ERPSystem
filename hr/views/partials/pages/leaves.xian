@@ -1,0 +1,99 @@
+<div class="page-heading">
+  <div>
+    <h1>Leave requests</h1>
+    <p>Vacation, sick, emergency and unpaid leave in whole working days.</p>
+  </div>
+  <button class="btn primary" data-open="leaveDialog">Request leave</button>
+</div>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Leave balances</h2>
+    <span class="muted">Emergency leave uses the vacation balance.</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Vacation days</th>
+          <th>Sick days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each employees}}
+        <tr>
+          <td>{{full_name}}</td>
+          <td>{{vacation_leave_balance}}</td>
+          <td>{{sick_leave_balance}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Requests <span class="badge">{{leaves.length}}</span></h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Employee</th>
+          <th>Leave / reason</th>
+          <th>Dates</th>
+          <th>Days</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each leaves}}
+        <tr>
+          <td>{{leave_code}}</td>
+          <td>{{employee_name}}</td>
+          <td>{{leave_type}}<small>{{reason}}</small></td>
+          <td>{{date start_date}} – {{date end_date}}</td>
+          <td>{{days}}</td>
+          <td><span class="badge">{{status}}</span></td>
+          <td>
+            {{#if can_review}}
+            <form method="post" action="/leaves/{{id}}/update" class="actions">
+              <input type="hidden" name="_csrf" value="{{@root.csrf}}" /><input
+                type="hidden"
+                name="return_to"
+                value="/leaves"
+              /><button
+                class="btn small primary"
+                name="status"
+                value="approved"
+              >
+                Approve</button
+              ><button class="btn small" name="status" value="rejected">
+                Reject
+              </button>
+            </form>
+            {{/if}}{{#if can_cancel}}
+            <form method="post" action="/leaves/{{id}}/update">
+              <input type="hidden" name="_csrf" value="{{@root.csrf}}" /><input
+                type="hidden"
+                name="return_to"
+                value="/leaves"
+              /><button class="btn small" name="status" value="cancelled">
+                Cancel
+              </button>
+            </form>
+            {{/if}}
+          </td>
+        </tr>
+        {{else}}
+        <tr>
+          <td colspan="7" class="empty">No leave requests.</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>
+{{> modals/leaveDialog}}

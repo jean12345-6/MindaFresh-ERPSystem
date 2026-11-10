@@ -1,0 +1,5 @@
+<div class="page-heading"><div><h1>My profile</h1><p>Your shared MindaFresh employee record. Contact HR for corrections.</p></div></div>
+<section class="panel"><dl class="profile-grid">
+<div><dt>Employee code</dt><dd>{{employee.employee_code}}</dd></div><div><dt>Name</dt><dd>{{employee.first_name}} {{employee.middle_name}} {{employee.last_name}}</dd></div>
+<div><dt>Department</dt><dd>{{employee.department}}</dd></div><div><dt>Position</dt><dd>{{employee.position}}</dd></div><div><dt>Hire date</dt><dd>{{date employee.hire_date}}</dd></div><div><dt>Status</dt><dd>{{employee.status}}</dd></div>
+<div><dt>Vacation balance</dt><dd>{{employee.vacation_leave_balance}} days</dd></div><div><dt>Sick balance</dt><dd>{{employee.sick_leave_balance}} days</dd></div></dl></section>

@@ -1,0 +1,74 @@
+<div class="page-heading">
+  <div>
+    <h1>Employee payslip</h1>
+    <p>
+      {{run.payroll_code}} · {{date run.period_start}} – {{date run.period_end}}
+    </p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/payslips">Back</a
+    ><button class="btn primary" data-print>Print / Save PDF</button>
+  </div>
+</div>
+<section class="panel payslip">
+  <div class="panel-heading">
+    <div>
+      <h2>MindaFresh Food Distribution, Inc.</h2>
+      <p class="muted">PeoplePay · HR and Payroll</p>
+    </div>
+    <span class="badge">{{run.display_status}}</span>
+  </div>
+  <div class="payslip-person">
+    <strong>{{employee.full_name}}</strong>
+    <p>
+      {{employee.employee_code}} · {{employee.position}} ·
+      {{employee.department}}
+    </p>
+  </div>
+  <table>
+    <tbody>
+      <tr>
+        <td>Daily rate</td>
+        <td class="amount">{{money item.daily_rate}}</td>
+      </tr>
+      <tr>
+        <td>Basic pay</td>
+        <td class="amount">{{money item.basic_pay}}</td>
+      </tr>
+      <tr>
+        <td>Tardiness / undertime deduction</td>
+        <td class="amount">{{money item.tardiness_deduction}}</td>
+      </tr>
+      <tr>
+        <td><strong>Gross pay</strong></td>
+        <td class="amount"><strong>{{money item.gross_pay}}</strong></td>
+      </tr>
+      <tr>
+        <td>SSS</td>
+        <td class="amount">{{money item.sss}}</td>
+      </tr>
+      <tr>
+        <td>PhilHealth</td>
+        <td class="amount">{{money item.philhealth}}</td>
+      </tr>
+      <tr>
+        <td>Pag-IBIG</td>
+        <td class="amount">{{money item.pagibig}}</td>
+      </tr>
+      <tr>
+        <td>Withholding tax</td>
+        <td class="amount">{{money item.withholding_tax}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="panel-total">
+    <strong>Net pay</strong><strong>{{money item.net_pay}}</strong>
+  </div>
+  <p class="muted payslip-person">
+    Worked: {{item.days_worked}} days · Paid leave: {{item.paid_leave_days}}
+    days · Regular holidays: {{item.paid_holiday_days}} days
+  </p>
+</section>
+<div class="note">
+  Academic calculation using simplified rates; employer shares excluded.
+</div>

@@ -1,0 +1,56 @@
+<div class="page-heading">
+  <div>
+    <h1>Payroll</h1>
+    <p>Prepare, review and approve payroll before Accounting posts it.</p>
+  </div>
+  {{#if canManageHR}}<button class="btn primary" data-open="payrollDialog">
+    Prepare payroll</button
+  >{{/if}}
+</div>
+<div class="note">
+  Academic rates only. Employer shares are excluded. Review config/payroll.js
+  before operational use.
+</div>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Payroll runs <span class="badge">{{runs.length}}</span></h2>
+    <span class="muted">Draft → Approved → Posted → Paid</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Period</th>
+          <th>Employees</th>
+          <th class="amount">Gross</th>
+          <th class="amount">Deductions</th>
+          <th class="amount">Net amount</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each runs}}
+        <tr>
+          <td>{{payroll_code}}</td>
+          <td>{{date period_start}} – {{date period_end}}</td>
+          <td>{{employee_count}}</td>
+          <td class="amount">{{money total_gross}}</td>
+          <td class="amount">{{money total_deductions}}</td>
+          <td class="amount">{{money total_net}}</td>
+          <td><span class="badge">{{display_status}}</span></td>
+          <td><a class="text-link" href="/payroll/{{id}}">Review</a></td>
+        </tr>
+        {{else}}
+        <tr>
+          <td colspan="8" class="empty">No payroll runs yet.</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>
+{{#if canManageHR}}
+{{> modals/payrollDialog}}
+{{/if}}

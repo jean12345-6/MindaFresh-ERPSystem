@@ -1,0 +1,59 @@
+<div class="page-heading">
+    <div>
+        <h1>Attendance</h1>
+        <p>Read-only daily time records from the shared Attendance module.</p>
+    </div>
+
+    <a class="btn" href="/attendance">Today’s month</a>
+</div>
+
+{{> forms/attendanceFilter}}
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Daily time records</h2>
+        <span class="muted">{{date start}} – {{date end}} · {{attendance.length}} records</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Date</th>
+                    <th>Time in</th>
+                    <th>Lunch out</th>
+                    <th>Lunch in</th>
+                    <th>Time out</th>
+                    <th>Hours</th>
+                    <th>Late min.</th>
+                    <th>Undertime min.</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each attendance}}
+                    <tr>
+                        <td>{{employee_name}}</td>
+                        <td>{{date log_date}}</td>
+                        <td>{{time_in_display}}</td>
+                        <td>{{lunch_out_display}}</td>
+                        <td>{{lunch_in_display}}</td>
+                        <td>{{time_out_display}}</td>
+                        <td>{{hours_worked}}</td>
+                        <td>{{late_minutes}}</td>
+                        <td>{{undertime_minutes}}</td>
+                        <td><span class="badge">{{status}}</span></td>
+                    </tr>
+                {{else}}
+                    <tr>
+                        <td colspan="10" class="empty">No records for these dates. Confirm Attendance writes to the same mindafresh_db, then check the date range and employee.</td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="signature-lines">
+        <span>Prepared by</span>
+        <span>Approved by</span>
+    </div>
+</section>

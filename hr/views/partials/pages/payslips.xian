@@ -1,0 +1,48 @@
+<div class="page-heading">
+  <div>
+    <h1>Payslips</h1>
+    <p>
+      {{#if isEmployee}}Your payslips appear after Accounting releases your
+      salary.{{else}}Review employee payslips by payroll period.{{/if}}
+    </p>
+  </div>
+</div>
+<section class="panel">
+  <div class="panel-heading"><h2>Employee payslips</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Payroll</th>
+          <th>Employee</th>
+          <th>Period</th>
+          <th class="amount">Gross</th>
+          <th class="amount">Net</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each runs}}{{#each items}}
+        <tr>
+          <td>{{../payroll_code}}</td>
+          <td>{{employee_name}}</td>
+          <td>{{date ../period_start}} – {{date ../period_end}}</td>
+          <td class="amount">{{money gross_pay}}</td>
+          <td class="amount">{{money net_pay}}</td>
+          <td><span class="badge">{{../display_status}}</span></td>
+          <td>
+            <a class="text-link" href="/payslips/{{../id}}/{{employee_id}}"
+              >View</a
+            >
+          </td>
+        </tr>
+        {{/each}}{{else}}
+        <tr>
+          <td colspan="7" class="empty">No payslips available.</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>

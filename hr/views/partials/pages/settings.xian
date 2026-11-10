@@ -1,0 +1,61 @@
+<div class="page-heading">
+  <div>
+    <h1>Settings</h1>
+    <p>PeoplePay account and environment information.</p>
+  </div>
+</div>
+<section class="panel">
+  <div class="panel-heading"><h2>Signed-in account</h2></div>
+  <table>
+    <tbody>
+      <tr>
+        <td>Username</td>
+        <td>{{currentUser.username}}</td>
+      </tr>
+      <tr>
+        <td>Role</td>
+        <td>{{currentUser.role}}</td>
+      </tr>
+      <tr>
+        <td>Shared employee ID</td>
+        <td>{{currentUser.employee_id}}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+{{#if canManageHR}}
+<section class="panel">
+  <div class="panel-heading"><h2>Administration</h2></div>
+  <div class="form-content actions">
+    <a class="btn" href="/departments">Manage departments</a
+    ><a class="btn primary" href="/users">Manage staff accounts</a>
+  </div>
+</section>
+{{/if}}
+<section class="panel">
+  <div class="panel-heading"><h2>System configuration</h2></div>
+  <table>
+    <tbody>
+      <tr>
+        <td>Database</td>
+        <td>mindafresh_db · shared ERP database</td>
+      </tr>
+      <tr>
+        <td>Framework</td>
+        <td>XianFire · Express · hbs</td>
+      </tr>
+      <tr>
+        <td>Views</td>
+        <td>.xian / Handlebars</td>
+      </tr>
+      <tr>
+        <td>Session storage</td>
+        <td>Memory · local development</td>
+      </tr>
+      <tr>
+        <td>Payroll configuration</td>
+        <td>config/payroll.js · academic rates</td>
+      </tr>
+    </tbody>
+  </table>
+</section>

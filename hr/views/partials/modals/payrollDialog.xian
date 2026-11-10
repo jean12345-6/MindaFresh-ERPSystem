@@ -1,0 +1,26 @@
+<dialog id="payrollDialog">
+  <div class="dialog-heading">
+    <h2>Prepare payroll</h2>
+    <button class="btn small" data-close>Close</button>
+  </div>
+  <form method="post" action="/payroll" class="form-content">
+    <input type="hidden" name="_csrf" value="{{csrf}}" /><input
+      type="hidden"
+      name="return_to"
+      value="/payroll"
+    />
+    <p class="muted">
+      Choose a completed half-month: 1–15 or 16–month end. Actual attendance is
+      read from the shared database.
+    </p>
+    <div class="form-grid">
+      <label
+        >Period start<input name="period_start" type="date" required /></label
+      ><label>Period end<input name="period_end" type="date" required /></label>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn" data-close>Cancel</button
+      ><button class="btn primary">Calculate draft</button>
+    </div>
+  </form>
+</dialog>

@@ -1,0 +1,109 @@
+<div class="page-heading">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Employee records, leave requests and payroll in one workspace.</p>
+  </div>
+  {{#if canManageHR}}<a class="btn primary" href="/employees/create"
+    >Add employee</a
+  >{{/if}}
+</div>
+<div class="summary-grid">
+  <article class="summary">
+    <span>Employees</span><strong>{{employees.length}}</strong
+    ><small>{{activeCount}} active employees</small>
+  </article>
+  <article class="summary">
+    <span>Pending leave requests</span><strong>{{pendingLeaves.length}}</strong
+    ><small>Awaiting HR review</small>
+  </article>
+  <article class="summary">
+    <span>Payroll runs</span><strong>{{runs.length}}</strong
+    ><small>Visible to your role</small>
+  </article>
+  <article class="summary">
+    <span>Latest net payroll</span><strong>{{money latestRun.total_net}}</strong
+    ><small
+      >{{#if latestRun}}{{latestRun.payroll_code}} ·
+      {{latestRun.display_status}}{{else}}No payroll prepared yet{{/if}}</small
+    >
+  </article>
+</div>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>
+      Pending leave requests <span class="badge">{{pendingLeaves.length}}</span>
+    </h2>
+    {{#unless (eq currentUser.role "accountant")}}<a
+      class="text-link"
+      href="/leaves"
+      >View leave requests</a
+    >{{/unless}}
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Employee</th>
+          <th>Type</th>
+          <th>Period</th>
+          <th>Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each pendingLeaves}}
+        <tr>
+          <td>{{leave_code}}</td>
+          <td>{{employee_name}}</td>
+          <td>{{leave_type}}</td>
+          <td>{{date start_date}} – {{date end_date}}</td>
+          <td>{{days}}</td>
+        </tr>
+        {{else}}
+        <tr>
+          <td colspan="5" class="empty">No pending leave requests.</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Payroll runs <span class="badge green">{{runs.length}}</span></h2>
+    {{#if canReadPayroll}}<a class="text-link" href="/payroll">View payroll</a
+    >{{else}}<a class="text-link" href="/payslips">View my payslips</a>{{/if}}
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Period</th>
+          <th>Employees</th>
+          <th>Status</th>
+          <th class="amount">Net amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each runs}}
+        <tr>
+          <td>{{payroll_code}}</td>
+          <td>{{date period_start}} – {{date period_end}}</td>
+          <td>{{employee_count}}</td>
+          <td><span class="badge">{{display_status}}</span></td>
+          <td class="amount">{{money total_net}}</td>
+        </tr>
+        {{else}}
+        <tr>
+          <td colspan="5" class="empty">No payroll runs available.</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>
+<div class="note">
+  Attendance owns time records. Accounting posts approved payroll and releases
+  salaries. PeoplePay reads their shared records.
+</div>

@@ -1,0 +1,104 @@
+<div class="page-heading">
+  <div>
+    <h1>Staff accounts</h1>
+    <p>One login per employee, shared by the ERP modules.</p>
+  </div>
+</div>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Create account</h2>
+    <span class="muted">Add the employee first.</span>
+  </div>
+  <form method="post" action="/users" class="form-content">
+    <input type="hidden" name="_csrf" value="{{csrf}}" /><input
+      type="hidden"
+      name="return_to"
+      value="/users"
+    />
+    <div class="form-grid">
+      <label
+        >Employee<select name="employee_id" required>
+          <option value="">Choose an employee</option>
+          {{#each availableEmployees}}
+          <option value="{{id}}">{{employee_code}} · {{full_name}}</option>
+          {{/each}}
+        </select></label
+      ><label
+        >Username<input
+          name="username"
+          required
+          minlength="3"
+          maxlength="50"
+          pattern="[A-Za-z0-9_.-]+"
+          autocomplete="off" /></label
+      ><label
+        >Role<select name="role">
+          {{#each roles}}
+          <option value="{{this}}">{{this}}</option>
+          {{/each}}
+        </select></label
+      ><label
+        >Password<input
+          type="password"
+          name="password"
+          required
+          minlength="10"
+          maxlength="72"
+          autocomplete="new-password"
+      /></label>
+    </div>
+    <div class="form-actions">
+      <button class="btn primary">Create account</button>
+    </div>
+  </form>
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>Existing accounts</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Employee</th>
+          <th>Role / status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each users}}
+        <tr>
+          <td>{{username}}</td>
+          <td>{{employee_name}}</td>
+          <td>
+            {{#if can_manage}}
+            <form
+              method="post"
+              action="/users/{{id}}/update"
+              class="inline-form compact"
+            >
+              <input type="hidden" name="_csrf" value="{{@root.csrf}}" /><input
+                type="hidden"
+                name="return_to"
+                value="/users"
+              /><select name="role" aria-label="Account role">
+                {{#each @root.roles}}
+                <option value="{{this}}" {{selected this ../role}}>{{this}}</option>
+                {{/each}}</select
+              ><select name="status" aria-label="Account status">
+                <option value="active" {{selected status "active"}}>Active</option>
+                <option value="disabled" {{selected status "disabled"}}>
+                  Disabled
+                </option></select
+              ><button class="btn small">Save</button>
+            </form>
+            {{else}}{{role}} · {{status}}{{/if}}
+          </td>
+        </tr>
+        {{else}}
+        <tr>
+          <td colspan="3" class="empty">No staff accounts.</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>

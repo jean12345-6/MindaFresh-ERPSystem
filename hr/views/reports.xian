@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  {{> head}}
+  <body class="antialiased">
+    {{> sidebar}}
+    <div class="sidebar-backdrop" data-sidebar-close></div>
+    <div class="workspace">
+      {{> headerBar}}
+      <main class="container" id="main-content" tabindex="-1">
+        {{> messages}}
+        {{> pages/reports}}
+      </main>
+      {{> footer}}
+    </div>
+    {{> scripts}}
+  </body>
+</html>

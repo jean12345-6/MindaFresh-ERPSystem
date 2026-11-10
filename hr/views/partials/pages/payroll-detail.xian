@@ -1,0 +1,88 @@
+<div class="page-heading">
+  <div>
+    <h1>{{run.payroll_code}}</h1>
+    <p>
+      {{date run.period_start}} – {{date run.period_end}} ·
+      {{run.employee_count}} employees · {{run.display_status}}
+    </p>
+  </div>
+  <a class="btn" href="/payroll">Back to payroll</a>
+</div>
+{{#if run.is_draft}}
+<div class="note">
+  Review all payslips. Recompute the draft if attendance, leave or employee
+  rates changed. Approval locks this run.
+</div>
+{{else}}
+<div class="note">
+  This payroll is approved and locked. Accounting owns journal posting and
+  salary release.
+</div>
+{{/if}}
+<section class="panel">
+  <div class="panel-heading"><h2>Employee calculations</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Worked</th>
+          <th>Paid leave</th>
+          <th>Holiday</th>
+          <th>Late / undertime</th>
+          <th class="amount">Gross</th>
+          <th class="amount">Net</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each run.items}}
+        <tr>
+          <td>{{employee_name}}</td>
+          <td>{{days_worked}} days</td>
+          <td>{{paid_leave_days}}</td>
+          <td>{{paid_holiday_days}}</td>
+          <td>{{late_minutes}} / {{undertime_minutes}} min</td>
+          <td class="amount">{{money gross_pay}}</td>
+          <td class="amount">{{money net_pay}}</td>
+          <td>
+            <a
+              href="/payslips/{{@root.run.id}}/{{employee_id}}"
+              class="text-link"
+              >Payslip</a
+            >
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel-total">
+    <strong>Total net payroll</strong><strong>{{money run.total_net}}</strong>
+  </div>
+</section>
+{{#if run.is_draft}}
+<div class="actions right">
+  {{#if canManageHR}}
+  <form method="post" action="/payroll/{{run.id}}/recompute">
+    <input type="hidden" name="_csrf" value="{{csrf}}" /><input
+      type="hidden"
+      name="return_to"
+      value="/payroll"
+    /><button class="btn">Recompute draft</button>
+  </form>
+  {{/if}}{{#if isAdmin}}
+  <form
+    method="post"
+    action="/payroll/{{run.id}}/approve"
+    data-confirm="Approve and lock this payroll? Review every payslip first."
+  >
+    <input type="hidden" name="_csrf" value="{{csrf}}" /><input
+      type="hidden"
+      name="return_to"
+      value="/payroll"
+    /><button class="btn primary">Approve payroll</button>
+  </form>
+  {{/if}}
+</div>
+{{/if}}

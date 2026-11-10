@@ -1,0 +1,99 @@
+<form method="post" action="{{formAction}}" class="form-content">
+    <input type="hidden" name="_csrf" value="{{csrf}}" /><input
+      type="hidden"
+      name="return_to"
+      value="/employees"
+    />
+    <div class="form-grid">
+      <label
+        >First name<input
+          type="text"
+          name="first_name"
+          value="{{employee.first_name}}"
+          required
+          maxlength="50" /></label
+      ><label
+        >Last name<input
+          type="text"
+          name="last_name"
+          value="{{employee.last_name}}"
+          required
+          maxlength="50" /></label
+      ><label
+        >Middle name<input
+          type="text"
+          name="middle_name"
+          value="{{employee.middle_name}}"
+          maxlength="50" /></label
+      ><label
+        >Birth date<input
+          type="date"
+          name="birth_date"
+          value="{{employee.birth_date}}" /></label
+      ><label
+        >Email<input
+          type="email"
+          name="email"
+          value="{{employee.email}}"
+          maxlength="100" /></label
+      ><label
+        >Phone<input
+          type="tel"
+          name="phone"
+          value="{{employee.phone}}"
+          maxlength="20" /></label
+      ><label
+        >Address<input
+          type="text"
+          name="address"
+          value="{{employee.address}}"
+          maxlength="255"
+      /></label>
+      <label
+        >Department<select name="department_id" required>
+          {{#each departments}}
+          <option value="{{id}}" {{selected id @root.employee.department_id}}>{{name}}</option>
+          {{/each}}
+        </select></label
+      >
+      <label
+        >Position<input
+          type="text"
+          name="position"
+          value="{{employee.position}}"
+          required
+          maxlength="100" /></label
+      ><label
+        >Employment type<select name="employment_type">
+          <option value="regular" {{selected employee.employment_type "regular"}}>Regular</option>
+          <option value="probationary" {{selected employee.employment_type "probationary"}}>Probationary</option>
+          <option value="contractual" {{selected employee.employment_type "contractual"}}>Contractual</option>
+        </select></label
+      ><label
+        >Daily rate (₱)<input
+          type="number"
+          name="daily_rate"
+          value="{{employee.daily_rate}}"
+          required
+          min="0.01"
+          max="100000"
+          step="0.01" /></label
+      ><label
+        >Hire date<input
+          type="date"
+          name="hire_date"
+          value="{{employee.hire_date}}"
+          required /></label
+      ><label
+        >Status<select name="status">
+          <option value="active" {{selected employee.status "active"}}>Active</option>
+          <option value="inactive" {{selected employee.status "inactive"}}>Inactive</option>
+          <option value="resigned" {{selected employee.status "resigned"}}>Resigned</option>
+        </select></label
+      >
+    </div>
+    <div class="form-actions">
+      <a class="btn" href="/employees">Cancel</a
+      ><button class="btn primary">Save employee</button>
+    </div>
+  </form>

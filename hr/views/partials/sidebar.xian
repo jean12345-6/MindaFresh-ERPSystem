@@ -1,0 +1,43 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+<aside class="sidebar" id="sidebar" aria-label="PeoplePay workspace">
+  <div class="sidebar-brand"><a href="/dashboard" class="brand"><img class="brand-logo" src="/images/mindafresh-logo.svg" alt="MindaFresh logo"><strong>MindaFresh<span>PeoplePay</span></strong></a><button class="sidebar-close" type="button" data-sidebar-close aria-label="Close navigation">×</button></div>
+  <div class="sidebar-caption">HUMAN RESOURCES & PAYROLL</div>
+  <nav aria-label="Main navigation">
+    <p class="sidebar-label">WORKSPACE</p>
+<a href="/profile" class="sidebar-link {{#if activeProfile}}active{{/if}}"><span>My profile</span></a>
+<a href="/dashboard" class="sidebar-link {{#if activeDashboard}}active{{/if}}" {{#if activeDashboard}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"/></svg><span>Dashboard</span>
+</a>
+{{#unless isEmployee}}<a href="/employees" class="sidebar-link {{#if activeEmployees}}active{{/if}}" {{#if activeEmployees}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M16 3a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-3.87 M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0"/></svg><span>Employees</span>
+</a>{{/unless}}
+{{#if canManageHR}}<a href="/attendance" class="sidebar-link {{#if activeAttendance}}active{{/if}}" {{#if activeAttendance}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2 M7 14h3 M14 14h3"/></svg><span>Attendance</span>
+</a>{{/if}}
+{{#unless (eq currentUser.role "accountant")}}<a href="/leaves" class="sidebar-link {{#if activeLeaves}}active{{/if}}" {{#if activeLeaves}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v4l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0"/></svg><span>Leave requests</span>
+</a>{{/unless}}
+{{#if canReadPayroll}}<a href="/payroll" class="sidebar-link {{#if activePayroll}}active{{/if}}" {{#if activePayroll}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8V5H4a2 2 0 0 1 0-4h14 M3 5v16h18V8H3 M16 12h5v5h-5z"/></svg><span>Payroll</span>
+</a>{{/if}}
+<a href="/payslips" class="sidebar-link {{#if activePayslips}}active{{/if}}" {{#if activePayslips}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M8 13h8 M8 17h6"/></svg><span>Payslips</span>
+</a>
+{{#unless isEmployee}}<a href="/reports" class="sidebar-link {{#if activeReports}}active{{/if}}" {{#if activeReports}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18 M7 14v3 M12 9v8 M17 5v12"/></svg><span>Reports</span>
+</a>{{/unless}}
+<p class="sidebar-label">ADMINISTRATION</p>
+{{#if canManageHR}}<a href="/departments" class="sidebar-link {{#if activeDepartments}}active{{/if}}" {{#if activeDepartments}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5l8-3 8 3v16 M8 8h1 M15 8h1 M8 12h1 M15 12h1 M10 21v-5h4v5"/></svg><span>Departments</span>
+</a><a href="/users" class="sidebar-link {{#if activeUsers}}active{{/if}}" {{#if activeUsers}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l9 4v6c0 6-9 10-9 10S3 18 3 12V6z M8 12l3 3 5-6"/></svg><span>Staff accounts</span>
+</a>{{/if}}
+{{#unless isEmployee}}<a href="/connections" class="sidebar-link {{#if activeConnections}}active{{/if}}" {{#if activeConnections}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 .5l3-3a5 5 0 0 0-7-7l-2 2 M14 11a5 5 0 0 0-7-.5l-3 3a5 5 0 0 0 7 7l2-2"/></svg><span>ERP connections</span>
+</a>{{/unless}}
+<a href="/settings" class="sidebar-link {{#if activeSettings}}active{{/if}}" {{#if activeSettings}}aria-current="page"{{/if}}>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M5 19l2-2 M17 7l2-2"/></svg><span>Settings</span>
+</a>
+  </nav>
+  <div class="sidebar-bottom"><span class="status-dot"></span>Part of MindaFresh ERP<small>One database. One connected team.</small></div>
+</aside>

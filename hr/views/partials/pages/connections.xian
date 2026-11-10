@@ -1,0 +1,51 @@
+<div class="page-heading">
+  <div>
+    <h1>ERP connections</h1>
+    <p>Five modules use one database: mindafresh_db.</p>
+  </div>
+</div>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>PeoplePay · HR <span class="badge">Owner</span></h2>
+    <span class="muted">Port 3004</span>
+  </div>
+  <p class="panel-copy">
+    Writes departments, employees, users, leave_requests, payroll_runs and
+    payroll_items. All modules refer to the same employees.id.
+  </p>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Attendance <span class="badge green">Read only</span></h2>
+    <span class="muted">Port 3003</span>
+  </div>
+  <p class="panel-copy">
+    PeoplePay reads attendance_logs and holidays to compute payroll. The
+    Attendance module owns timekeeping and corrections.
+  </p>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Accounting & Finance <span class="badge green">Read only</span></h2>
+    <span class="muted">Port 3005</span>
+  </div>
+  <p class="panel-copy">
+    Accounting reads approved payroll, posts journal_entries and writes
+    salary_releases. PeoplePay shows posted and paid status from those records.
+  </p>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Point of Sale and Online Shop</h2>
+    <span class="muted">Ports 3002 and 3001</span>
+  </div>
+  <p class="panel-copy">
+    Staff use the shared users and employees tables through authService. Shop
+    customer accounts remain separate. No employee data is copied between
+    modules.
+  </p>
+</section>
+<div class="note">
+  These are database integration contracts, not a live health check of the other
+  module servers.
+</div>

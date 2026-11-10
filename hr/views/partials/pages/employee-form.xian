@@ -1,0 +1,10 @@
+<div class="page-heading">
+  <div>
+    <h1>{{title}}</h1>
+    <p>Changes update the shared employee record.</p>
+  </div>
+  <a href="/employees" class="btn">Back to employees</a>
+</div>
+<section class="panel">
+  {{> forms/employeeForm}}
+</section>

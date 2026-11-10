@@ -1,0 +1,50 @@
+<div class="page-heading">
+  <div>
+    <h1>Reports</h1>
+    <p>Workforce and payroll records for review and export.</p>
+  </div>
+  <button class="btn" data-print>Print report</button>
+</div>
+<div class="summary-grid">
+  <article class="summary">
+    <span>Employees</span><strong>{{employees.length}}</strong>
+  </article>
+  <article class="summary">
+    <span>Active</span><strong>{{activeCount}}</strong>
+  </article>
+  <article class="summary">
+    <span>Gross payroll</span><strong>{{money totalGross}}</strong>
+  </article>
+  <article class="summary">
+    <span>Net payroll</span><strong>{{money totalNet}}</strong>
+  </article>
+</div>
+<section class="panel">
+  <div class="panel-heading"><h2>Headcount by department</h2></div>
+  <table>
+    <thead>
+      <tr>
+        <th>Department</th>
+        <th class="amount">Employees</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each departments}}
+      <tr>
+        <td>{{name}}</td>
+        <td class="amount">{{headcount}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</section>
+<section class="panel">
+  <div class="panel-heading"><h2>CSV exports</h2></div>
+  <div class="form-content actions">
+    <a class="btn" href="/reports/employees/export">Employee directory</a>{{#if
+    canManageHR}}<a class="btn" href="/reports/leaves/export">Leave register</a
+    >{{/if}}<a class="btn primary" href="/reports/payroll/export"
+      >Payroll register</a
+    >
+  </div>
+</section>

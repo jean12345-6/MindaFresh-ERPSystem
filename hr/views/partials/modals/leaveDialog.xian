@@ -1,0 +1,42 @@
+<dialog id="leaveDialog">
+  <div class="dialog-heading">
+    <h2>Request leave</h2>
+    <button class="btn small" data-close>Close</button>
+  </div>
+  <form method="post" action="/leaves" class="form-content">
+    <input type="hidden" name="_csrf" value="{{csrf}}" /><input
+      type="hidden"
+      name="return_to"
+      value="/leaves"
+    />
+    <div class="form-grid">
+      <label
+        >Employee<select name="employee_id" required>
+          {{#each employees}}{{#if (eq status "active")}}
+          <option value="{{id}}">{{full_name}}</option>
+          {{/if}}{{/each}}
+        </select></label
+      ><label
+        >Leave type<select name="leave_type">
+          <option value="vacation">Vacation</option>
+          <option value="sick">Sick</option>
+          <option value="emergency">Emergency</option>
+          <option value="unpaid">Unpaid</option>
+        </select></label
+      ><label>Start date<input type="date" name="start_date" required /></label
+      ><label>End date<input type="date" name="end_date" required /></label
+      ><label class="full"
+        >Reason<textarea
+          name="reason"
+          maxlength="255"
+          rows="3"
+          required
+        ></textarea>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn" data-close>Cancel</button
+      ><button class="btn primary">Submit request</button>
+    </div>
+  </form>
+</dialog>

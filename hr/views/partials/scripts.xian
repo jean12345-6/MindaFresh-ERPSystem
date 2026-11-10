@@ -1,0 +1,2 @@
+<script src="/js/dialogs.js" defer></script>
+<script src="/js/sidebar.js" type="module"></script>

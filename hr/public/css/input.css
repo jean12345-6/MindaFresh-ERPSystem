@@ -1,0 +1,4 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* app.css contains the ERP component theme. Tailwind utilities can extend .xian views. */

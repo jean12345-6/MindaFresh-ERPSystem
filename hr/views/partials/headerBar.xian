@@ -1,0 +1,18 @@
+<header class="topbar">
+  <div class="header-row">
+    <div class="header-title">
+      <button type="button" class="sidebar-toggle" data-sidebar-toggle aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="header-suite">MindaFresh ERP</span><span class="header-divider">/</span><strong>{{title}}</strong>
+    </div>
+    <div class="account">
+      <span class="account-avatar">P</span>
+      <div class="account-details"><strong>{{currentUser.username}}</strong><small>{{currentUser.role}}</small></div>
+      <form method="post" action="/logout">
+        <input type="hidden" name="_csrf" value="{{csrf}}">
+        <button class="btn small" type="submit">Logout</button>
+      </form>
+    </div>
+  </div>
+</header>
