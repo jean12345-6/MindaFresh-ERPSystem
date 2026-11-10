@@ -1,0 +1,15 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <h1 class="text-2xl font-extrabold">Reports</h1>
+  <p class="text-sm text-ink-muted">All reports read only the Accounting journal, so they still work when the other modules are off.</p>
+  <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <a href="/reports/trial-balance" class="card p-5 hover:border-brand"><h2 class="font-extrabold">Trial balance</h2><p class="mt-1 text-sm text-ink-muted">Every account's debit or credit balance. Totals must be equal.</p></a>
+    <a href="/reports/income-statement" class="card p-5 hover:border-brand"><h2 class="font-extrabold">Income statement</h2><p class="mt-1 text-sm text-ink-muted">Revenue minus expenses for a date range.</p></a>
+    <a href="/reports/balance-sheet" class="card p-5 hover:border-brand"><h2 class="font-extrabold">Balance sheet</h2><p class="mt-1 text-sm text-ink-muted">Assets = liabilities + equity on a date.</p></a>
+    <a href="/reports/ledger" class="card p-5 hover:border-brand"><h2 class="font-extrabold">General ledger</h2><p class="mt-1 text-sm text-ink-muted">Every line of one account with a running balance.</p></a>
+    <a href="/reports/sales-summary" class="card p-5 hover:border-brand"><h2 class="font-extrabold">Sales summary</h2><p class="mt-1 text-sm text-ink-muted">POS vs Online Shop sales, returns and gross profit.</p></a>
+    <a href="/journal" class="card p-5 hover:border-brand"><h2 class="font-extrabold">Journal</h2><p class="mt-1 text-sm text-ink-muted">All entries with filters by date, type and source.</p></a>
+  </div>
+</main>
+{{> footer}}

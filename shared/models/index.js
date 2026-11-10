@@ -13,6 +13,12 @@ import { CartItem } from "./CartItem.js";
 import { Order } from "./Order.js";
 import { OrderItem } from "./OrderItem.js";
 import { ProductReview } from "./ProductReview.js";
+// Accounting (Jean)
+import { Account } from "./Account.js";
+import { JournalEntry } from "./JournalEntry.js";
+import { JournalLine } from "./JournalLine.js";
+import { SalaryRelease } from "./SalaryRelease.js";
+import { Remittance } from "./Remittance.js";
 
 // HR
 User.belongsTo(Employee, { foreignKey: "employee_id" });
@@ -42,9 +48,19 @@ ProductReview.belongsTo(Order, { foreignKey: "order_id" });
 Product.hasMany(ProductReview, { foreignKey: "product_id" });
 Customer.hasMany(ProductReview, { foreignKey: "customer_id" });
 
+// Accounting (Jean)
+JournalEntry.hasMany(JournalLine, { foreignKey: "journal_entry_id" });
+JournalLine.belongsTo(JournalEntry, { foreignKey: "journal_entry_id" });
+JournalLine.belongsTo(Account, { foreignKey: "account_id" });
+Account.hasMany(JournalLine, { foreignKey: "account_id" });
+JournalEntry.belongsTo(Employee, { as: "PostedBy", foreignKey: "posted_by_id" });
+SalaryRelease.belongsTo(Employee, { as: "ReleasedBy", foreignKey: "released_by_id" });
+Remittance.belongsTo(Employee, { as: "RecordedBy", foreignKey: "recorded_by_id" });
+
 export {
   sequelize,
   Employee, User,
   Category, Product, StockLevel, StockMovement,
-  Customer, CartItem, Order, OrderItem, ProductReview
+  Customer, CartItem, Order, OrderItem, ProductReview,
+  Account, JournalEntry, JournalLine, SalaryRelease, Remittance
 };

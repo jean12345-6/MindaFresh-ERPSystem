@@ -1,0 +1,16 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-6 py-12">
+  <form method="POST" action="/login" class="card w-full max-w-md p-8">
+    <p class="text-sm font-bold uppercase tracking-wide text-brand">Accounting &amp; Finance</p>
+    <h1 class="mt-1 text-2xl font-extrabold">Staff login</h1>
+    <p class="mt-1 text-sm text-ink-muted">Use the same account you use in every MindaFresh module.</p>
+    <label class="label mt-6 block" for="username">Username</label>
+    <input class="field mt-1" id="username" name="username" autocomplete="username" required autofocus placeholder="carla.accountant">
+    <label class="label mt-4 block" for="password">Password</label>
+    <input class="field mt-1" id="password" type="password" name="password" autocomplete="current-password" required>
+    <button class="btn-primary mt-6 w-full" type="submit">Log in</button>
+    <p class="mt-4 text-xs text-ink-muted">For accountants and admins. HR staff can view salary release status.</p>
+  </form>
+</main>
+{{> footer}}

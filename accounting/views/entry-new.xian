@@ -1,0 +1,60 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-5xl flex-1 px-6 py-6">
+  <a href="/journal" class="text-sm font-bold text-brand">← Journal</a>
+  <h1 class="mt-2 text-2xl font-extrabold">New manual entry</h1>
+  <p class="text-sm text-ink-muted">For rent, utilities, supplier payments and other items not coming from another module. Debits must equal credits.</p>
+  <form method="POST" action="/journal" class="card mt-4 p-6" id="entryForm">
+    <div class="grid gap-4 sm:grid-cols-4">
+      <div><label class="label">Date</label><input class="field mt-1" type="date" name="entry_date" value="{{#if old}}{{old.entry_date}}{{else}}{{today}}{{/if}}" required></div>
+      <div class="sm:col-span-3"><label class="label">Description</label><input class="field mt-1" name="description" maxlength="255" value="{{old.description}}" placeholder="Paid October rent" required></div>
+    </div>
+    <table class="mt-5 w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-1">Account</th><th class="w-36">Debit</th><th class="w-36">Credit</th><th>Memo</th></tr></thead>
+      <tbody id="lines"></tbody>
+      <tfoot><tr class="font-extrabold"><td class="py-2 text-right">Totals</td><td id="tDebit">0.00</td><td id="tCredit">0.00</td><td id="tState" class="text-sm"></td></tr></tfoot>
+    </table>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <button type="button" class="btn-outline" onclick="addLine()">Add line</button>
+      <button type="submit" class="btn-primary disabled:cursor-not-allowed disabled:opacity-40" id="saveBtn">Post entry</button>
+    </div>
+  </form>
+</main>
+<template id="lineTpl">
+  <tr class="border-t border-line">
+    <td class="py-1.5 pr-2"><select class="field" name="account_code"><option value="">Choose account…</option>{{#each accounts}}<option value="{{account_code}}">{{account_code}} {{account_name}}</option>{{/each}}</select></td>
+    <td class="pr-2"><input class="field" name="debit" type="number" step="0.01" min="0" placeholder="0.00"></td>
+    <td class="pr-2"><input class="field" name="credit" type="number" step="0.01" min="0" placeholder="0.00"></td>
+    <td><input class="field" name="memo" maxlength="255"></td>
+  </tr>
+</template>
+<script>
+  const old = {{{json old}}};
+  const body = document.getElementById("lines");
+  function addLine(l) {
+    const row = document.getElementById("lineTpl").content.cloneNode(true);
+    if (l) {
+      row.querySelector("select").value = l.code;
+      if (l.debit) row.querySelector("[name=debit]").value = l.debit;
+      if (l.credit) row.querySelector("[name=credit]").value = l.credit;
+      row.querySelector("[name=memo]").value = l.memo || "";
+    }
+    body.appendChild(row);
+  }
+  function totals() {
+    let d = 0, c = 0;
+    body.querySelectorAll("tr").forEach(r => { d += Number(r.querySelector("[name=debit]").value || 0); c += Number(r.querySelector("[name=credit]").value || 0); });
+    d = Math.round(d * 100) / 100; c = Math.round(c * 100) / 100;
+    document.getElementById("tDebit").textContent = d.toFixed(2);
+    document.getElementById("tCredit").textContent = c.toFixed(2);
+    const ok = d > 0 && d === c;
+    const s = document.getElementById("tState");
+    s.textContent = ok ? "Balanced" : "Difference " + Math.abs(d - c).toFixed(2);
+    s.className = "text-sm " + (ok ? "text-leaf" : "text-danger");
+    document.getElementById("saveBtn").disabled = !ok;
+  }
+  (old && old.lines && old.lines.length ? old.lines : [null, null]).forEach(addLine);
+  body.addEventListener("input", totals);
+  totals();
+</script>
+{{> footer}}

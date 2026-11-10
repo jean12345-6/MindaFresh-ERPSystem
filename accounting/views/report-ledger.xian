@@ -1,0 +1,31 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <form class="flex flex-wrap items-end justify-between gap-3 print:hidden" method="GET">
+    <a href="/reports" class="text-sm font-bold text-brand">← Reports</a>
+    <div class="flex flex-wrap items-end gap-2">
+      <div><label class="label">Account</label><select class="field mt-1" name="account_id">{{#each accounts}}<option value="{{id}}" {{#if (eq id ../account_id)}}selected{{/if}}>{{account_code}} {{account_name}}</option>{{/each}}</select></div>
+      <div><label class="label">From</label><input class="field mt-1" type="date" name="from" value="{{from}}"></div>
+      <div><label class="label">To</label><input class="field mt-1" type="date" name="to" value="{{to}}"></div>
+      <button class="btn-dark">Show</button><button type="button" onclick="window.print()" class="btn-outline">Print</button>
+    </div>
+  </form>
+  {{#if gl}}
+  <div class="card mt-4 overflow-x-auto p-6">
+    <p class="text-sm font-bold text-ink-muted">General ledger · {{from}} to {{to}}</p>
+    <h1 class="text-2xl font-extrabold">{{gl.account.account_code}} {{gl.account.account_name}}</h1>
+    <p class="text-sm text-ink-muted">{{gl.account.account_type}} · normal balance {{gl.account.normal_balance}}</p>
+    <table class="mt-4 w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-2">Date</th><th>Entry</th><th>Description</th><th class="text-right">Debit</th><th class="text-right">Credit</th><th class="text-right">Balance</th></tr></thead>
+      <tbody>
+        <tr class="border-t border-line bg-cream"><td class="py-1.5" colspan="5">Opening balance</td><td class="text-right font-bold">{{peso gl.opening}}</td></tr>
+        {{#each gl.rows}}
+        <tr class="border-t border-line"><td class="whitespace-nowrap py-1.5 pr-3">{{entry_date}}</td><td class="whitespace-nowrap pr-3"><a class="font-bold text-brand" href="/journal/{{entry_code}}">{{entry_code}}</a></td><td>{{description}}{{#if memo}} <span class="text-ink-muted">· {{memo}}</span>{{/if}}</td><td class="text-right">{{pesoOrBlank debit}}</td><td class="text-right">{{pesoOrBlank credit}}</td><td class="text-right">{{peso balance}}</td></tr>
+        {{else}}<tr><td colspan="6" class="py-3 text-ink-muted">No activity in this period.</td></tr>{{/each}}
+      </tbody>
+      <tfoot><tr class="border-t-2 border-ink font-extrabold"><td class="py-2" colspan="3">Closing balance</td><td class="text-right">{{peso gl.total_debit}}</td><td class="text-right">{{peso gl.total_credit}}</td><td class="text-right">{{peso gl.closing}}</td></tr></tfoot>
+    </table>
+  </div>
+  {{/if}}
+</main>
+{{> footer}}

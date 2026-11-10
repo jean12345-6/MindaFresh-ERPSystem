@@ -1,0 +1,47 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold">Post new transactions</h1>
+      <p class="text-sm text-ink-muted">Sales, orders, purchases, stock adjustments and payroll from the other modules that are not in the journal yet.</p>
+    </div>
+    <form method="POST" action="/post"><button class="btn-primary disabled:cursor-not-allowed disabled:opacity-40" {{#unless total}}disabled{{/unless}}>Post {{total}} transaction(s)</button></form>
+  </div>
+
+  {{#if result}}
+  <section class="card mt-5 p-5">
+    <h2 class="font-extrabold">Last posting</h2>
+    {{#if result.done.length}}
+    <table class="mt-2 w-full text-sm"><thead class="text-left text-ink-muted"><tr><th class="py-1">Type</th><th>Source</th><th>Journal entry</th></tr></thead><tbody>
+      {{#each result.done}}<tr class="border-t border-line"><td class="py-1">{{kind}}</td><td>{{code}}</td><td><a class="font-bold text-brand" href="/journal/{{entry_code}}">{{entry_code}}</a></td></tr>{{/each}}
+    </tbody></table>
+    {{/if}}
+    {{#each result.failed}}<p class="mt-2 text-sm font-semibold text-danger">{{kind}} {{code}}: {{message}}</p>{{/each}}
+  </section>
+  {{/if}}
+
+  {{#each groups}}
+  <section class="card mt-5 p-5">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 class="font-extrabold">{{title}} <span class="badge {{#if rows.length}}bg-peach text-brand-dark{{else}}bg-leaf-bg text-leaf{{/if}}">{{rows.length}}</span></h2>
+      <span class="text-xs text-ink-muted">From {{from}} · {{rule}}</span>
+    </div>
+    {{#if rows.length}}
+    <table class="mt-3 w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-1">Reference</th><th>Date</th><th>Details</th><th class="text-right">Amount</th></tr></thead>
+      <tbody>
+      {{#each rows}}
+        <tr class="border-t border-line">
+          <td class="whitespace-nowrap py-1.5 pr-3 font-bold">{{code}}</td><td class="whitespace-nowrap pr-3">{{event_date}}</td>
+          <td>{{#if payment_method}}{{label payment_method}}{{/if}}{{#if supplier_name}} · {{supplier_name}}{{/if}}{{#if product_name}}{{product_name}} ({{quantity_change}}) {{remarks}}{{/if}}{{#if period_start}}{{period_start}} to {{period_end}} · {{employee_count}} employees{{/if}}{{#if void_reason}}Void: {{void_reason}}{{/if}}{{#if order_status}}{{label order_status}} / {{label payment_status}}{{/if}}</td>
+          <td class="text-right">{{#if total_amount}}{{peso total_amount}}{{/if}}{{#if total_net}}{{peso total_net}} net{{/if}}{{#if quantity_change}}{{peso unit_cost}} each{{/if}}{{#unless total_amount}}{{#if total_cost}}{{peso total_cost}}{{/if}}{{/unless}}</td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+    {{else}}<p class="mt-2 text-sm text-ink-muted">Nothing waiting.</p>{{/if}}
+  </section>
+  {{/each}}
+</main>
+{{> footer}}

@@ -1,0 +1,24 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-4xl flex-1 px-6 py-6">
+  <form class="flex flex-wrap items-end justify-between gap-3 print:hidden" method="GET">
+    <a href="/reports" class="text-sm font-bold text-brand">← Reports</a>
+    <div class="flex items-end gap-2"><div><label class="label">From</label><input class="field mt-1" type="date" name="from" value="{{from}}"></div><div><label class="label">To</label><input class="field mt-1" type="date" name="to" value="{{to}}"></div><button class="btn-dark">Show</button><button type="button" onclick="window.print()" class="btn-outline">Print</button></div>
+  </form>
+  <div class="card mt-4 p-6">
+    <p class="text-sm font-bold text-ink-muted">MindaFresh Food Distribution, Inc.</p>
+    <h1 class="text-2xl font-extrabold">Income statement</h1>
+    <p class="text-sm text-ink-muted">{{from}} to {{to}}</p>
+    <h2 class="mt-5 font-extrabold">Revenue</h2>
+    <table class="w-full text-sm"><tbody>{{#each is.revenue}}<tr class="border-t border-line"><td class="py-1.5">{{account_code}} {{account_name}}</td><td class="text-right">{{peso balance}}</td></tr>{{else}}<tr><td class="py-1.5 text-ink-muted">No revenue in this period</td></tr>{{/each}}
+      <tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2">Total revenue</td><td class="text-right">{{peso is.total_revenue}}</td></tr></tbody></table>
+    <h2 class="mt-5 font-extrabold">Expenses</h2>
+    <table class="w-full text-sm"><tbody>{{#each is.expenses}}<tr class="border-t border-line"><td class="py-1.5">{{account_code}} {{account_name}}</td><td class="text-right">{{peso balance}}</td></tr>{{else}}<tr><td class="py-1.5 text-ink-muted">No expenses in this period</td></tr>{{/each}}
+      <tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2">Total expenses</td><td class="text-right">{{peso is.total_expenses}}</td></tr></tbody></table>
+    <table class="mt-5 w-full text-sm"><tbody>
+      <tr><td class="py-1.5 text-ink-muted">Gross profit (revenue − cost of goods sold)</td><td class="text-right font-semibold">{{peso is.gross_profit}}</td></tr>
+      <tr class="border-t-2 border-ink text-lg font-extrabold"><td class="py-2">{{#if (lt is.net_income 0)}}Net loss{{else}}Net income{{/if}}</td><td class="text-right {{#if (lt is.net_income 0)}}text-danger{{else}}text-leaf{{/if}}">{{peso is.net_income}}</td></tr>
+    </tbody></table>
+  </div>
+</main>
+{{> footer}}

@@ -1,0 +1,48 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <h1 class="text-2xl font-extrabold">Government remittances</h1>
+  <p class="text-sm text-ink-muted">Pay what payroll withheld. SSS, PhilHealth, Pag-IBIG: Dr Government Contributions Payable. BIR: Dr Withholding Tax Payable. Both Cr Cash in Bank.</p>
+  <div class="mt-4 grid gap-4 lg:grid-cols-3">
+    <div class="card overflow-x-auto p-4 lg:col-span-2">
+      <table class="w-full text-sm">
+        <thead class="text-left text-ink-muted"><tr><th class="py-2">Code</th><th>Agency</th><th>Month</th><th class="text-right">Amount</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {{#each rows}}
+          <tr class="border-t border-line">
+            <td class="py-2 font-bold">{{remittance_code}}</td><td>{{upper agency}}</td><td>{{period_month}}</td><td class="text-right">{{peso amount}}</td>
+            <td>{{#if (eq status "paid")}}<span class="badge bg-leaf-bg text-leaf">paid</span><div class="text-xs text-ink-muted">{{dateTime paid_at}}{{#if reference_number}} · ref {{reference_number}}{{/if}}</div>{{else}}<span class="badge bg-peach text-brand-dark">pending</span>{{/if}}</td>
+            <td class="text-right">{{#if (eq status "pending")}}
+              <form method="POST" action="/remittances/{{id}}/pay" class="flex justify-end gap-2"><input class="field min-h-[40px] w-32" name="reference_number" placeholder="Receipt no." value="{{reference_number}}"><button class="btn-primary min-h-[40px]">Pay</button></form>
+            {{/if}}</td>
+          </tr>
+        {{else}}<tr><td colspan="6" class="py-4 text-ink-muted">No remittances yet.</td></tr>{{/each}}
+        </tbody>
+      </table>
+    </div>
+    <form method="POST" action="/remittances" class="card h-fit p-5">
+      <h2 class="font-extrabold">Record a remittance</h2>
+      <label class="label mt-3 block">Agency</label>
+      <select class="field mt-1" name="agency" id="agency"><option value="sss">SSS</option><option value="philhealth">PhilHealth</option><option value="pagibig">Pag-IBIG</option><option value="bir">BIR (withholding tax)</option></select>
+      <label class="label mt-3 block">Month</label><input class="field mt-1" type="month" name="period_month" id="period" value="{{month}}" required>
+      <label class="label mt-3 block">Amount</label><input class="field mt-1" type="number" step="0.01" min="0.01" name="amount" id="amount" required>
+      <p class="mt-1 text-xs text-ink-muted" id="hint"></p>
+      <label class="label mt-3 block">Agency receipt number</label><input class="field mt-1" name="reference_number" maxlength="50">
+      <label class="mt-3 flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="pay_now" value="1" checked> Paid already (post it now)</label>
+      <button class="btn-primary mt-4 w-full">Save</button>
+    </form>
+  </div>
+</main>
+<script>
+  async function suggest() {
+    const a = document.getElementById("agency").value, p = document.getElementById("period").value;
+    const r = await fetch(`/remittances/suggest?agency=${a}&period_month=${p}`);
+    const { amount } = await r.json();
+    document.getElementById("hint").textContent = amount > 0 ? `Payroll withheld ₱${amount.toFixed(2)} for ${p}.` : `No approved payroll withheld anything for ${p}.`;
+    if (amount > 0) document.getElementById("amount").value = amount.toFixed(2);
+  }
+  document.getElementById("agency").addEventListener("change", suggest);
+  document.getElementById("period").addEventListener("change", suggest);
+  suggest();
+</script>
+{{> footer}}

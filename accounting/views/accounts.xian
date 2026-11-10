@@ -1,0 +1,38 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <h1 class="text-2xl font-extrabold">Chart of accounts</h1>
+  <p class="text-sm text-ink-muted">Balances include every posted entry up to today.</p>
+  <div class="mt-4 grid gap-4 lg:grid-cols-3">
+    <div class="space-y-4 lg:col-span-2">
+      {{#each groups}}
+      <section class="card p-5">
+        <h2 class="font-extrabold capitalize">{{type}}</h2>
+        <table class="mt-2 w-full text-sm">
+          <thead class="text-left text-ink-muted"><tr><th class="py-1">Code</th><th>Name</th><th>Normal</th><th class="text-right">Balance</th><th></th></tr></thead>
+          <tbody>
+          {{#each rows}}
+            <tr class="border-t border-line {{#unless is_active}}opacity-50{{/unless}}">
+              <td class="py-1.5 font-bold">{{account_code}}</td>
+              <td><a class="text-brand" href="/reports/ledger?account_id={{id}}">{{account_name}}</a>{{#unless is_active}} <span class="badge bg-line text-ink-muted">inactive</span>{{/unless}}</td>
+              <td>{{normal_balance}}</td><td class="text-right">{{peso balance}}</td>
+              <td class="text-right"><form method="POST" action="/accounts/{{id}}/toggle"><button class="text-xs font-bold text-ink-muted hover:text-brand">{{#if is_active}}Turn off{{else}}Turn on{{/if}}</button></form></td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </section>
+      {{/each}}
+    </div>
+    <form method="POST" action="/accounts" class="card h-fit p-5">
+      <h2 class="font-extrabold">Add an account</h2>
+      <label class="label mt-3 block">Code (4 digits)</label><input class="field mt-1" name="account_code" pattern="\d{4}" placeholder="6050" required>
+      <label class="label mt-3 block">Name</label><input class="field mt-1" name="account_name" maxlength="100" placeholder="Office Supplies Expense" required>
+      <label class="label mt-3 block">Type</label>
+      <select class="field mt-1" name="account_type" required>{{#each types}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+      <p class="mt-2 text-xs text-ink-muted">Normal balance is set from the type: assets and expenses are debit; liabilities, equity and revenue are credit.</p>
+      <button class="btn-primary mt-4 w-full">Add account</button>
+    </form>
+  </div>
+</main>
+{{> footer}}

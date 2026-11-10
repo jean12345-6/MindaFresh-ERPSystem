@@ -1,0 +1,68 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold">Dashboard</h1>
+      <p class="text-sm text-ink-muted">As of {{today}} · this month from {{monthStart}}</p>
+    </div>
+    <a href="/journal/new" class="btn-outline">New manual entry</a>
+  </div>
+
+  <section class="mt-5 rounded-[20px] border {{#if (gt pending.total 0)}}border-brand-light bg-peach-soft{{else}}border-line bg-white{{/if}} p-5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-lg font-extrabold">{{#if (gt pending.total 0)}}{{pending.total}} transaction(s) waiting to be posted{{else}}Journal is up to date{{/if}}</h2>
+        <p class="mt-1 text-sm text-ink-soft">
+          POS sales {{pending.posSales}} · POS voids {{pending.posVoids}} · Online orders {{pending.shopSales}} · Online returns {{pending.shopReversals}} ·
+          Purchases {{pending.purchases}} · Stock adjustments {{pending.adjustments}} · Payroll {{pending.payrolls}}
+        </p>
+      </div>
+      <a href="/post" class="btn-primary">Review and post</a>
+    </div>
+  </section>
+
+  <section class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Cash on hand</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.cash}}</p></div>
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Cash in bank / e-wallet</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.bank}}</p></div>
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Merchandise inventory</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.inventory}}</p></div>
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Total payables</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.payables}}</p></div>
+  </section>
+
+  <section class="mt-4 grid gap-4 lg:grid-cols-3">
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Revenue this month</p><p class="mt-1 text-2xl font-extrabold">{{peso month.total_revenue}}</p></div>
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Expenses this month</p><p class="mt-1 text-2xl font-extrabold">{{peso month.total_expenses}}</p></div>
+    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Net income this month</p><p class="mt-1 text-2xl font-extrabold {{#if (lt month.net_income 0)}}text-danger{{else}}text-leaf{{/if}}">{{peso month.net_income}}</p></div>
+  </section>
+
+  <section class="mt-4 grid gap-4 lg:grid-cols-3">
+    <div class="card p-5 lg:col-span-2">
+      <div class="flex items-center justify-between"><h2 class="font-extrabold">Latest journal entries</h2><a href="/journal" class="text-sm font-bold text-brand">See all</a></div>
+      <table class="mt-3 w-full text-sm">
+        <thead class="text-left text-ink-muted"><tr><th class="py-2">Entry</th><th>Date</th><th>Description</th><th class="text-right">Amount</th></tr></thead>
+        <tbody>
+        {{#each recent}}
+          <tr class="border-t border-line"><td class="whitespace-nowrap py-2 pr-3"><a class="font-bold text-brand" href="/journal/{{entry_code}}">{{entry_code}}</a></td><td class="whitespace-nowrap pr-3">{{entry_date}}</td><td>{{description}}{{#if (eq status "voided")}} <span class="badge bg-danger-bg text-danger">voided</span>{{/if}}</td><td class="whitespace-nowrap text-right">{{peso total_debit}}</td></tr>
+        {{else}}
+          <tr><td colspan="4" class="py-4 text-ink-muted">No entries yet.</td></tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <div class="card p-5">
+      <h2 class="font-extrabold">To do</h2>
+      <ul class="mt-3 space-y-3 text-sm">
+        <li class="flex items-center justify-between"><span>Salary releases pending</span><a href="/salary-releases" class="badge {{#if (gt releases 0)}}bg-peach text-brand-dark{{else}}bg-leaf-bg text-leaf{{/if}}">{{releases}}</a></li>
+        <li class="flex items-center justify-between"><span>Remittances pending</span><a href="/remittances" class="badge {{#if (gt remits 0)}}bg-peach text-brand-dark{{else}}bg-leaf-bg text-leaf{{/if}}">{{remits}}</a></li>
+      </ul>
+      <h2 class="mt-6 font-extrabold">Reports</h2>
+      <div class="mt-3 flex flex-col gap-2 text-sm font-semibold">
+        <a class="text-brand" href="/reports/trial-balance">Trial balance</a>
+        <a class="text-brand" href="/reports/income-statement">Income statement</a>
+        <a class="text-brand" href="/reports/balance-sheet">Balance sheet</a>
+        <a class="text-brand" href="/reports/sales-summary">Sales summary (POS vs Online)</a>
+      </div>
+    </div>
+  </section>
+</main>
+{{> footer}}

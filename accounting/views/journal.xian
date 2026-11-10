@@ -1,0 +1,33 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <h1 class="text-2xl font-extrabold">Journal</h1>
+    <a href="/journal/new" class="btn-primary">New manual entry</a>
+  </div>
+  <form class="card mt-4 grid gap-3 p-4 sm:grid-cols-6" method="GET" action="/journal">
+    <div><label class="label">From</label><input class="field mt-1" type="date" name="from" value="{{f.from}}"></div>
+    <div><label class="label">To</label><input class="field mt-1" type="date" name="to" value="{{f.to}}"></div>
+    <div><label class="label">Type</label><select class="field mt-1" name="type"><option value="">All</option>{{#each types}}<option value="{{this}}" {{#if (eq this ../f.type)}}selected{{/if}}>{{label this}}</option>{{/each}}</select></div>
+    <div><label class="label">Source</label><select class="field mt-1" name="source"><option value="">All</option>{{#each sources}}<option value="{{this}}" {{#if (eq this ../f.source)}}selected{{/if}}>{{this}}</option>{{/each}}</select></div>
+    <div><label class="label">Search</label><input class="field mt-1" name="q" value="{{f.q}}" placeholder="TXN, SAL, ORD…"></div>
+    <div class="flex items-end"><button class="btn-dark w-full">Filter</button></div>
+  </form>
+  <div class="card mt-4 overflow-x-auto p-4">
+    <table class="w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-2">Entry</th><th>Date</th><th>Type</th><th>Source</th><th>Reference</th><th>Description</th><th class="text-right">Amount</th></tr></thead>
+      <tbody>
+      {{#each rows}}
+        <tr class="border-t border-line {{#if (eq status 'voided')}}opacity-50{{/if}}">
+          <td class="whitespace-nowrap py-2 pr-3"><a class="font-bold text-brand" href="/journal/{{entry_code}}">{{entry_code}}</a></td>
+          <td class="whitespace-nowrap pr-3">{{entry_date}}</td><td class="whitespace-nowrap pr-3">{{label entry_type}}</td><td class="pr-3">{{source_module}}</td><td class="whitespace-nowrap pr-3">{{reference_code}}</td>
+          <td>{{description}}{{#if (eq status "voided")}} <span class="badge bg-danger-bg text-danger">voided</span>{{/if}}</td>
+          <td class="text-right">{{peso total_debit}}</td>
+        </tr>
+      {{else}}<tr><td colspan="7" class="py-4 text-ink-muted">No entries for these filters.</td></tr>{{/each}}
+      </tbody>
+      <tfoot><tr class="border-t-2 border-line-strong font-extrabold"><td colspan="6" class="py-2">Total posted ({{rows.length}} shown)</td><td class="text-right">{{peso total}}</td></tr></tfoot>
+    </table>
+  </div>
+</main>
+{{> footer}}

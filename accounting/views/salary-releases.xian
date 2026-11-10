@@ -1,0 +1,32 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
+  <h1 class="text-2xl font-extrabold">Salary releases</h1>
+  <p class="text-sm text-ink-muted">A release is created when an approved payroll run from HR is posted. Releasing it pays the net salaries: Dr Salaries Payable, Cr Cash in Bank (or Cash on Hand).</p>
+  <div class="card mt-4 overflow-x-auto p-4">
+    <table class="w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-2">Release</th><th>Payroll</th><th>Period</th><th class="text-right">Employees</th><th class="pr-6 text-right">Net pay</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {{#each rows}}
+        <tr class="border-t border-line">
+          <td class="py-2 font-bold">{{release_code}}</td><td>{{payroll_code}}</td>
+          <td>{{period_start}} to {{period_end}}</td>
+          <td class="text-right">{{employee_count}}</td><td class="whitespace-nowrap pr-6 text-right">{{peso total_net}}</td>
+          <td>{{#if (eq status "released")}}<span class="badge bg-leaf-bg text-leaf">released</span><div class="text-xs text-ink-muted">{{label release_method}} · {{dateTime released_at}}{{#if released_by}} · {{released_by}}{{/if}}</div>{{else}}<span class="badge bg-peach text-brand-dark">pending</span>{{/if}}</td>
+          <td class="text-right">
+            {{#if (and (eq status "pending") (hasRole ../currentUser "accountant" "admin"))}}
+            <form method="POST" action="/salary-releases/{{id}}/release" class="flex items-center justify-end gap-2" onsubmit="return confirm('Release {{peso total_net}} in salaries for {{payroll_code}}?')">
+              <select class="field min-h-[40px] w-40" name="release_method"><option value="bank_transfer">Bank transfer</option><option value="cash">Cash</option></select>
+              <button class="btn-primary min-h-[40px]">Release</button>
+            </form>
+            {{/if}}
+          </td>
+        </tr>
+      {{else}}
+        <tr><td colspan="7" class="py-4 text-ink-muted">No payroll has been posted yet. When HR approves a payroll run, post it on <a class="font-bold text-brand" href="/post">Post transactions</a>.</td></tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
+{{> footer}}

@@ -1,0 +1,36 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-4xl flex-1 px-6 py-6">
+  <a href="/journal" class="text-sm font-bold text-brand print:hidden">← Journal</a>
+  <div class="card mt-3 p-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <p class="text-sm font-bold uppercase tracking-wide text-brand">{{label e.entry_type}} · {{e.source_module}}</p>
+        <h1 class="text-2xl font-extrabold">{{e.entry_code}}</h1>
+        <p class="mt-1 text-ink-soft">{{e.description}}</p>
+      </div>
+      <span class="badge {{#if (eq e.status 'posted')}}bg-leaf-bg text-leaf{{else}}bg-danger-bg text-danger{{/if}}">{{e.status}}</span>
+    </div>
+    <dl class="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+      <div><dt class="text-ink-muted">Date</dt><dd class="font-semibold">{{e.entry_date}}</dd></div>
+      <div><dt class="text-ink-muted">Reference</dt><dd class="font-semibold">{{#if e.reference_code}}{{e.reference_code}}{{else}}—{{/if}}</dd></div>
+      <div><dt class="text-ink-muted">Posted by</dt><dd class="font-semibold">{{#if e.PostedBy}}{{e.PostedBy.first_name}} {{e.PostedBy.last_name}} ({{e.PostedBy.employee_code}}){{else}}—{{/if}} · {{dateTime e.createdAt}}</dd></div>
+    </dl>
+    <table class="mt-5 w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-2">Account</th><th>Memo</th><th class="text-right">Debit</th><th class="text-right">Credit</th></tr></thead>
+      <tbody>
+      {{#each e.JournalLines}}
+        <tr class="border-t border-line"><td class="py-2 {{#if (gt credit 0)}}pl-6{{/if}}"><strong>{{Account.account_code}}</strong> {{Account.account_name}}</td><td class="text-ink-muted">{{memo}}</td><td class="text-right">{{pesoOrBlank debit}}</td><td class="text-right">{{pesoOrBlank credit}}</td></tr>
+      {{/each}}
+      </tbody>
+      <tfoot><tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2" colspan="2">Total</td><td class="text-right">{{peso e.total_debit}}</td><td class="text-right">{{peso e.total_credit}}</td></tr></tfoot>
+    </table>
+    <div class="mt-6 flex gap-3 print:hidden">
+      <button onclick="window.print()" class="btn-outline">Print</button>
+      {{#if (and (eq e.entry_type "manual") (eq e.status "posted"))}}
+      <form method="POST" action="/journal/{{e.entry_code}}/void" onsubmit="return confirm('Void {{e.entry_code}}? It will no longer count in any report.')"><button class="btn-danger">Void this entry</button></form>
+      {{/if}}
+    </div>
+  </div>
+</main>
+{{> footer}}

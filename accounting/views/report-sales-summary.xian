@@ -1,0 +1,20 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-5xl flex-1 px-6 py-6">
+  <form class="flex flex-wrap items-end justify-between gap-3 print:hidden" method="GET">
+    <a href="/reports" class="text-sm font-bold text-brand">← Reports</a>
+    <div class="flex items-end gap-2"><div><label class="label">From</label><input class="field mt-1" type="date" name="from" value="{{from}}"></div><div><label class="label">To</label><input class="field mt-1" type="date" name="to" value="{{to}}"></div><button class="btn-dark">Show</button><button type="button" onclick="window.print()" class="btn-outline">Print</button></div>
+  </form>
+  <div class="card mt-4 overflow-x-auto p-6">
+    <p class="text-sm font-bold text-ink-muted">MindaFresh Food Distribution, Inc.</p>
+    <h1 class="text-2xl font-extrabold">Sales summary: POS vs Online</h1>
+    <p class="text-sm text-ink-muted">{{from}} to {{to}} · from posted sales and reversals</p>
+    <table class="mt-4 w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-2">Channel</th><th class="text-right">Sales</th><th class="text-right">Voids / returns</th><th class="text-right">Gross sales</th><th class="text-right">Less returns</th><th class="text-right">Net sales</th><th class="text-right">Cost of goods</th><th class="text-right">Gross profit</th></tr></thead>
+      <tbody>{{#each ss.channels}}<tr class="border-t border-line"><td class="py-2 font-bold">{{name}}</td><td class="text-right">{{transactions}}</td><td class="text-right">{{reversals}}</td><td class="text-right">{{peso gross_sales}}</td><td class="text-right">{{peso returns}}</td><td class="text-right">{{peso net_sales}}</td><td class="text-right">{{peso cogs}}</td><td class="text-right">{{peso gross_profit}}</td></tr>{{/each}}</tbody>
+      <tfoot><tr class="border-t-2 border-ink font-extrabold"><td class="py-2">{{ss.total.name}}</td><td class="text-right">{{ss.total.transactions}}</td><td class="text-right">{{ss.total.reversals}}</td><td class="text-right">{{peso ss.total.gross_sales}}</td><td class="text-right">{{peso ss.total.returns}}</td><td class="text-right">{{peso ss.total.net_sales}}</td><td class="text-right">{{peso ss.total.cogs}}</td><td class="text-right">{{peso ss.total.gross_profit}}</td></tr></tfoot>
+    </table>
+    <p class="mt-3 text-xs text-ink-muted">Online gross sales include delivery fees (account 4030). Sales not posted yet are not counted; post them first on Post transactions.</p>
+  </div>
+</main>
+{{> footer}}

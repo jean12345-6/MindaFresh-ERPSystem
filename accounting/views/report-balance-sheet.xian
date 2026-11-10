@@ -1,0 +1,26 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-4xl flex-1 px-6 py-6">
+  <form class="flex flex-wrap items-end justify-between gap-3 print:hidden" method="GET">
+    <a href="/reports" class="text-sm font-bold text-brand">← Reports</a>
+    <div class="flex items-end gap-2"><div><label class="label">As of</label><input class="field mt-1" type="date" name="as_of" value="{{as_of}}"></div><button class="btn-dark">Show</button><button type="button" onclick="window.print()" class="btn-outline">Print</button></div>
+  </form>
+  <div class="card mt-4 p-6">
+    <p class="text-sm font-bold text-ink-muted">MindaFresh Food Distribution, Inc.</p>
+    <h1 class="text-2xl font-extrabold">Balance sheet</h1>
+    <p class="text-sm text-ink-muted">As of {{as_of}}</p>
+    <h2 class="mt-5 font-extrabold">Assets</h2>
+    <table class="w-full text-sm"><tbody>{{#each bs.assets}}<tr class="border-t border-line"><td class="py-1.5">{{account_code}} {{account_name}}</td><td class="text-right">{{peso balance}}</td></tr>{{/each}}
+      <tr class="border-t-2 border-ink font-extrabold"><td class="py-2">Total assets</td><td class="text-right">{{peso bs.total_assets}}</td></tr></tbody></table>
+    <h2 class="mt-5 font-extrabold">Liabilities</h2>
+    <table class="w-full text-sm"><tbody>{{#each bs.liabilities}}<tr class="border-t border-line"><td class="py-1.5">{{account_code}} {{account_name}}</td><td class="text-right">{{peso balance}}</td></tr>{{else}}<tr><td class="py-1.5 text-ink-muted">No liabilities</td></tr>{{/each}}
+      <tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2">Total liabilities</td><td class="text-right">{{peso bs.total_liabilities}}</td></tr></tbody></table>
+    <h2 class="mt-5 font-extrabold">Equity</h2>
+    <table class="w-full text-sm"><tbody>{{#each bs.equity}}<tr class="border-t border-line"><td class="py-1.5">{{account_code}} {{account_name}}</td><td class="text-right">{{peso balance}}</td></tr>{{/each}}
+      <tr class="border-t border-line"><td class="py-1.5">Earnings to date (revenue − expenses)</td><td class="text-right">{{peso bs.earnings}}</td></tr>
+      <tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2">Total equity</td><td class="text-right">{{peso bs.total_equity}}</td></tr></tbody></table>
+    <table class="mt-4 w-full text-sm"><tbody><tr class="border-t-2 border-ink font-extrabold"><td class="py-2">Total liabilities and equity</td><td class="text-right">{{peso bs.total_le}}</td></tr></tbody></table>
+    <p class="mt-4 badge {{#if bs.balanced}}bg-leaf-bg text-leaf{{else}}bg-danger-bg text-danger{{/if}}">{{#if bs.balanced}}Balanced: assets = liabilities + equity{{else}}Not balanced — check the journal{{/if}}</p>
+  </div>
+</main>
+{{> footer}}
