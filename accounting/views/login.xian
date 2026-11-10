@@ -1,16 +1,47 @@
 {{> head}}
-{{> nav}}
-<main class="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-6 py-12">
-  <form method="POST" action="/login" class="card w-full max-w-md p-8">
-    <p class="text-sm font-bold uppercase tracking-wide text-brand">Accounting &amp; Finance</p>
-    <h1 class="mt-1 text-2xl font-extrabold">Staff login</h1>
-    <p class="mt-1 text-sm text-ink-muted">Use the same account you use in every MindaFresh module.</p>
-    <label class="label mt-6 block" for="username">Username</label>
-    <input class="field mt-1" id="username" name="username" autocomplete="username" required autofocus placeholder="carla.accountant" value="{{last_username}}">
-    <label class="label mt-4 block" for="password">Password</label>
-    <input class="field mt-1" id="password" type="password" name="password" autocomplete="current-password" required>
-    <button class="btn-primary mt-6 w-full" type="submit">Log in</button>
-    <p class="mt-4 text-xs text-ink-muted">For accountants and admins. HR staff can view salary release status.</p>
-  </form>
+{{!-- Full-screen login: brand panel on the left, form on the right. No nav or footer on this page. --}}
+<main class="grid min-h-screen flex-1 lg:grid-cols-2">
+  <section class="relative hidden overflow-hidden bg-brand px-14 py-12 text-white lg:flex lg:flex-col">
+    <div class="absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-white/10"></div>
+    <div class="absolute -bottom-40 -left-24 h-[32rem] w-[32rem] rounded-full bg-black/10"></div>
+    <div class="absolute bottom-24 right-16 h-40 w-40 rounded-full bg-peach/20"></div>
+    <div class="relative flex items-center gap-3">
+      <img src="/img/logo.png" alt="MindaFresh logo" class="h-14 w-14 rounded-full ring-4 ring-white/30">
+      <span class="leading-tight"><span class="block text-2xl font-extrabold">MindaFresh</span><span class="block text-lg font-bold text-peach">Accounting &amp; Finance</span></span>
+    </div>
+    <div class="relative my-auto max-w-xl py-10">
+      <h1 class="text-6xl font-extrabold leading-[1.02] tracking-tight">Books that balance.<br>Every single day.</h1>
+      <p class="mt-6 text-xl text-white/85">Sales, purchases and payroll from every MindaFresh module turn into journal entries by themselves.</p>
+      <ul class="mt-10 space-y-4 text-lg font-bold">
+        <li class="flex items-center gap-4"><span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand">✓</span>Automatic posting from POS, Shop and HR</li>
+        <li class="flex items-center gap-4"><span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand">✓</span>Salary releases and government remittances</li>
+        <li class="flex items-center gap-4"><span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand">✓</span>Trial balance, income statement, balance sheet</li>
+      </ul>
+    </div>
+    <p class="relative text-sm text-white/70">MindaFresh Food Distribution, Inc. · Calapan City, Oriental Mindoro</p>
+  </section>
+
+  <section class="flex items-center justify-center bg-cream px-6 py-12">
+    <div class="w-full max-w-md">
+      <div class="mb-8 flex items-center gap-3 lg:hidden">
+        <img src="/img/logo.png" alt="MindaFresh logo" class="h-12 w-12">
+        <span class="text-2xl font-extrabold">MindaFresh <span class="text-brand">Accounting</span></span>
+      </div>
+      {{#each success_msg}}<div class="mb-4 flex items-center gap-2 rounded-2xl border border-[#CFE3B4] bg-leaf-bg px-4 py-3 text-sm font-bold text-leaf"><span>✓</span>{{this}}</div>{{/each}}
+      {{#each error_msg}}<div class="mb-4 flex items-center gap-2 rounded-2xl border border-[#E3B3A8] bg-danger-bg px-4 py-3 text-sm font-bold text-danger"><span>!</span>{{this}}</div>{{/each}}
+      <form method="POST" action="/login" class="card p-8 sm:p-10">
+        <p class="eyebrow">Staff login</p>
+        <h2 class="mt-1 text-4xl font-extrabold tracking-tight">Welcome back</h2>
+        <p class="mt-2 text-ink-muted">Use the same account you use in every MindaFresh module.</p>
+        <label class="label mt-8 block" for="username">Username</label>
+        <input class="field mt-1.5 min-h-[52px] rounded-full px-5" id="username" name="username" autocomplete="username" required autofocus placeholder="carla.accountant" value="{{last_username}}">
+        <label class="label mt-5 block" for="password">Password</label>
+        <input class="field mt-1.5 min-h-[52px] rounded-full px-5" id="password" type="password" name="password" autocomplete="current-password" required>
+        <button class="btn-primary mt-8 min-h-[52px] w-full text-base" type="submit">Log in</button>
+        <p class="mt-6 text-center text-sm text-ink-muted">For accountants and admins. HR staff can view salary release status.</p>
+      </form>
+    </div>
+  </section>
 </main>
-{{> footer}}
+</body>
+</html>

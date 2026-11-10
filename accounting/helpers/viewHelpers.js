@@ -16,6 +16,9 @@ export function registerHelpers(hbs) {
   hbs.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
   hbs.registerHelper("and", (...args) => args.slice(0, -1).every(Boolean));
   hbs.registerHelper("upper", (s) => String(s || "").toUpperCase());
+  hbs.registerHelper("initials", (n) => String(n || "").split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase());
+  hbs.registerHelper("greeting", () => { const h = Number(new Date().toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Manila" })); return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; });
+  hbs.registerHelper("firstName", (n) => String(n || "").split(" ")[0]);
   hbs.registerHelper("label", (s) => String(s || "").replace(/_/g, " "));
   hbs.registerHelper("startsWith", (s, p) => String(s || "").startsWith(p));
   hbs.registerHelper("hasRole", (user, ...roles) => !!user && roles.slice(0, -1).includes(user.role));

@@ -1,34 +1,61 @@
-{{!-- accounting/views/partials/nav.xian — Accounting top bar and flash messages (module-only, not in shared/) --}}
-<header class="border-b border-line bg-white print:hidden">
-  <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
-    <a href="/" class="flex items-center gap-2 text-lg font-extrabold text-ink">
-      <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">₱</span>
-      MindaFresh <span class="font-semibold text-ink-muted">Accounting</span>
-    </a>
-    {{#if currentUser}}
-    <div class="flex items-center gap-3 text-sm">
-      <span class="text-ink-muted"><strong class="text-ink">{{currentUser.full_name}}</strong> · {{label currentUser.role}}</span>
-      <a href="/logout" class="btn-outline min-h-[36px] px-3 text-sm">Log out</a>
-    </div>
-    {{/if}}
-  </div>
-  {{#if currentUser}}
-  <nav class="mx-auto flex max-w-6xl flex-wrap gap-1 px-6 pb-2 text-sm font-semibold">
+{{!-- accounting/views/partials/nav.xian — Accounting sidebar (same layout as POS) and flash messages. Module-only, not in shared/ --}}
+{{#if currentUser}}
+<style>
+  /* Sidebar layout: content uses the full width beside the sidebar */
+  @media (min-width:1024px){ body{ padding-left:280px } }
+  body > main, body > .flash-area, footer > div { max-width:none !important; padding-left:2.5rem !important; padding-right:2.5rem !important; }
+</style>
+<aside class="fixed inset-y-0 left-0 z-30 hidden w-[280px] flex-col bg-ink text-[#F3DCC8] lg:flex print:hidden">
+  <a href="/" class="flex items-center gap-3 px-6 pb-6 pt-7">
+    <img src="/img/logo.png" alt="MindaFresh logo" class="h-14 w-14">
+    <span class="leading-tight"><span class="block text-2xl font-extrabold text-white">MindaFresh</span><span class="block text-2xl font-extrabold text-[#F59E5B]">Accounting</span></span>
+  </a>
+  <nav class="flex-1 overflow-y-auto px-3 pb-4 text-[17px] font-bold">
     {{#if (hasRole currentUser "accountant" "admin")}}
-    <a href="/dashboard" class="rounded-lg px-3 py-2 {{#if (eq currentPath '/dashboard')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Dashboard</a>
-    <a href="/post" class="rounded-lg px-3 py-2 {{#if (eq currentPath '/post')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Post transactions</a>
-    <a href="/journal" class="rounded-lg px-3 py-2 {{#if (startsWith currentPath '/journal')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Journal</a>
-    <a href="/accounts" class="rounded-lg px-3 py-2 {{#if (eq currentPath '/accounts')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Chart of accounts</a>
+    <a href="/dashboard" class="side-link {{#if (eq currentPath '/dashboard')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</a>
+    <p class="side-head">Books</p>
+    <a href="/post" class="side-link {{#if (eq currentPath '/post')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/></svg>Post transactions</a>
+    <a href="/journal" class="side-link {{#if (startsWith currentPath '/journal')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z M8 8h8 M8 12h8 M8 16h5"/></svg>Journal</a>
+    <a href="/accounts" class="side-link {{#if (eq currentPath '/accounts')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Chart of accounts</a>
     {{/if}}
-    <a href="/salary-releases" class="rounded-lg px-3 py-2 {{#if (eq currentPath '/salary-releases')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Salary releases</a>
+    <p class="side-head">Payroll</p>
+    <a href="/salary-releases" class="side-link {{#if (eq currentPath '/salary-releases')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/></svg>Salary releases</a>
     {{#if (hasRole currentUser "accountant" "admin")}}
-    <a href="/remittances" class="rounded-lg px-3 py-2 {{#if (eq currentPath '/remittances')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Remittances</a>
-    <a href="/reports" class="rounded-lg px-3 py-2 {{#if (startsWith currentPath '/reports')}}bg-peach text-brand-dark{{else}}text-ink-soft hover:bg-peach-soft{{/if}}">Reports</a>
+    <a href="/remittances" class="side-link {{#if (eq currentPath '/remittances')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg>Remittances</a>
+    <p class="side-head">Reports</p>
+    <a href="/reports" class="side-link {{#if (startsWith currentPath '/reports')}}side-active{{/if}}"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Reports</a>
     {{/if}}
   </nav>
-  {{/if}}
+  <div class="border-t border-white/10 p-4">
+    <div class="flex items-center gap-3 px-1">
+      <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand text-base font-extrabold text-white">{{initials currentUser.full_name}}</span>
+      <span class="min-w-0 leading-tight"><strong class="block truncate text-lg text-white">{{currentUser.full_name}}</strong><span class="text-sm">{{currentUser.employee_code}} · {{label currentUser.role}}</span></span>
+    </div>
+    <a href="/logout" class="mt-4 flex min-h-[48px] items-center justify-center gap-3 rounded-2xl border border-white/15 text-base font-bold text-[#F3DCC8] hover:bg-white/5"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5M10 17l-5-5 5-5M5 12h11"/></svg>Log out</a>
+  </div>
+</aside>
+{{!-- Small screens: compact top bar --}}
+<header class="border-b border-line bg-ink px-4 py-3 text-white lg:hidden print:hidden">
+  <div class="flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><img src="/img/logo.png" alt="" class="h-9 w-9"><span class="font-extrabold">MindaFresh <span class="text-[#F59E5B]">Accounting</span></span></a>
+    <a href="/logout" class="text-sm font-bold text-[#F3DCC8]">Log out</a>
+  </div>
+  <nav class="mt-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-[#F3DCC8]">
+    {{#if (hasRole currentUser "accountant" "admin")}}<a href="/dashboard">Dashboard</a><a href="/post">Post</a><a href="/journal">Journal</a><a href="/accounts">Accounts</a>{{/if}}
+    <a href="/salary-releases">Salary releases</a>
+    {{#if (hasRole currentUser "accountant" "admin")}}<a href="/remittances">Remittances</a><a href="/reports">Reports</a>{{/if}}
+  </nav>
 </header>
-<div class="mx-auto w-full max-w-6xl px-6 pt-5 print:hidden">
-  {{#each success_msg}}<div class="mb-3 rounded-xl border border-[#CFE3B4] bg-leaf-bg px-4 py-3 text-sm font-semibold text-leaf">{{this}}</div>{{/each}}
-  {{#each error_msg}}<div class="mb-3 rounded-xl border border-[#E3B3A8] bg-danger-bg px-4 py-3 text-sm font-semibold text-danger">{{this}}</div>{{/each}}
+{{else}}
+<header class="border-b border-line bg-cream print:hidden">
+  <div class="mx-auto flex max-w-6xl items-center gap-2.5 px-6 py-4">
+    <img src="/img/logo.png" alt="MindaFresh logo" class="h-11 w-11">
+    <span class="text-[26px] font-extrabold leading-none tracking-tight text-ink">MindaFresh</span>
+    <span class="ml-1 rounded-full bg-peach px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-brand-dark">Accounting</span>
+  </div>
+</header>
+{{/if}}
+<div class="flash-area mx-auto w-full max-w-6xl px-6 pt-6 print:hidden">
+  {{#each success_msg}}<div class="mb-3 flex items-center gap-2 rounded-2xl border border-[#CFE3B4] bg-leaf-bg px-4 py-3 text-sm font-bold text-leaf"><span>✓</span>{{this}}</div>{{/each}}
+  {{#each error_msg}}<div class="mb-3 flex items-center gap-2 rounded-2xl border border-[#E3B3A8] bg-danger-bg px-4 py-3 text-sm font-bold text-danger"><span>!</span>{{this}}</div>{{/each}}
 </div>

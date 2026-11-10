@@ -1,15 +1,22 @@
 {{> head}}
 {{> nav}}
 <main class="mx-auto w-full max-w-6xl flex-1 px-6 py-6">
-  <div class="flex flex-wrap items-end justify-between gap-3">
-    <div>
-      <h1 class="text-2xl font-extrabold">Dashboard</h1>
-      <p class="text-sm text-ink-muted">As of {{today}} · this month from {{monthStart}}</p>
+  <section class="relative overflow-hidden rounded-[28px] bg-white p-7 shadow-[0_10px_30px_-18px_rgba(42,26,18,.25)] sm:p-9">
+    <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand sm:-right-10"></div>
+    <div class="absolute -right-6 bottom-[-70px] h-44 w-44 rounded-full bg-peach"></div>
+    <img src="/img/logo.png" alt="" class="absolute right-8 top-8 hidden h-24 w-24 drop-shadow-xl sm:block">
+    <div class="relative max-w-xl">
+      <p class="eyebrow">{{greeting}}, {{firstName currentUser.full_name}}</p>
+      <h1 class="mt-2 text-4xl font-extrabold leading-tight">Your books at a glance.</h1>
+      <p class="mt-2 text-ink-muted">As of {{today}} · this month from {{monthStart}}</p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="/reports" class="btn-primary">Open reports</a>
+        <a href="/journal/new" class="btn-outline">New manual entry</a>
+      </div>
     </div>
-    <a href="/journal/new" class="btn-outline">New manual entry</a>
-  </div>
+  </section>
 
-  <section class="mt-5 rounded-[20px] border {{#if (gt pending.total 0)}}border-brand-light bg-peach-soft{{else}}border-line bg-white{{/if}} p-5">
+  <section class="mt-5 rounded-[24px] border {{#if (gt pending.total 0)}}border-brand-light bg-peach-soft{{else}}border-line bg-white{{/if}} p-5">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
         <h2 class="text-lg font-extrabold">{{#if (gt pending.total 0)}}{{pending.total}} transaction(s) waiting to be posted{{else}}Journal is up to date{{/if}}</h2>
@@ -23,10 +30,10 @@
   </section>
 
   <section class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Cash on hand</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.cash}}</p></div>
-    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Cash in bank / e-wallet</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.bank}}</p></div>
-    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Merchandise inventory</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.inventory}}</p></div>
-    <div class="card p-5"><p class="text-sm font-semibold text-ink-muted">Total payables</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.payables}}</p></div>
+    <div class="card flex items-start gap-3 p-5"><span class="stat-icon" style="background:#FFE2C7;color:#9A3412"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v10H3z"/><circle cx="12" cy="12" r="2.5"/></svg></span><div><p class="text-sm font-semibold text-ink-muted">Cash on hand</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.cash}}</p></div></div>
+    <div class="card flex items-start gap-3 p-5"><span class="stat-icon" style="background:#DCEAF5;color:#1C3F73"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg></span><div><p class="text-sm font-semibold text-ink-muted">Cash in bank / e-wallet</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.bank}}</p></div></div>
+    <div class="card flex items-start gap-3 p-5"><span class="stat-icon" style="background:#E9F3D9;color:#3F6212"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z M3 7l9 4 9-4 M12 11v10"/></svg></span><div><p class="text-sm font-semibold text-ink-muted">Merchandise inventory</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.inventory}}</p></div></div>
+    <div class="card flex items-start gap-3 p-5"><span class="stat-icon" style="background:#F8DCD5;color:#B42318"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z M9 9h6 M9 13h6 M9 17h4"/></svg></span><div><p class="text-sm font-semibold text-ink-muted">Total payables</p><p class="mt-1 text-2xl font-extrabold">{{peso cash.payables}}</p></div></div>
   </section>
 
   <section class="mt-4 grid gap-4 lg:grid-cols-3">
