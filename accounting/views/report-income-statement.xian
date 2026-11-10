@@ -17,7 +17,7 @@
       <tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2">Total expenses</td><td class="text-right">{{peso is.total_expenses}}</td></tr></tbody></table>
     <table class="mt-5 w-full text-sm"><tbody>
       <tr><td class="py-1.5 text-ink-muted">Gross profit (revenue − cost of goods sold)</td><td class="text-right font-semibold">{{peso is.gross_profit}}</td></tr>
-      <tr class="border-t-2 border-ink text-lg font-extrabold"><td class="py-2">{{#if (lt is.net_income 0)}}Net loss{{else}}Net income{{/if}}</td><td class="text-right {{#if (lt is.net_income 0)}}text-danger{{else}}text-leaf{{/if}}">{{peso is.net_income}}</td></tr>
+      <tr class="border-t-2 border-ink text-lg font-extrabold"><td class="py-2">{{#if (lt is.net_income 0)}}Net loss{{else}}Net income{{/if}}</td><td class="text-right {{#if (lt is.net_income 0)}}text-danger{{else}}text-leaf{{/if}}">{{pesoAbs is.net_income}}</td></tr>
     </tbody></table>
   </div>
 </main>

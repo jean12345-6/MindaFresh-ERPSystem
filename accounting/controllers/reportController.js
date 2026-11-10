@@ -7,7 +7,7 @@ import { handle } from "./handle.js";
 const isDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
 const range = (q) => {
   const today = manilaDate();
-  const from = isDate(q.from) ? q.from : today.slice(0, 8) + "01";
+  const from = isDate(q.from) ? q.from : today.slice(0, 5) + "01-01"; // year to date
   const to = isDate(q.to) ? q.to : today;
   return from <= to ? { from, to } : { from: to, to: from };
 };

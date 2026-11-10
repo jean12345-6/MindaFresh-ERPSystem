@@ -5,6 +5,7 @@ import { manilaDateTime } from "../utils/dates.js";
 export function registerHelpers(hbs) {
   hbs.registerHelper("peso", (n) => peso(n));
   // Blank instead of ₱0.00 (for debit/credit columns)
+  hbs.registerHelper("pesoAbs", (n) => peso(Math.abs(Number(n) || 0)));
   hbs.registerHelper("pesoOrBlank", (n) => (Number(n) ? peso(n) : ""));
   hbs.registerHelper("num", (n) => Number(n || 0).toFixed(2));
   hbs.registerHelper("dateTime", (d) => manilaDateTime(d));

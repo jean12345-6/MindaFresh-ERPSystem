@@ -17,6 +17,7 @@
       {{#each result.done}}<tr class="border-t border-line"><td class="py-1">{{kind}}</td><td>{{code}}</td><td><a class="font-bold text-brand" href="/journal/{{entry_code}}">{{entry_code}}</a></td></tr>{{/each}}
     </tbody></table>
     {{/if}}
+    {{#unless result.done.length}}{{#unless result.failed.length}}<p class="mt-2 text-sm text-ink-muted">Nothing new was posted. Everything is up to date.</p>{{/unless}}{{/unless}}
     {{#each result.failed}}<p class="mt-2 text-sm font-semibold text-danger">{{kind}} {{code}}: {{message}}</p>{{/each}}
   </section>
   {{/if}}

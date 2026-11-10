@@ -32,7 +32,7 @@ const ALLOWED = ["accountant", "admin", "hr_staff"];
 
 export const loginPage = (req, res) => {
   if (req.session.user) return res.redirect(req.session.user.role === "hr_staff" ? "/salary-releases" : "/dashboard");
-  res.render("login", { title: "Login" });
+  res.render("login", { title: "Login", last_username: req.flash("last_username")[0] || "" });
 };
 
 export const loginUser = async (req, res, next) => {
@@ -46,7 +46,7 @@ export const loginUser = async (req, res, next) => {
     req.session.user = user;
     res.redirect(user.role === "hr_staff" ? "/salary-releases" : "/dashboard");
   } catch (err) {
-    if (err.name === "AppError") { req.flash("error_msg", err.message); return res.redirect("/login"); }
+    if (err.name === "AppError") { req.flash("error_msg", err.message); req.flash("last_username", (username || "").trim()); return res.redirect("/login"); }
     next(err);
   }
 };

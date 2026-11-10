@@ -12,7 +12,7 @@ const SOURCES = ["shop", "pos", "hr", "accounting"];
 export const journalList = handle(async (req, res) => {
   const today = manilaDate();
   const f = {
-    from: req.query.from || today.slice(0, 8) + "01",
+    from: req.query.from || today.slice(0, 5) + "01-01", // year to date, so older months are not hidden
     to: req.query.to || today,
     type: TYPES.includes(req.query.type) ? req.query.type : "",
     source: SOURCES.includes(req.query.source) ? req.query.source : "",

@@ -1,12 +1,17 @@
 // accounting/controllers/remittanceController.js — SSS, PhilHealth, Pag-IBIG and BIR payments
 import { Remittance, Employee } from "../models/index.js";
 import { recordRemittance, payRemittance, suggestRemittance } from "../services/postingService.js";
+import { QueryTypes } from "sequelize";
+import { sequelize } from "../models/index.js";
 import { manilaDate } from "../utils/dates.js";
 import { handle } from "./handle.js";
 
 export const remittancesPage = handle(async (req, res) => {
   const rows = await Remittance.findAll({ include: [{ model: Employee, as: "RecordedBy" }], order: [["status", "ASC"], ["period_month", "DESC"], ["agency", "ASC"]] });
-  res.render("remittances", { title: "Remittances", rows: rows.map((r) => r.get({ plain: true })), month: manilaDate().slice(0, 7) });
+  // Default month = the latest approved payroll month, so the suggested amount is not empty
+  const [last] = await sequelize.query(
+    "SELECT DATE_FORMAT(MAX(period_end), '%Y-%m') AS m FROM payroll_runs WHERE status = 'approved'", { type: QueryTypes.SELECT });
+  res.render("remittances", { title: "Remittances", rows: rows.map((r) => r.get({ plain: true })), month: last?.m || manilaDate().slice(0, 7) });
 });
 
 export const suggest = handle(async (req, res) => {

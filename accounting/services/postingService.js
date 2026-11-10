@@ -6,7 +6,7 @@
 import { QueryTypes } from "sequelize";
 import { sequelize, Account, JournalEntry, JournalLine, SalaryRelease, Remittance } from "../models/index.js";
 import { AppError } from "../utils/appError.js";
-import { round2 } from "../utils/money.js";
+import { round2, peso } from "../utils/money.js";
 import { manilaDate } from "../utils/dates.js";
 
 // Account codes from the seeded chart of accounts (blueprint Section 4, Accounting)
@@ -34,7 +34,7 @@ export async function createEntry({ entry_date, description, source_module, entr
   const total_debit = round2(clean.reduce((s, l) => s + l.debit, 0));
   const total_credit = round2(clean.reduce((s, l) => s + l.credit, 0));
   if (total_debit !== total_credit)
-    throw new AppError("VALIDATION_ERROR", `Debits (${total_debit.toFixed(2)}) must equal credits (${total_credit.toFixed(2)}).`);
+    throw new AppError("VALIDATION_ERROR", `Debits (${peso(total_debit)}) must equal credits (${peso(total_credit)}).`);
 
   const codes = [...new Set(clean.map((l) => l.code))];
   const accounts = await Account.findAll({ where: { account_code: codes }, transaction: t });
