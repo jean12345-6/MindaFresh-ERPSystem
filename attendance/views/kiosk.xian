@@ -1,0 +1,1092 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MindaFresh | Employee Attendance Kiosk</title>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+
+    * {
+
+      box-sizing: border-box;
+
+    }
+
+    body {
+
+      margin: 0;
+
+      min-height: 100vh;
+
+      font-family: Arial, sans-serif;
+
+      background: #ffeadc;
+
+      color: #382117;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      padding: 25px;
+
+    }
+
+    .kiosk-container {
+
+      width: 100%;
+
+      max-width: 920px;
+
+      background: #fffaf6;
+
+      border: 1px solid #f1d6c6;
+
+      border-radius: 24px;
+
+      box-shadow: 0 15px 45px rgba(103, 53, 27, 0.08);
+
+      padding: 40px;
+
+    }
+
+    .brand {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+      margin-bottom: 30px;
+
+    }
+
+    .brand img {
+
+      width: 42px;
+
+      height: 42px;
+
+      object-fit: contain;
+
+    }
+
+    .brand strong {
+
+      font-size: 22px;
+
+    }
+
+    .brand span {
+
+      color: #d43c00;
+
+      font-size: 13px;
+
+      border-left: 1px solid #efbda7;
+
+      padding-left: 12px;
+
+    }
+
+    .badge {
+
+      display: inline-block;
+
+      background: #e0f5e8;
+
+      color: #137b42;
+
+      padding: 8px 14px;
+
+      border-radius: 30px;
+
+      font-size: 12px;
+
+      margin-bottom: 16px;
+
+    }
+
+    .clock {
+
+      font-size: clamp(40px, 8vw, 65px);
+
+      font-weight: 800;
+
+      letter-spacing: -2px;
+
+    }
+
+    .clock small {
+
+      font-size: 22px;
+
+      color: #a53b14;
+
+      letter-spacing: 0;
+
+    }
+
+    .date {
+
+      margin: 8px 0 30px;
+
+      color: #825d4b;
+
+      font-size: 14px;
+
+    }
+
+    h1 {
+
+      font-size: 25px;
+
+      margin-bottom: 8px;
+
+    }
+
+    .subtitle {
+
+      font-size: 14px;
+
+      color: #805b4a;
+
+      margin-bottom: 25px;
+
+    }
+
+    label {
+
+      display: block;
+
+      font-size: 12px;
+
+      font-weight: bold;
+
+      margin-bottom: 8px;
+
+    }
+
+    input {
+
+      width: 100%;
+
+      padding: 15px;
+
+      border: 1px solid #efcbb7;
+
+      border-radius: 10px;
+
+      font-size: 15px;
+
+      outline: none;
+
+      background: white;
+
+    }
+
+    input:focus {
+
+      border-color: #d43c00;
+
+    }
+
+    .camera-controls {
+
+      display: flex;
+
+      gap: 10px;
+
+      flex-wrap: wrap;
+
+      margin: 15px 0;
+
+    }
+
+    button {
+
+      cursor: pointer;
+
+      font-size: 14px;
+
+      font-weight: bold;
+
+      border-radius: 10px;
+
+      padding: 13px 18px;
+
+      transition: background 0.2s;
+
+    }
+
+    .camera-btn {
+
+      background: white;
+
+      border: 1px solid #efcbb7;
+
+      color: #572b1a;
+
+    }
+
+    .camera-btn:hover {
+
+      background: #fff0e7;
+
+    }
+
+    #qr-reader {
+
+      width: 100%;
+
+      max-width: 450px;
+
+      margin: 15px auto;
+
+      border-radius: 12px;
+
+      overflow: hidden;
+
+    }
+
+    #qr-status {
+
+      font-size: 13px;
+
+      color: #8b5941;
+
+      margin-bottom: 15px;
+
+      overflow-wrap: anywhere;
+
+    }
+
+    .punch-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(2, 1fr);
+
+      gap: 12px;
+
+      margin: 25px 0;
+
+    }
+
+    .punch-card {
+
+      background: white;
+
+      border: 1px solid #efcfbd;
+
+      border-radius: 12px;
+
+      padding: 18px;
+
+    }
+
+    .punch-card strong {
+
+      display: block;
+
+      font-size: 14px;
+
+      margin-bottom: 5px;
+
+    }
+
+    .punch-card small {
+
+      color: #855f4b;
+
+      font-size: 12px;
+
+    }
+
+    .submit-btn {
+
+      width: 100%;
+
+      background: #d43c00;
+
+      color: white;
+
+      border: none;
+
+      padding: 17px;
+
+      margin-top: 5px;
+
+    }
+
+    .submit-btn:hover {
+
+      background: #b83200;
+
+    }
+
+    .work-hours {
+
+      margin-top: 25px;
+
+      padding-top: 20px;
+
+      border-top: 1px solid #efd6c8;
+
+    }
+
+    .work-hours strong {
+
+      display: block;
+
+      margin-bottom: 6px;
+
+    }
+
+    .work-hours small {
+
+      color: #805b4a;
+
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 58px;
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: #fff0e6;
+      border: 2px solid #d43c00;
+      border-radius: 12px;
+      color: #bc3500;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .back-link:hover {
+      background: #d43c00;
+      color: #fff;
+    }
+
+    .back-link:focus-visible {
+      outline: 3px solid #ff9d70;
+      outline-offset: 3px;
+    }
+
+    .back-link .back-arrow {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .notice {
+
+      padding: 13px;
+
+      background: #e8f7ed;
+
+      border-radius: 10px;
+
+      color: #176638;
+
+      margin: 15px 0;
+
+    }
+
+    .error {
+
+      padding: 13px;
+
+      background: #fff0ec;
+
+      border-radius: 10px;
+
+      color: #ae2900;
+
+      margin: 15px 0;
+
+    }
+
+    dialog {
+
+      width: min(420px, 90vw);
+
+      border: 1px solid #efd1c0;
+
+      border-radius: 18px;
+
+      padding: 28px;
+
+      color: #382117;
+
+    }
+
+    dialog::backdrop {
+
+      background: rgba(26, 15, 9, 0.55);
+
+    }
+
+    .modal-actions {
+
+      display: flex;
+
+      gap: 10px;
+
+      margin-top: 20px;
+
+    }
+
+    .modal-actions button {
+
+      flex: 1;
+
+    }
+
+    .cancel-btn {
+
+      background: white;
+
+      border: 1px solid #efcbb7;
+
+    }
+
+    .confirm-btn {
+
+      background: #d43c00;
+
+      border: none;
+
+      color: white;
+
+    }
+
+    [hidden] {
+
+      display: none !important;
+
+    }
+
+    @media (max-width: 600px) {
+
+      .kiosk-container {
+
+        padding: 22px;
+
+      }
+
+      .punch-grid {
+
+        grid-template-columns: 1fr;
+
+      }
+
+      .brand strong {
+
+        font-size: 18px;
+
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="kiosk-container">
+
+    <div class="brand">
+
+      <img src="/mindafresh-logo.png" alt="MindaFresh Logo">
+
+      <strong>MindaFresh</strong>
+
+      <span>Attendance ERP</span>
+
+    </div>
+
+    <div class="badge">
+
+      ● Employee Attendance Kiosk
+
+    </div>
+
+    <div class="clock" id="clock">
+
+      --:--:-- <small>AM</small>
+
+    </div>
+
+    <div class="date" id="date">
+
+      Loading date...
+
+    </div>
+
+    <h1>Employee QR Attendance</h1>
+
+    <p class="subtitle">
+
+      Scan your employee QR code using the laptop camera
+
+      or enter your employee code manually.
+
+    </p>
+
+    {{#if message}}
+
+      <div class="notice">{{message}}</div>
+
+    {{/if}}
+
+    {{#if error}}
+
+      <div class="error">{{error}}</div>
+
+    {{/if}}
+
+    {{#if employee}}
+
+      <div class="notice">
+
+        {{employee.first_name}} {{employee.last_name}}
+
+        · Next: <strong>{{action}}</strong>
+
+      </div>
+
+    {{/if}}
+
+    <form
+
+      action="/kiosk/punch"
+
+      method="POST"
+
+      id="punch-form"
+
+    >
+
+      <label for="employee-code">
+
+        EMPLOYEE CODE
+
+      </label>
+
+      <input
+
+        type="text"
+
+        id="employee-code"
+
+        name="code"
+
+        placeholder="Enter or scan your employee code"
+
+        value="{{#if employee}}{{employee.employee_code}}{{/if}}"
+
+        autocomplete="off"
+
+        required
+
+      >
+
+      <div class="camera-controls">
+
+        <button
+
+          type="button"
+
+          id="start-camera"
+
+          class="camera-btn"
+
+        >
+
+          📷 Open Laptop Camera
+
+        </button>
+
+        <button
+
+          type="button"
+
+          id="stop-camera"
+
+          class="camera-btn"
+
+          hidden
+
+        >
+
+          Stop Camera
+
+        </button>
+
+      </div>
+
+      <div id="qr-status" role="status" aria-live="polite">
+
+        Camera is not started.
+
+      </div>
+
+      <div id="qr-reader" hidden></div>
+
+      <div class="punch-grid">
+
+        <div class="punch-card">
+
+          <strong>☀ AM In</strong>
+
+          <small>Starts 8:00 AM</small>
+
+        </div>
+
+        <div class="punch-card">
+
+          <strong>↗ AM Out</strong>
+
+          <small>Lunch 12:00 PM</small>
+
+        </div>
+
+        <div class="punch-card">
+
+          <strong>◒ PM In</strong>
+
+          <small>Resumes 1:00 PM</small>
+
+        </div>
+
+        <div class="punch-card">
+
+          <strong>↗ PM Out</strong>
+
+          <small>Ends 5:00 PM</small>
+
+        </div>
+
+      </div>
+
+      <button class="submit-btn" type="submit">
+
+        Record next attendance punch →
+
+      </button>
+
+    </form>
+
+    <div class="work-hours">
+
+      <strong>◷ Work Hours</strong>
+
+      <small>
+
+        8:00 AM – 12:00 PM · 1:00 PM – 5:00 PM
+
+      </small>
+
+    </div>
+
+    <a href="/login" class="back-link">
+
+      <span class="back-arrow" aria-hidden="true">←</span> Back to HR/Admin Login
+
+    </a>
+
+  </main>
+
+  <!-- CONFIRMATION MODAL -->
+
+  <dialog id="confirm-dialog">
+
+    <h2>Confirm Attendance</h2>
+
+    <p>
+
+      Are you sure you want to record this attendance punch?
+
+    </p>
+
+    <p>
+
+      <strong>Employee Code:</strong>
+
+      <span id="confirm-code"></span>
+
+    </p>
+
+    <p>
+
+      <strong>Time:</strong>
+
+      <span id="confirm-time"></span>
+
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+
+        type="button"
+
+        class="cancel-btn"
+
+        id="cancel-punch"
+
+      >
+
+        Cancel
+
+      </button>
+
+      <button
+
+        type="button"
+
+        class="confirm-btn"
+
+        id="confirm-punch"
+
+      >
+
+        Confirm
+
+      </button>
+
+    </div>
+
+  </dialog>
+
+  <script>
+
+    // LIVE CLOCK
+
+    function updateClock() {
+
+      const now = new Date();
+
+      const time = now.toLocaleTimeString('en-US', {
+
+        hour: '2-digit',
+
+        minute: '2-digit',
+
+        second: '2-digit',
+
+        hour12: true
+
+      });
+
+      const parts = time.split(' ');
+
+      document.getElementById('clock').innerHTML =
+
+        parts[0] + ' <small>' + parts[1] + '</small>';
+
+      document.getElementById('date').textContent =
+
+        now.toLocaleDateString('en-US', {
+
+          weekday: 'long',
+
+          year: 'numeric',
+
+          month: 'long',
+
+          day: 'numeric'
+
+        });
+
+    }
+
+    updateClock();
+
+    setInterval(updateClock, 1000);
+
+    // ATTENDANCE CONFIRMATION
+
+    const form = document.getElementById('punch-form');
+
+    const codeInput = document.getElementById('employee-code');
+
+    const dialog = document.getElementById('confirm-dialog');
+
+    form.addEventListener('submit', (event) => {
+
+      if (form.dataset.confirmed === 'yes') return;
+
+      event.preventDefault();
+
+      if (!form.reportValidity()) return;
+
+      document.getElementById('confirm-code').textContent =
+
+        codeInput.value.trim();
+
+      document.getElementById('confirm-time').textContent =
+
+        new Date().toLocaleTimeString('en-PH');
+
+      dialog.showModal();
+
+    });
+
+    document.getElementById('cancel-punch')
+
+      .addEventListener('click', () => {
+
+        dialog.close();
+
+      });
+
+    document.getElementById('confirm-punch')
+
+      .addEventListener('click', () => {
+
+        dialog.close();
+
+        form.dataset.confirmed = 'yes';
+
+        form.requestSubmit();
+
+      });
+
+    // LAPTOP CAMERA QR SCANNER
+
+    (() => {
+
+      const startBtn =
+
+        document.getElementById('start-camera');
+
+      const stopBtn =
+
+        document.getElementById('stop-camera');
+
+      const readerElement =
+
+        document.getElementById('qr-reader');
+
+      const status =
+
+        document.getElementById('qr-status');
+
+      let scanner = null;
+
+      let running = false;
+
+      let starting = false;
+
+      let processing = false;
+
+      async function stopCamera() {
+
+        if (scanner) {
+
+          try {
+
+            if (running) {
+
+              await scanner.stop();
+
+            }
+
+          } catch (error) {
+
+            console.warn('Camera stop error:', error);
+
+          }
+
+          try {
+
+            scanner.clear();
+
+          } catch (error) {
+
+            console.warn('Scanner cleanup error:', error);
+
+          }
+
+        }
+
+        scanner = null;
+
+        running = false;
+
+        readerElement.hidden = true;
+
+        startBtn.hidden = false;
+
+        stopBtn.hidden = true;
+
+      }
+
+      startBtn.addEventListener('click', async () => {
+
+        if (running || starting) return;
+
+        if (typeof Html5Qrcode === 'undefined') {
+
+          status.textContent =
+
+            'Scanner library could not load. Check internet connection.';
+
+          return;
+
+        }
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+
+          status.textContent =
+
+            'Camera access requires localhost or HTTPS.';
+
+          return;
+
+        }
+
+        starting = true;
+
+        processing = false;
+
+        startBtn.disabled = true;
+
+        readerElement.hidden = false;
+
+        status.textContent =
+
+          'Opening laptop camera...';
+
+        try {
+
+          scanner = new Html5Qrcode('qr-reader');
+
+          await scanner.start(
+
+            { facingMode: 'user' },
+
+            {
+
+              fps: 10,
+
+              qrbox: {
+
+                width: 220,
+
+                height: 220
+
+              }
+
+            },
+
+            async (decodedText) => {
+
+              if (processing) return;
+
+              const code = String(decodedText || '').trim();
+
+              if (!code || code.length > 100) {
+
+                status.textContent =
+
+                  'Invalid employee QR code.';
+
+                return;
+
+              }
+
+              processing = true;
+
+              codeInput.value = code;
+
+              await stopCamera();
+
+              status.textContent =
+
+                'QR scanned successfully: ' + code;
+
+              form.requestSubmit();
+
+            },
+
+            () => {}
+
+          );
+
+          running = true;
+
+          startBtn.hidden = true;
+
+          stopBtn.hidden = false;
+
+          status.textContent =
+
+            'Camera ready. Show your employee QR code.';
+
+        } catch (error) {
+
+          await stopCamera();
+
+          status.textContent =
+
+            'Camera error: ' +
+
+            (error.message || String(error));
+
+        } finally {
+
+          starting = false;
+
+          startBtn.disabled = false;
+
+        }
+
+      });
+
+      stopBtn.addEventListener('click', async () => {
+
+        await stopCamera();
+
+        status.textContent = 'Camera stopped.';
+
+      });
+
+      window.addEventListener('pagehide', () => {
+
+        if (scanner && running) {
+
+          scanner.stop().catch(() => {});
+
+        }
+
+      });
+
+    })();
+
+  </script>
+
+</body>
+
+</html>

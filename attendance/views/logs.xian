@@ -1,0 +1,879 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attendance Logs | MindaFresh Attendance</title>
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    /* ATTENDANCE LOGS */
+    .logs-filter-card {
+      margin: 20px 0;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #eadbd0;
+      border-radius: 16px;
+    }
+
+    .logs-filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .logs-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .logs-field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #76594a;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .logs-field input,
+    .logs-field select {
+      height: 43px;
+      min-width: 145px;
+      padding: 0 12px;
+      border: 1px solid #e7d4c7;
+      border-radius: 9px;
+      background: #fff;
+      color: #39251b;
+      font: inherit;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .logs-field.employee-search {
+      flex: 1;
+    }
+
+    .logs-field.employee-search input {
+      width: 100%;
+      min-width: 180px;
+    }
+
+    .logs-field input:focus,
+    .logs-field select:focus {
+      outline: none;
+      border-color: #cf3b00;
+      box-shadow: 0 0 0 3px rgba(207,59,0,.08);
+    }
+
+    .logs-filter-btn {
+      height: 43px;
+      padding: 0 20px;
+      border: 1px solid #cf3b00;
+      border-radius: 9px;
+      background: #cf3b00;
+      color: #fff;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logs-filter-btn:hover {
+      background: #b63400;
+    }
+
+    .logs-table-card {
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #eadbd0;
+      border-radius: 16px;
+    }
+
+    .logs-table-title {
+      margin: 0 0 17px;
+      font-size: 17px;
+      font-weight: 750;
+      color: #39251b;
+    }
+
+    .logs-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .logs-table {
+      width: 100%;
+      min-width: 1150px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .logs-table th {
+      padding: 14px 12px;
+      background: #fff7f2;
+      border-bottom: 1px solid #eadbd0;
+      text-align: left;
+      color: #76594a;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .logs-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #f0e5dd;
+      color: #493126;
+      white-space: nowrap;
+    }
+
+    .logs-table tbody tr:hover {
+      background: #fffaf6;
+    }
+
+    .logs-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .logs-employee {
+      font-weight: 650;
+    }
+
+    .logs-status {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 20px;
+      background: #f1ece8;
+      color: #654b3e;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .logs-status.present {
+      background: #e8f5ec;
+      color: #287647;
+    }
+
+    .logs-status.late {
+      background: #fff0dd;
+      color: #aa5800;
+    }
+
+    .logs-status.absent {
+      background: #fff0ed;
+      color: #b42318;
+    }
+
+    .logs-status.on_leave {
+      background: #eaf0ff;
+      color: #3459a5;
+    }
+
+    .logs-edit-btn {
+      padding: 9px 13px;
+      border: 1px solid #e7cdbd;
+      border-radius: 8px;
+      background: #fff8f3;
+      color: #b43a07;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logs-edit-btn:hover {
+      background: #ffecdf;
+    }
+
+    /* MODALS */
+    .logs-dialog {
+      position: fixed;
+      width: min(580px, calc(100vw - 32px));
+      max-width: 100%;
+      max-height: calc(100vh - 32px);
+      margin: auto;
+      padding: 0;
+      border: 1px solid #efd8c9;
+      border-radius: 20px;
+      background: #fffdfb;
+      color: #39251b;
+      box-shadow: 0 25px 75px rgba(39,22,13,.24);
+      font-family: inherit;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .logs-dialog::backdrop {
+      background: rgba(36,23,16,.52);
+      backdrop-filter: blur(3px);
+    }
+
+    .logs-modal-body {
+      padding: 28px;
+    }
+
+    .logs-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .logs-modal-header h2 {
+      margin: 0 0 7px;
+      font-size: 22px;
+      color: #39251b;
+    }
+
+    .logs-modal-header p {
+      margin: 0;
+      color: #846a5c;
+      font-size: 13px;
+    }
+
+    .logs-close-btn {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border: 1px solid #ecd9cc;
+      border-radius: 9px;
+      background: #fff;
+      color: #76594a;
+      font-size: 23px;
+      cursor: pointer;
+    }
+
+    .logs-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 11px;
+      margin-bottom: 23px;
+    }
+
+    .logs-detail-item {
+      padding: 13px;
+      border: 1px solid #f0e1d7;
+      border-radius: 11px;
+      background: #fff8f3;
+    }
+
+    .logs-detail-item span {
+      display: block;
+      margin-bottom: 6px;
+      color: #94796b;
+      font-size: 11px;
+    }
+
+    .logs-detail-item strong {
+      color: #39251b;
+      font-size: 16px;
+    }
+
+    .logs-section-title {
+      margin: 0 0 15px;
+      font-size: 15px;
+      color: #39251b;
+    }
+
+    .logs-modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 15px;
+    }
+
+    .logs-modal-field label {
+      color: #654b3e;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .logs-modal-field input,
+    .logs-modal-field select {
+      width: 100%;
+      min-height: 43px;
+      padding: 10px 12px;
+      border: 1px solid #e8d1c2;
+      border-radius: 9px;
+      background: #fff;
+      color: #39251b;
+      font: inherit;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .logs-edit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 0 12px;
+    }
+
+    .logs-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .logs-modal-actions button {
+      min-height: 42px;
+      padding: 10px 17px;
+      border-radius: 9px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logs-cancel-btn {
+      border: 1px solid #e8d2c5;
+      background: #fff;
+      color: #684a3b;
+    }
+
+    .logs-save-btn {
+      border: 1px solid #cf3b00;
+      background: #cf3b00;
+      color: #fff;
+    }
+
+    .logs-save-btn:hover {
+      background: #b63200;
+    }
+
+    @media (max-width: 700px) {
+      .logs-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .logs-field,
+      .logs-field input,
+      .logs-field select,
+      .logs-filter-btn {
+        width: 100%;
+      }
+
+      .logs-edit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .logs-modal-body {
+        padding: 21px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a class="brand" href="/dashboard">
+      <img src="/mindafresh-logo.png" alt="MindaFresh logo">
+      <span>
+        <b>MindaFresh</b>
+        <small>Attendance</small>
+      </span>
+    </a>
+
+    <div class="side-heading">
+      ATTENDANCE MANAGEMENT
+    </div>
+
+    <div class="side-heading workspace">
+      WORKSPACE
+    </div>
+
+    <nav class="side-nav">
+      <a class="side-link" href="/dashboard">
+        <span class="nav-icon">▦</span>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="side-link" href="/kiosk">
+        <span class="nav-icon">◷</span>
+        <span>Attendance Kiosk</span>
+      </a>
+
+      <a class="side-link active" href="/logs">
+        <span class="nav-icon">▤</span>
+        <span>Attendance Logs</span>
+      </a>
+
+      <a class="side-link" href="/dtr">
+        <span class="nav-icon">▣</span>
+        <span>Daily Time Record</span>
+      </a>
+
+      <a class="side-link" href="/summary">
+        <span class="nav-icon">▥</span>
+        <span>Period Summary</span>
+      </a>
+
+      <a class="side-link" href="/holidays">
+        <span class="nav-icon">▧</span>
+        <span>Holidays</span>
+      </a>
+    </nav>
+
+    <div class="side-bottom">
+      <span class="online-dot"></span>
+      Part of MindaFresh ERP
+      <small>One database. One connected team.</small>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="app-area">
+
+    <header class="topbar">
+      <div class="breadcrumbs">
+        MindaFresh ERP
+        <span>/</span>
+        <b>Attendance Logs</b>
+      </div>
+
+      <div class="account">
+        {{#if staff}}
+          <div class="avatar">M</div>
+
+          <div class="account-info">
+            <strong>{{staff.username}}</strong>
+            <small>{{staff.role}}</small>
+          </div>
+
+          <button
+            type="button"
+            class="outline small-btn"
+            id="open-logout"
+          >
+            Logout
+          </button>
+        {{else}}
+          <a class="outline login-link" href="/login">
+            Staff Login
+          </a>
+        {{/if}}
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- SINGLE PAGE TITLE -->
+      <div class="page-intro">
+        <div>
+          <div class="eyebrow">
+            MINDAFRESH / ATTENDANCE
+          </div>
+
+          <h1>Attendance Logs</h1>
+
+          <p class="intro-sub">
+            Review employee attendance records and manage corrections.
+          </p>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="logs-filter-card">
+        <form
+          class="logs-filter-form"
+          method="get"
+          action="/logs"
+        >
+          <div class="logs-field">
+            <label for="logs-from">From</label>
+            <input
+              id="logs-from"
+              type="date"
+              name="from"
+              value="{{from}}"
+            >
+          </div>
+
+          <div class="logs-field">
+            <label for="logs-to">To</label>
+            <input
+              id="logs-to"
+              type="date"
+              name="to"
+              value="{{to}}"
+            >
+          </div>
+
+          <div class="logs-field employee-search">
+            <label for="logs-employee">Employee</label>
+            <input
+              id="logs-employee"
+              type="text"
+              name="employee"
+              value="{{employee}}"
+              placeholder="Code or name"
+            >
+          </div>
+
+          <div class="logs-field">
+            <label for="logs-status-filter">Status</label>
+            <select
+              id="logs-status-filter"
+              name="status"
+            >
+              <option value="">All</option>
+              <option value="present">Present</option>
+              <option value="late">Late</option>
+              <option value="absent">Absent</option>
+              <option value="on_leave">On Leave</option>
+            </select>
+          </div>
+
+          <button class="logs-filter-btn" type="submit">
+            Filter Records
+          </button>
+        </form>
+      </div>
+
+      <!-- ATTENDANCE TABLE -->
+      <div class="logs-table-card">
+        <h2 class="logs-table-title">Employee Attendance Records</h2>
+
+        <div class="logs-table-wrap">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Employee</th>
+                <th>Status</th>
+                <th>In</th>
+                <th>Lunch Out</th>
+                <th>Lunch In</th>
+                <th>Out</th>
+                <th>Hours</th>
+                <th>Late Min</th>
+                <th>Undertime</th>
+                <th>Correction</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {{#each rows}}
+                <tr>
+                  <td>{{date log_date}}</td>
+                  <td class="logs-employee">{{name}}</td>
+                  <td>
+                    <span class="logs-status {{status}}">
+                      {{status}}
+                    </span>
+                  </td>
+                  <td>{{datetime time_in}}</td>
+                  <td>{{datetime lunch_out}}</td>
+                  <td>{{datetime lunch_in}}</td>
+                  <td>{{datetime time_out}}</td>
+                  <td>{{hours_worked}}</td>
+                  <td>{{late_minutes}}</td>
+                  <td>{{undertime_minutes}}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="logs-edit-btn view-log"
+                      data-id="{{id}}"
+                      data-name="{{name}}"
+                      data-code="{{log_code}}"
+                      data-status="{{status}}"
+                      data-time-in="{{time_in}}"
+                      data-lunch-out="{{lunch_out}}"
+                      data-lunch-in="{{lunch_in}}"
+                      data-time-out="{{time_out}}"
+                      data-remarks="{{remarks}}"
+                      data-late="{{late_minutes}}"
+                      data-undertime="{{undertime_minutes}}"
+                      data-hours="{{hours_worked}}"
+                    >
+                      View / Edit
+                    </button>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- VIEW / EDIT LOG MODAL -->
+<dialog
+  id="log-modal"
+  class="logs-dialog"
+  aria-labelledby="log-modal-title"
+>
+  <div class="logs-modal-body">
+
+    <div class="logs-modal-header">
+      <div>
+        <h2 id="log-modal-title">Attendance Log Details</h2>
+        <p id="log-employee"></p>
+      </div>
+
+      <button
+        type="button"
+        id="close-log"
+        class="logs-close-btn"
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="logs-detail-grid">
+      <div class="logs-detail-item">
+        <span>Log Code</span>
+        <strong id="log-code">—</strong>
+      </div>
+
+      <div class="logs-detail-item">
+        <span>Hours Worked</span>
+        <strong id="log-hours">0</strong>
+      </div>
+
+      <div class="logs-detail-item">
+        <span>Late Minutes</span>
+        <strong id="log-late">0</strong>
+      </div>
+
+      <div class="logs-detail-item">
+        <span>Undertime Minutes</span>
+        <strong id="log-undertime">0</strong>
+      </div>
+    </div>
+
+    <h3 class="logs-section-title">Correct This Record</h3>
+
+    <form method="post" id="log-edit-form">
+      <div class="logs-modal-field">
+        <label for="log-status">Status</label>
+        <select name="status" id="log-status">
+          <option value="present">Present</option>
+          <option value="late">Late</option>
+          <option value="absent">Absent</option>
+          <option value="on_leave">On Leave</option>
+        </select>
+      </div>
+
+      <div class="logs-edit-grid">
+        <div class="logs-modal-field">
+          <label for="edit-time-in">Time In</label>
+          <input
+            id="edit-time-in"
+            type="datetime-local"
+            name="time_in"
+          >
+        </div>
+
+        <div class="logs-modal-field">
+          <label for="edit-lunch-out">Lunch Out</label>
+          <input
+            id="edit-lunch-out"
+            type="datetime-local"
+            name="lunch_out"
+          >
+        </div>
+
+        <div class="logs-modal-field">
+          <label for="edit-lunch-in">Lunch In</label>
+          <input
+            id="edit-lunch-in"
+            type="datetime-local"
+            name="lunch_in"
+          >
+        </div>
+
+        <div class="logs-modal-field">
+          <label for="edit-time-out">Time Out</label>
+          <input
+            id="edit-time-out"
+            type="datetime-local"
+            name="time_out"
+          >
+        </div>
+      </div>
+
+      <div class="logs-modal-field">
+        <label for="log-remarks">Reason for Correction</label>
+        <input
+          id="log-remarks"
+          name="remarks"
+          required
+          maxlength="255"
+          placeholder="Enter correction reason"
+        >
+      </div>
+
+      <div class="logs-modal-actions">
+        <button
+          type="button"
+          id="cancel-log"
+          class="logs-cancel-btn"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="logs-save-btn"
+        >
+          Save Correction
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<!-- LOGOUT MODAL -->
+<dialog
+  id="logout-dialog"
+  class="logs-dialog"
+  style="width:min(420px,calc(100vw - 32px))"
+>
+  <div class="logs-modal-body">
+    <div class="logs-modal-header">
+      <div>
+        <h2>Log out of MindaFresh?</h2>
+        <p>
+          You will need to log in again to access your account.
+        </p>
+      </div>
+    </div>
+
+    <div class="logs-modal-actions">
+      <button
+        type="button"
+        class="logs-cancel-btn"
+        id="cancel-logout"
+      >
+        Cancel
+      </button>
+
+      <form method="post" action="/logout">
+        <button type="submit" class="logs-save-btn">
+          Log Out
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const logDialog = document.getElementById('log-modal');
+  const logForm = document.getElementById('log-edit-form');
+
+  function toDatetimeLocal(value) {
+    if (!value || value === 'null' || value === 'undefined') {
+      return '';
+    }
+
+    // Preserve local SQL datetime strings.
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(value)) {
+      return value.replace(' ', 'T').slice(0, 16);
+    }
+
+    // Handle ISO timestamps if provided by the server.
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return '';
+    }
+
+    const pad = n => String(n).padStart(2, '0');
+
+    return (
+      parsed.getFullYear() + '-' +
+      pad(parsed.getMonth() + 1) + '-' +
+      pad(parsed.getDate()) + 'T' +
+      pad(parsed.getHours()) + ':' +
+      pad(parsed.getMinutes())
+    );
+  }
+
+  document.querySelectorAll('.view-log').forEach(button => {
+    button.addEventListener('click', () => {
+      const d = button.dataset;
+
+      logForm.action =
+        '/logs/' + encodeURIComponent(d.id) + '/correct';
+
+      document.getElementById('log-employee').textContent =
+        d.name || '';
+
+      document.getElementById('log-code').textContent =
+        d.code || '—';
+
+      document.getElementById('log-hours').textContent =
+        d.hours || '0';
+
+      document.getElementById('log-late').textContent =
+        d.late || '0';
+
+      document.getElementById('log-undertime').textContent =
+        d.undertime || '0';
+
+      document.getElementById('log-status').value =
+        d.status || 'present';
+
+      ['timeIn', 'lunchOut', 'lunchIn', 'timeOut'].forEach(key => {
+        const inputName =
+          key.replace(/[A-Z]/g, char => '_' + char.toLowerCase());
+
+        logForm.elements[inputName].value =
+          toDatetimeLocal(d[key]);
+      });
+
+      logForm.elements.remarks.value =
+        d.remarks && d.remarks !== 'null'
+          ? d.remarks
+          : '';
+
+      logDialog.showModal();
+    });
+  });
+
+  document.getElementById('close-log')
+    .addEventListener('click', () => logDialog.close());
+
+  document.getElementById('cancel-log')
+    .addEventListener('click', () => logDialog.close());
+
+  const logoutDialog = document.getElementById('logout-dialog');
+
+  const openLogout = document.getElementById('open-logout');
+
+  if (openLogout) {
+    openLogout.addEventListener('click', () => {
+      logoutDialog.showModal();
+    });
+  }
+
+  document.getElementById('cancel-logout')
+    .addEventListener('click', () => {
+      logoutDialog.close();
+    });
+
+  // Restore selected status filter after reload.
+  const selectedStatus = new URLSearchParams(
+    window.location.search
+  ).get('status');
+
+  if (selectedStatus !== null) {
+    document.getElementById('logs-status-filter').value =
+      selectedStatus;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MindaFresh | Attendance</title>
+  <link rel="stylesheet" href="/style.css">
+
+  <!-- Laptop Camera QR Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    .qr-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .qr-controls button {
+      padding: 11px 14px;
+      border: 1px solid #e9d4c7;
+      border-radius: 8px;
+      background: #fff;
+      color: #492b1e;
+      cursor: pointer;
+    }
+
+    #qr-status {
+      font-size: 12px;
+      color: #7b5849;
+      overflow-wrap: anywhere;
+    }
+
+    #qr-reader {
+      width: 100%;
+      max-width: 420px;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    #qr-reader video {
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .mf-qr-modal {
+      border: 1px solid #ead4c5;
+      border-radius: 16px;
+      padding: 25px;
+      width: min(390px, 90vw);
+      color: #432719;
+      background: #fff;
+    }
+
+    .mf-qr-modal::backdrop {
+      background: rgba(24, 16, 12, .55);
+    }
+
+    .mf-qr-modal h2 {
+      margin: 0 0 10px;
+    }
+
+    .mf-qr-modal p {
+      margin: 10px 0;
+    }
+
+    .mf-qr-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .mf-qr-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .mf-qr-actions .outline {
+      background: white;
+      border: 1px solid #e5cbbb;
+    }
+
+    .mf-qr-actions .confirm {
+      background: #cf3b00;
+      color: white;
+      border: 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body class="auth-page">
+  <main class="auth-wrap">
+    <div class="auth-grid">
+
+      <!-- EMPLOYEE ATTENDANCE KIOSK -->
+      <section class="clock-panel">
+        <div class="auth-brand">
+          <img src="/mindafresh-logo.png" alt="MindaFresh">
+          <strong>MindaFresh</strong>
+          <span class="brand-divider"></span>
+          <span>Attendance ERP</span>
+        </div>
+
+        <div class="shift-chip">
+          <span class="status-dot"></span>
+          Employee attendance kiosk
+        </div>
+
+        <div class="hero-clock" id="clock">
+          --:--:-- <small>AM</small>
+        </div>
+
+        <div class="hero-date" id="date">
+          Loading date…
+        </div>
+
+        <div class="auth-section-label">EMPLOYEE CODE</div>
+
+        {{#if message}}
+          <div class="auth-notice">{{message}}</div>
+        {{/if}}
+
+        {{#if error}}
+          <div class="auth-error">{{error}}</div>
+        {{/if}}
+
+        {{#if employee}}
+          <div class="auth-notice">
+            {{employee.first_name}} {{employee.last_name}}
+            · Next: <strong>{{action}}</strong>
+          </div>
+        {{/if}}
+
+        <form action="/kiosk/punch" method="post" id="punch-form">
+
+          <label class="code-field">
+            <span>▣</span>
+            <input
+              name="code"
+              id="employee-code"
+              required
+              autocomplete="off"
+              placeholder="Enter or scan your employee code"
+              value="{{#if employee}}{{employee.employee_code}}{{/if}}"
+            >
+          </label>
+
+          <!-- LAPTOP CAMERA QR SCANNER -->
+          <div class="qr-controls">
+            <button type="button" id="start-qr">
+              📷 Scan QR using laptop camera
+            </button>
+
+            <button type="button" id="stop-qr" hidden>
+              Stop camera
+            </button>
+
+            <span
+              id="qr-status"
+              role="status"
+              aria-live="polite"
+            ></span>
+          </div>
+
+          <div id="qr-reader" hidden></div>
+
+          <div class="punch-grid">
+            <div class="punch-step">
+              <span>☀</span>
+              <strong>AM In</strong>
+              <small>Starts 8:00 AM</small>
+            </div>
+
+            <div class="punch-step">
+              <span>↗</span>
+              <strong>AM Out</strong>
+              <small>Lunch 12:00 PM</small>
+            </div>
+
+            <div class="punch-step">
+              <span>◒</span>
+              <strong>PM In</strong>
+              <small>Resumes 1:00 PM</small>
+            </div>
+
+            <div class="punch-step">
+              <span>↗</span>
+              <strong>PM Out</strong>
+              <small>Ends 5:00 PM</small>
+            </div>
+          </div>
+
+          <button class="record-btn" type="submit">
+            Record next attendance punch <span>→</span>
+          </button>
+        </form>
+
+        <div class="hours-note">
+          <span>◷</span>
+          <div>
+            <strong>Work Hours</strong>
+            <small>
+              8:00 AM – 12:00 PM · 1:00 PM – 5:00 PM
+            </small>
+          </div>
+        </div>
+
+        <p class="scanner-note">
+          Enter your employee code manually or scan your
+          employee QR card using the laptop camera.
+          Camera access requires localhost or HTTPS.
+        </p>
+      </section>
+
+      <!-- HR / ADMIN LOGIN -->
+      <section class="login-panel">
+        <div class="login-center">
+
+          <img
+            class="login-logo"
+            src="/mindafresh-logo.png"
+            alt="MindaFresh"
+          >
+
+          <h1>Welcome back</h1>
+
+          <p>
+            Log in to your MindaFresh Attendance ERP account
+          </p>
+
+          {{#if staff}}
+            <div class="auth-notice">
+              Signed in as {{staff.username}}.
+            </div>
+
+            <a
+              class="login-submit link-submit"
+              href="/dashboard"
+            >
+              Go to dashboard →
+            </a>
+          {{else}}
+
+            {{#if error}}
+              <div class="auth-error">{{error}}</div>
+            {{/if}}
+
+            <form
+              method="post"
+              action="/login"
+              class="login-form"
+            >
+
+              <label for="username">USERNAME</label>
+
+              <div class="login-input">
+                <span>♙</span>
+                <input
+                  id="username"
+                  name="username"
+                  placeholder="Enter your username"
+                  required
+                  autocomplete="username"
+                >
+              </div>
+
+              <label for="password">PASSWORD</label>
+
+              <div class="login-input">
+                <span>♧</span>
+
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                  autocomplete="current-password"
+                >
+
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Show password"
+                  id="toggle-password"
+                >
+                  ◉
+                </button>
+              </div>
+
+              <button
+                class="login-submit"
+                type="submit"
+              >
+                Log in <span>→</span>
+              </button>
+            </form>
+
+            <div class="login-foot">
+              Need access? Contact your HR or IT Administrator.
+            </div>
+          {{/if}}
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ATTENDANCE CONFIRMATION MODAL -->
+  <dialog id="punch-confirm" class="mf-qr-modal">
+    <h2>Confirm attendance</h2>
+
+    <p>
+      Are you sure you want to record this
+      attendance punch?
+    </p>
+
+    <p>
+      <strong>Employee code:</strong>
+      <span id="confirm-code"></span>
+    </p>
+
+    <p>
+      <strong>Time:</strong>
+      <span id="confirm-time"></span>
+    </p>
+
+    <div class="mf-qr-actions">
+      <button
+        type="button"
+        id="cancel-punch"
+        class="outline"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        id="confirm-punch"
+        class="confirm"
+      >
+        Confirm punch
+      </button>
+    </div>
+  </dialog>
+
+  <script>
+    // LIVE CLOCK
+    function tick() {
+      const d = new Date();
+
+      const time = d.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+
+      const parts = time.split(' ');
+
+      document.getElementById('clock').innerHTML =
+        parts[0] + ' <small>' + parts[1] + '</small>';
+
+      document.getElementById('date').textContent =
+        d.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    // SHOW / HIDE PASSWORD
+    const togglePassword =
+      document.getElementById('toggle-password');
+
+    if (togglePassword) {
+      togglePassword.addEventListener('click', () => {
+        const password =
+          document.getElementById('password');
+
+        password.type =
+          password.type === 'password'
+            ? 'text'
+            : 'password';
+      });
+    }
+
+    // ATTENDANCE CONFIRMATION
+    const punchForm =
+      document.getElementById('punch-form');
+
+    const employeeCode =
+      document.getElementById('employee-code');
+
+    const punchDialog =
+      document.getElementById('punch-confirm');
+
+    punchForm.addEventListener('submit', (event) => {
+      if (punchForm.dataset.confirmed === 'yes') {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (!punchForm.reportValidity()) {
+        return;
+      }
+
+      document.getElementById('confirm-code').textContent =
+        employeeCode.value.trim();
+
+      document.getElementById('confirm-time').textContent =
+        new Date().toLocaleTimeString('en-PH');
+
+      punchDialog.showModal();
+    });
+
+    document.getElementById('cancel-punch')
+      .addEventListener('click', () => {
+        punchDialog.close();
+      });
+
+    document.getElementById('confirm-punch')
+      .addEventListener('click', () => {
+        punchDialog.close();
+        punchForm.dataset.confirmed = 'yes';
+        punchForm.requestSubmit();
+      });
+
+    // LAPTOP CAMERA QR SCANNER
+    (() => {
+      const startBtn =
+        document.getElementById('start-qr');
+
+      const stopBtn =
+        document.getElementById('stop-qr');
+
+      const panel =
+        document.getElementById('qr-reader');
+
+      const status =
+        document.getElementById('qr-status');
+
+      let scanner = null;
+      let running = false;
+      let starting = false;
+      let processing = false;
+
+      async function stopCamera() {
+        if (!scanner) {
+          panel.hidden = true;
+          startBtn.hidden = false;
+          stopBtn.hidden = true;
+          return;
+        }
+
+        try {
+          if (running) {
+            await scanner.stop();
+          }
+        } catch (error) {
+          console.warn('Camera stop error:', error);
+        }
+
+        running = false;
+
+        try {
+          scanner.clear();
+        } catch (error) {
+          console.warn('Scanner cleanup:', error);
+        }
+
+        scanner = null;
+        panel.hidden = true;
+        stopBtn.hidden = true;
+        startBtn.hidden = false;
+      }
+
+      function normalizeCode(value) {
+        const text = String(value || '').trim();
+
+        // Accept plain employee codes or a simple
+        // QR payload containing an employee code.
+        return text;
+      }
+
+      startBtn.addEventListener('click', async () => {
+        if (running || starting) return;
+
+        if (typeof Html5Qrcode === 'undefined') {
+          status.textContent =
+            'QR scanner library failed to load. Check internet connection.';
+          return;
+        }
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+          status.textContent =
+            'Camera requires localhost or HTTPS.';
+          return;
+        }
+
+        starting = true;
+        processing = false;
+        startBtn.disabled = true;
+
+        status.textContent =
+          'Opening laptop camera...';
+
+        panel.hidden = false;
+
+        try {
+          scanner = new Html5Qrcode('qr-reader', {
+            verbose: false
+          });
+
+          await scanner.start(
+            { facingMode: 'user' },
+            {
+              fps: 10,
+              qrbox: (width, height) => {
+                const size = Math.min(
+                  220,
+                  width - 20,
+                  height - 20
+                );
+
+                return {
+                  width: Math.max(80, size),
+                  height: Math.max(80, size)
+                };
+              },
+              aspectRatio: 1.333333
+            },
+            async (decodedText) => {
+              if (processing) return;
+
+              const code = normalizeCode(decodedText);
+
+              if (!code || code.length > 100) {
+                status.textContent =
+                  'Invalid QR code. Please scan an employee QR card.';
+                return;
+              }
+
+              processing = true;
+              employeeCode.value = code;
+
+              status.textContent =
+                'QR scanned: ' + code;
+
+              await stopCamera();
+
+              // Opens the existing attendance
+              // confirmation dialog.
+              punchForm.requestSubmit();
+            },
+            () => {
+              // Ignore individual frames without QR codes.
+            }
+          );
+
+          running = true;
+          stopBtn.hidden = false;
+          startBtn.hidden = true;
+
+          status.textContent =
+            'Camera ready. Show your employee QR code.';
+        } catch (error) {
+          await stopCamera();
+
+          status.textContent =
+            'Camera error: ' +
+            (error.message || String(error));
+        } finally {
+          starting = false;
+          startBtn.disabled = false;
+        }
+      });
+
+      stopBtn.addEventListener('click', async () => {
+        await stopCamera();
+        status.textContent = 'Camera stopped.';
+      });
+
+      window.addEventListener('pagehide', () => {
+        if (scanner && running) {
+          scanner.stop().catch(() => {});
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
