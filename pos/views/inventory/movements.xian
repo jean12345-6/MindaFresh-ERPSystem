@@ -1,0 +1,47 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="mb-4"><a href="/stock" class="text-sm font-bold text-brand">← Stock levels</a>
+    <h1 class="mt-2 text-2xl font-extrabold">Stock movements</h1></div>
+  <form method="GET" class="mb-4 flex flex-wrap items-center gap-2">
+    <select name="product_id" class="field max-w-xs">
+      <option value="">All products</option>
+      {{#each products}}<option value="{{id}}" {{#if (eq id ../product_id)}}selected{{/if}}>{{product_code}} · {{name}}</option>{{/each}}
+    </select>
+    <select name="type" class="field max-w-[200px]">
+      <option value="">All types</option>
+      {{#each types}}<option value="{{this}}" {{#if (eq this ../type)}}selected{{/if}}>{{label this}}</option>{{/each}}
+    </select>
+    <button class="btn-outline">Filter</button>
+  </form>
+  <div class="card overflow-x-auto">
+    <table class="w-full text-left text-[15px]">
+      <thead class="border-b border-line text-sm text-ink-muted"><tr>
+        <th class="px-4 py-3">Code</th><th class="px-4 py-3">When</th><th class="px-4 py-3">Product</th><th class="px-4 py-3">Type</th>
+        <th class="px-4 py-3 text-right">Change</th><th class="px-4 py-3 text-right">Before → after</th><th class="px-4 py-3 text-right">Unit cost</th>
+        <th class="px-4 py-3">Source</th><th class="px-4 py-3">By</th></tr></thead>
+      <tbody class="divide-y divide-line">
+        {{#each rows}}
+        <tr>
+          <td class="px-4 py-3 font-bold">{{movement_code}}</td>
+          <td class="px-4 py-3 whitespace-nowrap">{{dateTime created_at}}</td>
+          <td class="px-4 py-3">{{Product.name}}</td>
+          <td class="px-4 py-3"><span class="badge {{badge movement_type}}">{{label movement_type}}</span></td>
+          <td class="px-4 py-3 text-right font-bold {{#if (lt quantity_change 0)}}text-danger{{else}}text-leaf{{/if}}">{{signed quantity_change}}</td>
+          <td class="px-4 py-3 text-right">{{quantity_before}} → {{quantity_after}}</td>
+          <td class="px-4 py-3 text-right">{{peso unit_cost}}</td>
+          <td class="px-4 py-3">
+            {{#if Sale.id}}<a class="font-bold text-brand" href="/sales/{{Sale.id}}">{{Sale.sale_code}}</a>{{/if}}
+            {{#if Order.order_code}}{{Order.order_code}} <span class="text-sm text-ink-muted">(Shop)</span>{{/if}}
+            {{#if PurchaseOrder.id}}<a class="font-bold text-brand" href="/purchase-orders/{{PurchaseOrder.id}}">{{PurchaseOrder.purchase_order_code}}</a>{{/if}}
+            {{#if remarks}}<span class="text-sm text-ink-muted">{{remarks}}</span>{{/if}}
+          </td>
+          <td class="px-4 py-3">{{Employee.first_name}}</td>
+        </tr>
+        {{else}}<tr><td colspan="9" class="px-4 py-8 text-center text-ink-muted">No movements.</td></tr>{{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
+{{> pos-footer}}

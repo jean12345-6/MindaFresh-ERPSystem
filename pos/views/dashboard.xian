@@ -1,0 +1,50 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold">Good day, {{currentUser.full_name}}</h1>
+      <p class="text-ink-muted">{{today}}</p>
+    </div>
+    <div class="flex gap-2">
+      {{#if canSell}}<a href="/cashier" class="btn-primary">Open cashier</a>{{/if}}
+      {{#if canStock}}<a href="/purchase-orders/new?low=1" class="btn-outline">Restock low items</a>{{/if}}
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Sales today</p><p class="mt-1 text-3xl font-extrabold">{{peso stats.revenue}}</p><p class="text-sm text-ink-muted">{{stats.count}} receipt(s)</p></div>
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Gross profit today</p><p class="mt-1 text-3xl font-extrabold text-leaf">{{peso stats.profit}}</p><p class="text-sm text-ink-muted">sales minus cost of goods</p></div>
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Online orders today</p><p class="mt-1 text-3xl font-extrabold">{{stats.onlineOrders}}</p><p class="text-sm text-ink-muted">{{stats.onlineUnits}} unit(s) taken from stock by the Shop</p></div>
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Open purchase orders</p><p class="mt-1 text-3xl font-extrabold">{{stats.openPOs}}</p><p class="text-sm text-ink-muted">draft or ordered</p></div>
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-3">
+    <section class="card p-5">
+      <h2 class="text-lg font-extrabold">By payment method</h2>
+      <dl class="mt-3 space-y-2 text-[15px]">
+        <div class="flex justify-between"><dt>Cash</dt><dd class="font-bold">{{peso stats.cash}}</dd></div>
+        <div class="flex justify-between"><dt>GCash</dt><dd class="font-bold">{{peso stats.gcash}}</dd></div>
+        <div class="flex justify-between"><dt>Card</dt><dd class="font-bold">{{peso stats.card}}</dd></div>
+      </dl>
+    </section>
+    <section class="card p-5">
+      <h2 class="text-lg font-extrabold">Top sellers today</h2>
+      {{#if top.length}}
+      <ol class="mt-3 space-y-2 text-[15px]">
+        {{#each top}}<li class="flex justify-between gap-3"><span>{{inc @index}}. {{product_name}}</span><span class="whitespace-nowrap font-bold">{{qty}} · {{peso amount}}</span></li>{{/each}}
+      </ol>
+      {{else}}<p class="mt-3 text-ink-muted">No sales yet today.</p>{{/if}}
+    </section>
+    <section class="card p-5">
+      <div class="flex items-center justify-between"><h2 class="text-lg font-extrabold">Low stock</h2>{{#if canStock}}<a href="/stock?low=1" class="text-sm font-bold text-brand">See all</a>{{/if}}</div>
+      {{#if low.length}}
+      <ul class="mt-3 space-y-2 text-[15px]">
+        {{#each low}}<li class="flex justify-between gap-3"><span>{{name}}</span><span class="badge bg-danger-bg text-danger">{{qty}} {{unit}} / {{reorder_level}}</span></li>{{/each}}
+      </ul>
+      {{else}}<p class="mt-3 text-leaf font-semibold">All stock OK.</p>{{/if}}
+    </section>
+  </div>
+</main>
+{{> pos-footer}}

@@ -1,0 +1,16 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <a href="/suppliers" class="text-sm font-bold text-brand">← Suppliers</a>
+  <h1 class="mt-2 text-2xl font-extrabold">{{#if isNew}}New supplier{{else}}Edit {{supplier.supplier_code}}{{/if}}</h1>
+  <form action="{{#if isNew}}/suppliers{{else}}/suppliers/{{supplier.id}}{{/if}}" method="POST" class="card mt-4 grid gap-4 p-6 sm:grid-cols-2">
+    <div class="sm:col-span-2"><label class="label" for="name">Name</label><input id="name" name="name" value="{{supplier.name}}" class="field mt-1" required maxlength="150"></div>
+    <div><label class="label" for="contact_person">Contact person</label><input id="contact_person" name="contact_person" value="{{supplier.contact_person}}" class="field mt-1" maxlength="100"></div>
+    <div><label class="label" for="phone">Phone</label><input id="phone" name="phone" value="{{supplier.phone}}" class="field mt-1" maxlength="20"></div>
+    <div class="sm:col-span-2"><label class="label" for="email">Email</label><input id="email" name="email" type="email" value="{{supplier.email}}" class="field mt-1" maxlength="100"></div>
+    <div class="sm:col-span-2"><label class="label" for="address">Address</label><input id="address" name="address" value="{{supplier.address}}" class="field mt-1" maxlength="255"></div>
+    <div class="flex gap-2 sm:col-span-2"><button class="btn-primary">Save supplier</button><a href="/suppliers" class="btn-outline">Cancel</a></div>
+  </form>
+</main>
+{{> pos-footer}}

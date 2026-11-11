@@ -1,0 +1,49 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <a href="/purchase-orders" class="text-sm font-bold text-brand">← Purchase orders</a>
+  <div class="mt-2 flex flex-wrap items-center gap-2">
+    <h1 class="mr-auto text-2xl font-extrabold">{{po.purchase_order_code}} <span class="badge align-middle {{badge po.status}}">{{po.status}}</span></h1>
+    {{#if (eq po.status 'draft')}}
+      <a href="/purchase-orders/{{po.id}}/edit" class="btn-outline">Edit</a>
+      <form action="/purchase-orders/{{po.id}}/place" method="POST"><button class="btn-primary">Place order</button></form>
+    {{/if}}
+    {{#if (eq po.status 'ordered')}}
+      <form action="/purchase-orders/{{po.id}}/receive" method="POST" data-confirm="Receive all items? Stock will be added and costs updated." data-confirm-button="Receive goods"><button class="btn-primary">Receive goods</button></form>
+    {{/if}}
+    {{#if (or (eq po.status 'draft') (eq po.status 'ordered'))}}
+      <form action="/purchase-orders/{{po.id}}/cancel" method="POST" data-confirm="Cancel this purchase order?" data-confirm-button="Yes, cancel it" data-confirm-danger="1"><button class="btn-danger">Cancel</button></form>
+    {{/if}}
+  </div>
+
+  <div class="mt-4 grid gap-4 sm:grid-cols-3">
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Supplier</p><p class="mt-1 font-bold">{{po.Supplier.name}}</p><p class="text-sm text-ink-muted">{{po.Supplier.contact_person}} {{po.Supplier.phone}}</p></div>
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Dates</p><p class="mt-1">Ordered {{po.order_date}}</p><p>Expected {{#if po.expected_date}}{{po.expected_date}}{{else}}—{{/if}}</p>{{#if po.received_at}}<p class="font-bold text-leaf">Received {{dateTime po.received_at}}</p>{{/if}}</div>
+    <div class="card p-5"><p class="text-sm font-bold text-ink-muted">Payment · Accounting</p><p class="mt-1">{{label po.payment_method}}</p>
+      {{#if (eq po.status 'received')}}
+        {{#if acctEntry}}<p class="font-bold text-leaf">Posted as {{acctEntry}}</p>{{else}}<p class="text-ink-muted">Waiting for Accounting's next “Post new transactions”.</p>{{/if}}
+      {{else}}<p class="text-ink-muted">Sent to Accounting once received.</p>{{/if}}
+      <p class="text-sm text-ink-muted">Prepared by {{po.Employee.first_name}} {{po.Employee.last_name}}</p></div>
+  </div>
+
+  <div class="card mt-4 overflow-x-auto">
+    <table class="w-full text-left text-[15px]">
+      <thead class="border-b border-line text-sm text-ink-muted"><tr><th class="px-4 py-3">Product</th><th class="px-4 py-3 text-right">Qty</th><th class="px-4 py-3 text-right">Unit cost</th><th class="px-4 py-3 text-right">Line total</th></tr></thead>
+      <tbody class="divide-y divide-line">
+        {{#each po.PurchaseOrderItems}}
+        <tr><td class="px-4 py-3">{{Product.product_code}} · {{Product.name}}</td><td class="px-4 py-3 text-right">{{quantity}} {{Product.unit}}</td><td class="px-4 py-3 text-right">{{peso unit_cost}}</td><td class="px-4 py-3 text-right font-bold">{{peso line_total}}</td></tr>
+        {{/each}}
+      </tbody>
+      <tfoot><tr class="border-t border-line"><td colspan="3" class="px-4 py-3 text-right font-bold">Total cost</td><td class="px-4 py-3 text-right text-lg font-extrabold">{{peso po.total_cost}}</td></tr></tfoot>
+    </table>
+  </div>
+
+  {{#if movements.length}}
+  <div class="card mt-4 p-5">
+    <h2 class="font-extrabold">Stock-in movements</h2>
+    <ul class="mt-2 space-y-1 text-[15px]">{{#each movements}}<li><span class="badge {{badge movement_type}}">{{label movement_type}}</span> {{movement_code}} · {{signed quantity_change}} ({{quantity_before}} → {{quantity_after}}) at {{peso unit_cost}}</li>{{/each}}</ul>
+  </div>
+  {{/if}}
+</main>
+{{> pos-footer}}

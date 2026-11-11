@@ -1,0 +1,58 @@
+{{!-- POS sidebar layout (pos only; not part of shared/views/partials). Opens the shell; footer.xian closes it. --}}
+<div class="flex min-h-screen print:block">
+  <div id="scrim" class="fixed inset-0 z-30 hidden bg-ink/50 lg:hidden print:hidden"></div>
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-ink text-[#F3DCC8] transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 print:hidden">
+    <a href="/" class="flex items-center gap-3 px-5 py-5">
+      <img src="/img/logo.png" alt="" class="h-10 w-10">
+      <span class="text-lg font-extrabold leading-tight text-white">MindaFresh<br><span class="text-brand-light">POS</span></span>
+    </a>
+    {{#if currentUser}}
+    <nav class="flex-1 space-y-5 overflow-y-auto px-3 pb-4 text-[15px] font-semibold">
+      <div>
+        <a href="/dashboard" class="side-link {{#if (startsWith currentPath '/dashboard')}}is-active{{/if}}">{{{icon 'dashboard'}}}Dashboard</a>
+      </div>
+      {{#if canSell}}
+      <div>
+        <p class="side-title">Selling</p>
+        <a href="/cashier" class="side-link {{#if (eq currentPath '/cashier')}}is-active{{/if}}">{{{icon 'cashier'}}}Cashier</a>
+        <a href="/sales" class="side-link {{#if (startsWith currentPath '/sales')}}is-active{{/if}}">{{{icon 'receipt'}}}Sales</a>
+      </div>
+      {{/if}}
+      {{#if canStock}}
+      <div>
+        <p class="side-title">Inventory</p>
+        <a href="/stock" class="side-link {{#if (startsWith currentPath '/stock')}}is-active{{/if}}">{{{icon 'stock'}}}Stock</a>
+        <a href="/purchase-orders" class="side-link {{#if (startsWith currentPath '/purchase-orders')}}is-active{{/if}}">{{{icon 'cart'}}}Purchase orders</a>
+        <a href="/suppliers" class="side-link {{#if (startsWith currentPath '/suppliers')}}is-active{{/if}}">{{{icon 'truck'}}}Suppliers</a>
+      </div>
+      {{/if}}
+      {{#if isAdmin}}
+      <div>
+        <p class="side-title">Catalog</p>
+        <a href="/products" class="side-link {{#if (startsWith currentPath '/products')}}is-active{{/if}}">{{{icon 'box'}}}Products</a>
+        <a href="/categories" class="side-link {{#if (startsWith currentPath '/categories')}}is-active{{/if}}">{{{icon 'tag'}}}Categories</a>
+      </div>
+      <div>
+        <p class="side-title">Admin</p>
+        <a href="/settings" class="side-link {{#if (startsWith currentPath '/settings')}}is-active{{/if}}">{{{icon 'settings'}}}Settings</a>
+        <a href="/audit-log" class="side-link {{#if (startsWith currentPath '/audit-log')}}is-active{{/if}}">{{{icon 'shield'}}}Audit log</a>
+      </div>
+      {{/if}}
+    </nav>
+    <div class="border-t border-white/10 p-4">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-extrabold text-white">{{initials currentUser.full_name}}</span>
+        <span class="min-w-0 leading-tight"><strong class="block truncate text-white">{{currentUser.full_name}}</strong><span class="text-xs text-[#C9AE98]">{{currentUser.employee_code}} · {{label currentUser.role}}</span></span>
+      </div>
+      <form action="/logout" method="POST" class="mt-3"><button class="side-link w-full justify-center border border-white/15 hover:bg-white/10">{{{icon 'logout'}}}Log out</button></form>
+    </div>
+    {{else}}
+    <div class="flex-1"></div>
+    {{/if}}
+  </aside>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-white px-4 py-3 lg:hidden print:hidden">
+      <button type="button" id="menuBtn" class="btn-outline min-h-[40px] px-3" aria-label="Open menu">{{{icon 'menu'}}}</button>
+      <img src="/img/logo.png" alt="" class="h-8 w-8"><strong class="text-lg">MindaFresh <span class="text-brand">POS</span></strong>
+    </header>

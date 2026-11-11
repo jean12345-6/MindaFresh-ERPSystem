@@ -1,0 +1,80 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <a href="/purchase-orders" class="text-sm font-bold text-brand">← Purchase orders</a>
+  <h1 class="mt-2 text-2xl font-extrabold">{{#if isNew}}New purchase order{{else}}Edit {{po.purchase_order_code}} (draft){{/if}}</h1>
+  <form action="{{#if isNew}}/purchase-orders{{else}}/purchase-orders/{{po.id}}{{/if}}" method="POST" class="mt-4 space-y-4">
+    <div class="card grid gap-4 p-6 sm:grid-cols-3">
+      <div><label class="label" for="supplier_id">Supplier</label>
+        <select id="supplier_id" name="supplier_id" class="field mt-1" required>
+          <option value="">Choose…</option>
+          {{#each suppliers}}<option value="{{id}}" {{#if (eq id ../po.supplier_id)}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select></div>
+      <div><label class="label" for="payment_method">Payment</label>
+        <select id="payment_method" name="payment_method" class="field mt-1">
+          <option value="on_account" {{#if (eq po.payment_method 'on_account')}}selected{{/if}}>On account (pay later)</option>
+          <option value="cash" {{#if (eq po.payment_method 'cash')}}selected{{/if}}>Cash</option>
+        </select></div>
+      <div><label class="label" for="expected_date">Expected delivery</label><input id="expected_date" name="expected_date" type="date" value="{{po.expected_date}}" class="field mt-1"></div>
+    </div>
+
+    <div class="card overflow-x-auto p-6">
+      <div class="mb-3 flex items-center justify-between"><h2 class="text-lg font-extrabold">Items</h2><button type="button" id="addLine" class="btn-outline min-h-[38px] px-3 text-sm">+ Add item</button></div>
+      <table class="w-full text-left text-[15px]">
+        <thead class="text-sm text-ink-muted"><tr><th class="py-2 pr-2">Product</th><th class="w-28 py-2 pr-2">Qty</th><th class="w-36 py-2 pr-2">Unit cost (₱)</th><th class="w-32 py-2 text-right">Line total</th><th class="w-10"></th></tr></thead>
+        <tbody id="lines"></tbody>
+        <tfoot><tr class="border-t border-line"><td colspan="3" class="py-3 text-right font-bold">Total cost</td><td id="grand" class="py-3 text-right text-lg font-extrabold">₱0.00</td><td></td></tr></tfoot>
+      </table>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button name="action" value="draft" class="btn-outline">Save as draft</button>
+      <button name="action" value="order" class="btn-primary">Save and place order</button>
+    </div>
+  </form>
+</main>
+<script>
+  const PRODUCTS = {{{json products}}};
+  const START = {{{json po.items}}} || [{}];
+  const tbody = document.getElementById("lines");
+  const fmt = (n) => "₱" + Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const opts = (sel) => '<option value="">Choose…</option>' + PRODUCTS.map((p) =>
+    `<option value="${p.id}" data-cost="${p.cost}" ${String(p.id) === String(sel) ? "selected" : ""}>${p.code} · ${p.name.replace(/</g, "&lt;")} (${p.unit})</option>`).join("");
+
+  function renumber() {
+    [...tbody.children].forEach((tr, i) => tr.querySelectorAll("[data-f]").forEach((el) => { el.name = `items[${i}][${el.dataset.f}]`; }));
+    let sum = 0;
+    for (const tr of tbody.children) {
+      const q = Number(tr.querySelector("[data-f=quantity]").value || 0), c = Number(tr.querySelector("[data-f=unit_cost]").value || 0);
+      tr.querySelector(".lt").textContent = fmt(q * c); sum += q * c;
+    }
+    document.getElementById("grand").textContent = fmt(sum);
+  }
+
+  function addLine(l = {}) {
+    const tr = document.createElement("tr");
+    tr.className = "border-t border-line";
+    tr.innerHTML = `<td class="py-2 pr-2"><select data-f="product_id" class="field">${opts(l.product_id)}</select></td>
+      <td class="py-2 pr-2"><input data-f="quantity" type="number" min="1" step="1" value="${l.quantity ?? ""}" class="field"></td>
+      <td class="py-2 pr-2"><input data-f="unit_cost" type="number" min="0" step="0.01" value="${l.unit_cost ?? ""}" class="field"></td>
+      <td class="lt py-2 text-right font-bold"></td>
+      <td class="py-2 text-right"><button type="button" class="rm text-xl font-bold text-danger" title="Remove">×</button></td>`;
+    tbody.appendChild(tr);
+    renumber();
+  }
+
+  tbody.addEventListener("change", (e) => {
+    if (e.target.dataset.f === "product_id") {
+      const cost = e.target.selectedOptions[0]?.dataset.cost;
+      const costInput = e.target.closest("tr").querySelector("[data-f=unit_cost]");
+      if (cost && !costInput.value) costInput.value = cost;
+    }
+    renumber();
+  });
+  tbody.addEventListener("input", renumber);
+  tbody.addEventListener("click", (e) => { if (e.target.classList.contains("rm")) { e.target.closest("tr").remove(); if (!tbody.children.length) addLine(); renumber(); } });
+  document.getElementById("addLine").addEventListener("click", () => addLine());
+  (START.length ? START : [{}]).forEach(addLine);
+</script>
+{{> pos-footer}}

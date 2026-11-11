@@ -1,0 +1,21 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <h1 class="text-2xl font-extrabold">Categories</h1>
+  <form action="/categories" method="POST" class="card mt-4 flex flex-wrap items-end gap-2 p-5">
+    <div class="flex-1"><label class="label" for="newName">New category</label><input id="newName" name="name" class="field mt-1" required maxlength="100"></div>
+    <button class="btn-primary">Add</button>
+  </form>
+  <div class="card mt-4 divide-y divide-line">
+    {{#each categories}}
+    <form action="/categories/{{id}}" method="POST" class="flex flex-wrap items-center gap-3 px-5 py-3">
+      <span class="w-24 font-bold">{{category_code}}</span>
+      <input name="name" value="{{name}}" class="field max-w-xs flex-1" required maxlength="100">
+      <span class="text-sm text-ink-muted">{{products}} product(s)</span>
+      <button class="btn-outline ml-auto min-h-[38px] px-3 text-sm">Rename</button>
+    </form>
+    {{/each}}
+  </div>
+</main>
+{{> pos-footer}}

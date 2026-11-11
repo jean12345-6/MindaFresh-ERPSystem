@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{#if title}}{{title}} · {{/if}}{{appName}}</title>
+  {{!-- Shared look for all 5 modules (owner: Ali). Colours: orange #C2410C, brown #2A1A12, peach #FFE2C7, cream #FFF7EF --}}
+  <link rel="icon" href="/img/logo.png">
+  <link rel="stylesheet" href="/fonts/jakarta.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/vendor/sweetalert2/sweetalert2.min.css">
+  <script src="/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="/js/app.js" defer></script>
+  <style>
+    /* Printing: never put pop-ups, toasts or overlays on paper */
+    @media print { .swal2-container, #printAnim { display: none !important; } }
+  </style>
+</head>
+<body class="min-h-screen bg-cream font-sans text-ink antialiased">

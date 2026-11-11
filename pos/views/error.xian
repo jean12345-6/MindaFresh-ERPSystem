@@ -1,0 +1,23 @@
+{{> pos-head}}
+{{#if currentUser}}
+{{> nav}}
+<main class="mx-auto w-full max-w-xl flex-1 px-4 py-16 text-center sm:px-6">
+  <div class="card p-8">
+    <h1 class="text-2xl font-extrabold">{{heading}}</h1>
+    <p class="mt-3 text-ink-muted">{{message}}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <a href="javascript:location.reload()" class="btn-outline">Reload</a>
+      <a href="/" class="btn-primary">Go to start</a>
+    </div>
+  </div>
+</main>
+{{> pos-footer}}
+{{else}}
+<main class="flex min-h-screen flex-col items-center justify-center bg-cream px-6 text-center">
+  <img src="/img/logo.png" alt="" class="h-14 w-14">
+  <h1 class="mt-5 text-3xl font-extrabold">{{heading}}</h1>
+  <p class="mt-2 max-w-md text-ink-muted">{{message}}</p>
+  <a href="/login" class="btn-primary mt-6">Go to login</a>
+</main>
+{{> pos-end}}
+{{/if}}

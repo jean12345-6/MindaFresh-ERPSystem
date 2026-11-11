@@ -1,0 +1,23 @@
+    <footer class="mt-auto px-6 py-4 text-center text-xs text-ink-muted print:hidden">
+      <strong>MindaFresh Food Distribution, Inc.</strong> · Calapan City, Oriental Mindoro
+    </footer>
+  </div>
+</div>
+<script>
+  // Search and filter forms update the list by themselves (no Filter button needed).
+  document.querySelectorAll("form[method=GET], form[method=get]").forEach((f) => {
+    const txt = f.querySelector("input[type=search], input[type=text], input:not([type])");
+    if (!f.querySelector("input, select")) return;
+    f.querySelectorAll("button:not([type=button])").forEach((b) => { if (/filter|search|show|apply/i.test(b.textContent)) b.classList.add("hidden"); });
+    let timer;
+    const go = () => { try { if (txt) sessionStorage.setItem("liveFocus", txt.name || "q"); } catch {} f.requestSubmit(); };
+    f.querySelectorAll("select, input[type=date], input[type=checkbox]").forEach((el) => el.addEventListener("change", go));
+    if (txt) txt.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(go, 350); });
+    try {
+      if (txt && sessionStorage.getItem("liveFocus") === (txt.name || "q")) {
+        sessionStorage.removeItem("liveFocus"); txt.focus(); const n = txt.value.length; txt.setSelectionRange(n, n);
+      }
+    } catch {}
+  });
+</script>
+{{> pos-end}}

@@ -1,0 +1,156 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="grid gap-6 lg:grid-cols-[360px_1fr]">
+    <!-- Receipt (the only part that prints) -->
+    <section id="receipt" class="card mx-auto w-full max-w-[360px] p-5 font-mono text-[13px] leading-relaxed print:max-w-none print:border-0 print:p-0">
+      <div class="text-center">
+        <p class="text-base font-extrabold">{{cfg.storeName}}</p>
+        {{#if cfg.storeAddress}}<p>{{cfg.storeAddress}}</p>{{/if}}
+        {{#if cfg.storePhone}}<p>Tel: {{cfg.storePhone}}</p>{{/if}}
+        {{#if cfg.storeTin}}<p>TIN: {{cfg.storeTin}}</p>{{/if}}
+        <p class="mt-2 font-bold">{{#if (eq sale.status 'voided')}}*** VOIDED ***{{else}}SALES RECEIPT{{/if}}</p>
+      </div>
+      <div class="mt-3 border-t border-dashed border-ink-muted pt-2">
+        <p>Receipt: <strong>{{sale.sale_code}}</strong></p>
+        <p>Date: {{dateTime sale.sold_at}}</p>
+        {{#if cfg.receiptShowCashier}}<p>Cashier: {{sale.Employee.first_name}} {{sale.Employee.last_name}}</p>{{/if}}
+      </div>
+      <table class="mt-2 w-full border-t border-dashed border-ink-muted">
+        {{#each sale.SaleItems}}
+        <tr><td colspan="2" class="pt-1">{{product_name}}</td></tr>
+        <tr><td class="pl-2">{{quantity}} × {{money unit_price}}</td><td class="text-right">{{money line_total}}</td></tr>
+        {{/each}}
+      </table>
+      <div class="mt-2 space-y-0.5 border-t border-dashed border-ink-muted pt-2">
+        <div class="flex justify-between"><span>Subtotal</span><span>{{money sale.subtotal}}</span></div>
+        {{#if (gt sale.discount_amount 0)}}<div class="flex justify-between"><span>Discount</span><span>-{{money sale.discount_amount}}</span></div>{{/if}}
+        <div class="flex justify-between text-base font-extrabold"><span>TOTAL</span><span>{{peso sale.total_amount}}</span></div>
+        <div class="flex justify-between"><span>Paid ({{label sale.payment_method}})</span><span>{{money sale.amount_paid}}</span></div>
+        <div class="flex justify-between font-bold"><span>Change</span><span>{{money sale.change_amount}}</span></div>
+      </div>
+      {{#if (eq sale.status 'voided')}}<p class="mt-2 border-t border-dashed border-ink-muted pt-2">Void reason: {{sale.void_reason}}</p>{{/if}}
+      {{#if cfg.receiptFooter}}<p class="mt-3 text-center">{{cfg.receiptFooter}}</p>{{/if}}
+    </section>
+
+    <!-- Details for staff -->
+    <section class="space-y-4 print:hidden">
+      <div class="flex flex-wrap items-center gap-2">
+        <h1 class="mr-auto text-2xl font-extrabold">{{sale.sale_code}} <span class="badge align-middle {{badge sale.status}}">{{sale.status}}</span></h1>
+        <button onclick="window.print()" class="btn-outline">Print receipt</button>
+        <a href="/cashier" class="btn-primary">New sale</a>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="font-extrabold">Accounting</h2>
+        {{#if acct.sale}}<p class="mt-1">Posted to Accounting as <strong>{{acct.sale}}</strong>.</p>
+        {{else}}<p class="mt-1 text-ink-muted">Not posted yet. Accounting picks it up on its next “Post new transactions”.</p>{{/if}}
+        {{#if (eq sale.status 'voided')}}
+          {{#if acct.reversal}}<p class="mt-1">Reversal posted as <strong>{{acct.reversal}}</strong>.</p>
+          {{else}}<p class="mt-1 text-ink-muted">Reversal not posted yet.</p>{{/if}}
+        {{/if}}
+        <p class="mt-2 text-sm text-ink-muted">Cost of goods: {{peso sale.total_cost}} · Gross profit: {{#if (eq sale.status 'completed')}}{{peso (sub sale.total_amount sale.total_cost)}}{{else}}—{{/if}}</p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="font-extrabold">Stock movements</h2>
+        <ul class="mt-2 space-y-1 text-[15px]">
+          {{#each movements}}<li><span class="badge {{badge movement_type}}">{{label movement_type}}</span> {{movement_code}} · {{signed quantity_change}} ({{quantity_before}} → {{quantity_after}})</li>{{/each}}
+        </ul>
+      </div>
+
+      {{#if (eq sale.status 'completed')}}
+      <form action="/sales/{{sale.id}}/void" method="POST" id="voidForm" class="card space-y-3 p-5">
+        <h2 class="font-extrabold text-danger">Void this sale</h2>
+        <input name="reason" class="field" placeholder="Reason (required), e.g. wrong item rung up" required maxlength="255">
+        {{#unless isAdmin}}<input type="hidden" name="approver_username" id="apUser"><input type="hidden" name="approver_password" id="apPass">{{/unless}}
+        <button class="btn-danger">Void {{sale.sale_code}}</button>
+      </form>
+      {{/if}}
+    </section>
+  </div>
+</main>
+{{#unless isAdmin}}
+<script>
+  document.getElementById("voidForm")?.addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (form.dataset.approved) return;
+    e.preventDefault();
+    if (!form.reason.value.trim()) { Swal.fire({ icon: "warning", title: "Give a reason first", text: "Type why this sale is being voided.", confirmButtonColor: "#C2410C" }); return; }
+    const r = await Swal.fire({
+      icon: "warning", title: "Admin approval needed", text: "An admin must type their username and password to void {{sale.sale_code}}.",
+      html: '<input id="swUser" class="swal2-input" placeholder="Admin username" autocomplete="off"><input id="swPass" type="password" class="swal2-input" placeholder="Admin password" autocomplete="off">',
+      focusConfirm: false, showCancelButton: true, confirmButtonText: "Approve and void", cancelButtonText: "Cancel", reverseButtons: true, confirmButtonColor: "#B42318",
+      preConfirm: () => {
+        const u = document.getElementById("swUser").value.trim(), p = document.getElementById("swPass").value;
+        if (!u || !p) { Swal.showValidationMessage("Enter the admin username and password."); return false; }
+        return { u, p };
+      }
+    });
+    if (!r.isConfirmed) return;
+    document.getElementById("apUser").value = r.value.u;
+    document.getElementById("apPass").value = r.value.p;
+    form.dataset.approved = "1";
+    form.requestSubmit();
+  });
+</script>
+{{/unless}}
+{{#if justSold}}
+{{#if cfg.printSound}}<script src="/js/receipt-sound.js"></script>{{/if}}
+<style>
+  #printAnim { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    background: rgba(42, 26, 18, .78); backdrop-filter: blur(4px); transition: opacity .35s; }
+  #printAnim.is-done { opacity: 0; pointer-events: none; }
+  .pa-printer { position: relative; width: 250px; height: 96px; border-radius: 22px 22px 14px 14px; background: linear-gradient(#f4e6da, #dcc3ad);
+    box-shadow: 0 14px 30px rgba(0,0,0,.35); z-index: 2; }
+  .pa-printer::before { content: ""; position: absolute; left: 22px; right: 22px; bottom: 16px; height: 10px; border-radius: 6px; background: #2a1a12; }
+  .pa-led { position: absolute; top: 16px; right: 20px; width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; animation: pa-blink .35s infinite alternate; }
+  .pa-logo { position: absolute; top: 12px; left: 18px; width: 34px; height: 34px; }
+  .pa-slot { position: relative; width: 200px; height: 230px; margin-top: -14px; overflow: hidden; z-index: 1; }
+  .pa-paper { position: absolute; left: 0; right: 0; top: 0; padding: 14px 16px 22px; background: #fff; color: #2a1a12; font: 600 11px/1.5 ui-monospace, Consolas, monospace;
+    transform: translateY(-100%); animation: pa-feed 3s steps(16, end) forwards;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 97%, 90% 100%, 85% 97%, 80% 100%, 75% 97%, 70% 100%, 65% 97%, 60% 100%, 55% 97%, 50% 100%, 45% 97%, 40% 100%, 35% 97%, 30% 100%, 25% 97%, 20% 100%, 15% 97%, 10% 100%, 5% 97%, 0 100%); }
+  .pa-paper .row { display: flex; justify-content: space-between; }
+  .pa-paper .bar { height: 7px; margin: 6px 0; border-radius: 3px; background: #ead8c8; }
+  .pa-paper .total { margin-top: 8px; padding-top: 6px; border-top: 1px dashed #6b4f3f; font-size: 14px; font-weight: 800; }
+  .pa-status { color: #fff; font: 700 17px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; text-align: center; }
+  .pa-status small { display: block; margin-top: 4px; font-weight: 500; font-size: 13px; color: #f3dcc8; }
+  .pa-progress { width: 250px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.2); overflow: hidden; }
+  .pa-progress i { display: block; height: 100%; width: 0; background: #fdba8c; animation: pa-bar 3s linear forwards; }
+  @keyframes pa-feed { to { transform: translateY(0); } }
+  @keyframes pa-bar { to { width: 100%; } }
+  @keyframes pa-blink { to { opacity: .25; } }
+  @media print { #printAnim { display: none !important; } }
+  @media (prefers-reduced-motion: reduce) { .pa-paper { animation-duration: .01s; } }
+</style>
+<div id="printAnim" role="status" aria-live="polite">
+  <div class="pa-printer"><img class="pa-logo" src="/img/logo.png" alt=""><span class="pa-led"></span></div>
+  <div class="pa-slot">
+    <div class="pa-paper">
+      <div style="text-align:center;font-weight:800">{{cfg.storeName}}</div>
+      <div style="text-align:center">SALES RECEIPT</div>
+      <div class="bar"></div>
+      <div class="row"><span>{{sale.sale_code}}</span><span>{{dateTime sale.sold_at}}</span></div>
+      <div class="bar"></div><div class="bar" style="width:70%"></div><div class="bar" style="width:85%"></div>
+      <div class="total row"><span>TOTAL</span><span>{{peso sale.total_amount}}</span></div>
+      <div style="text-align:center;margin-top:6px">{{cfg.receiptFooter}}</div>
+    </div>
+  </div>
+  <div class="pa-status">Printing receipt…<small>{{sale.sale_code}} · {{peso sale.total_amount}}</small></div>
+  <div class="pa-progress"><i></i></div>
+</div>
+<script>
+  window.addEventListener("load", () => {
+    const wait = {{#if cfg.printSound}}(window.playReceiptSound ? window.playReceiptSound() + 150 : 3150){{else}}3150{{/if}};
+    const anim = document.getElementById("printAnim");
+    setTimeout(() => {
+      anim.classList.add("is-done");
+      setTimeout(() => anim.remove(), 400);
+      {{#if autoPrint}}setTimeout(() => { if (window.Swal) Swal.close(); document.querySelectorAll(".swal2-container").forEach((e) => e.remove()); window.print(); }, 450);{{/if}}
+    }, wait);
+    anim.addEventListener("click", () => { anim.classList.add("is-done"); });
+  });
+</script>
+{{/if}}
+{{> pos-footer}}

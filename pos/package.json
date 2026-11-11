@@ -1,0 +1,38 @@
+{
+  "name": "mindafresh-pos",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon --ext js,xian,css --ignore public/css/app.css index.js",
+    "xian": "nodemon --ext js,xian,css --ignore public/css/app.css index.js",
+    "css": "tailwindcss -i ./public/css/input.css -o ./public/css/app.css --watch",
+    "css:build": "tailwindcss -i ./public/css/input.css -o ./public/css/app.css --minify",
+    "migrate": "node migrate.js",
+    "start:prod": "node scripts/start-prod.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-handlebars": "^7.1.3",
+    "express-session": "^1.18.1",
+    "multer": "^2.5.0",
+    "mysql2": "^3.11.5",
+    "sequelize": "^6.37.5",
+    "sweetalert2": "^11.26.25"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "tailwindcss": "3.4.17"
+  },
+  "allowScripts": {
+    "bcrypt@5.1.1": true
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

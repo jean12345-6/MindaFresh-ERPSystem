@@ -1,0 +1,51 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div><h1 class="text-2xl font-extrabold">Products and prices</h1></div>
+    <a href="/products/new" class="btn-primary">Add product</a>
+  </div>
+  <form method="GET" class="mb-4 flex flex-wrap items-end gap-2">
+    <input name="q" value="{{q}}" class="field max-w-xs" placeholder="Search name or code">
+    <select name="category_id" class="field max-w-[200px]">
+      <option value="">All categories</option>
+      {{#each categories}}<option value="{{id}}" {{#if (eq id ../category_id)}}selected{{/if}}>{{name}}</option>{{/each}}
+    </select>
+    <select name="status" class="field max-w-[160px]">
+      <option value="">Any status</option>
+      <option value="active" {{#if (eq status 'active')}}selected{{/if}}>Active</option>
+      <option value="inactive" {{#if (eq status 'inactive')}}selected{{/if}}>Inactive</option>
+    </select>
+    <button class="btn-outline">Filter</button>
+  </form>
+  <div class="card overflow-x-auto">
+    <table class="w-full text-left text-[15px]">
+      <thead class="border-b border-line text-sm text-ink-muted"><tr>
+        <th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Category</th>
+        <th class="px-4 py-3 text-right">Cost</th><th class="px-4 py-3 text-right">Price</th><th class="px-4 py-3 text-right">On hand</th>
+        <th class="px-4 py-3">Online</th><th class="px-4 py-3">Status</th><th class="px-4 py-3"></th></tr></thead>
+      <tbody class="divide-y divide-line">
+        {{#each products}}
+        <tr>
+          <td class="px-4 py-3 font-bold">{{product_code}}</td>
+          <td class="px-4 py-3"><span class="flex items-center gap-3">{{#if image_url}}<img src="{{image_url}}" alt="" class="h-10 w-10 rounded-lg border border-line object-cover">{{else}}<span class="h-10 w-10 rounded-lg border border-line bg-peach-soft"></span>{{/if}}<span>{{name}} <span class="text-sm text-ink-muted">/ {{unit}}</span></span></span></td>
+          <td class="px-4 py-3">{{Category.name}}</td>
+          <td class="px-4 py-3 text-right">{{peso cost_price}}</td>
+          <td class="px-4 py-3 text-right font-bold">{{peso selling_price}}</td>
+          <td class="px-4 py-3 text-right {{#if (lte StockLevel.quantity_on_hand reorder_level)}}font-bold text-danger{{/if}}">{{StockLevel.quantity_on_hand}}</td>
+          <td class="px-4 py-3">{{#if is_online}}Yes{{else}}<span class="text-ink-muted">No</span>{{/if}}</td>
+          <td class="px-4 py-3"><span class="badge {{badge status}}">{{status}}</span></td>
+          <td class="px-4 py-3">
+            <div class="flex justify-end gap-2">
+              <a href="/products/{{id}}/edit" class="btn-outline min-h-[36px] px-3 text-sm">Edit</a>
+              <form action="/products/{{id}}/toggle" method="POST"><button class="btn-outline min-h-[36px] px-3 text-sm">{{#if (eq status 'active')}}Deactivate{{else}}Activate{{/if}}</button></form>
+            </div>
+          </td>
+        </tr>
+        {{else}}<tr><td colspan="9" class="px-4 py-8 text-center text-ink-muted">No products found.</td></tr>{{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
+{{> pos-footer}}

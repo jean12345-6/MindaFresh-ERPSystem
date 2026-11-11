@@ -1,0 +1,43 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold">Sales</h1>
+      <p class="text-ink-muted">{{count}} completed sale(s) on {{@root.date}} · <strong class="text-ink">{{peso total}}</strong></p>
+    </div>
+    <form class="flex flex-wrap items-end gap-2" method="GET">
+      <div><label class="label" for="date">Date</label><input id="date" type="date" name="date" value="{{@root.date}}" class="field mt-1"></div>
+      <div><label class="label" for="status">Status</label>
+        <select id="status" name="status" class="field mt-1">
+          <option value="">All</option>
+          <option value="completed" {{#if (eq status 'completed')}}selected{{/if}}>Completed</option>
+          <option value="voided" {{#if (eq status 'voided')}}selected{{/if}}>Voided</option>
+        </select></div>
+      <button class="btn-outline">Show</button>
+    </form>
+  </div>
+  <div class="card overflow-x-auto">
+    <table class="w-full text-left text-[15px]">
+      <thead class="border-b border-line text-sm text-ink-muted"><tr>
+        <th class="px-4 py-3">Sale</th><th class="px-4 py-3">Time</th><th class="px-4 py-3">Cashier</th>
+        <th class="px-4 py-3">Payment</th><th class="px-4 py-3 text-right">Total</th><th class="px-4 py-3">Status</th></tr></thead>
+      <tbody class="divide-y divide-line">
+        {{#each sales}}
+        <tr class="hover:bg-peach-soft">
+          <td class="px-4 py-3 font-bold"><a class="text-brand" href="/sales/{{id}}">{{sale_code}}</a></td>
+          <td class="px-4 py-3">{{dateTime sold_at}}</td>
+          <td class="px-4 py-3">{{Employee.first_name}} {{Employee.last_name}}</td>
+          <td class="px-4 py-3">{{label payment_method}}</td>
+          <td class="px-4 py-3 text-right font-bold">{{peso total_amount}}</td>
+          <td class="px-4 py-3"><span class="badge {{badge status}}">{{status}}</span></td>
+        </tr>
+        {{else}}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-ink-muted">No sales on this day.</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
+{{> pos-footer}}

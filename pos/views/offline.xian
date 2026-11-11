@@ -1,0 +1,23 @@
+{{> pos-head}}
+<main class="flex min-h-screen flex-col items-center justify-center bg-cream px-6">
+  <img src="/img/logo.png" alt="" class="h-16 w-16">
+  <p class="mt-4 text-2xl font-extrabold">MindaFresh <span class="text-brand">POS</span></p>
+</main>
+<form id="logoutForm" action="/logout" method="POST" class="hidden"></form>
+<script>
+  const DB_TARGET = {{{json dbTarget}}};
+  function ask() {
+    Swal.fire({
+      icon: "error", title: "Database is offline",
+      html: "The POS cannot reach the shared database at <b>" + DB_TARGET + "</b>.<br>Make sure the host laptop is awake and Laragon is running.",
+      confirmButtonText: "Try again", showCancelButton: true, cancelButtonText: "Log out", reverseButtons: true,
+      confirmButtonColor: "#C2410C", allowOutsideClick: false, allowEscapeKey: false, showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        try { const r = await fetch("/health/db", { cache: "no-store" }); if (!(await r.json()).ok) throw new Error("offline"); return true; }
+        catch { Swal.showValidationMessage("Still offline. Check the connection and try again."); return false; }
+      }
+    }).then((r) => { if (r.isConfirmed) location.reload(); else if (r.dismiss === Swal.DismissReason.cancel) document.getElementById("logoutForm").submit(); });
+  }
+  window.addEventListener("load", () => setTimeout(ask, 100));
+</script>
+{{> pos-end}}

@@ -1,0 +1,22 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <a href="/stock" class="text-sm font-bold text-brand">← Stock levels</a>
+  <h1 class="mt-2 text-2xl font-extrabold">Adjust stock</h1>
+  <form action="/stock/adjust" method="POST" class="card mt-4 space-y-4 p-6">
+    <div><label class="label" for="product_id">Product</label>
+      <select id="product_id" name="product_id" class="field mt-1" required>
+        <option value="">Choose…</option>
+        {{#each products}}<option value="{{id}}" {{#if (eq id ../product_id)}}selected{{/if}}>{{product_code}} · {{name}}</option>{{/each}}
+      </select></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="label" for="direction">Change</label>
+        <select id="direction" name="direction" class="field mt-1"><option value="remove">Remove (−)</option><option value="add">Add (+)</option></select></div>
+      <div><label class="label" for="quantity">Quantity</label><input id="quantity" name="quantity" type="number" min="1" step="1" class="field mt-1" required></div>
+    </div>
+    <div><label class="label" for="remarks">Reason</label><input id="remarks" name="remarks" class="field mt-1" required maxlength="255" placeholder="e.g. 3 packs spoiled, count on 2 Nov"></div>
+    <button class="btn-primary w-full">Save adjustment</button>
+  </form>
+</main>
+{{> pos-footer}}

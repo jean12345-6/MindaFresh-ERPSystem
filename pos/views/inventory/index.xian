@@ -1,0 +1,49 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold">Stock levels</h1>
+      <p class="text-ink-muted">Stock value at cost: <strong class="text-ink">{{peso totalValue}}</strong> · {{lowCount}} item(s) at or below reorder level</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="/stock/movements" class="btn-outline">Movement history</a>
+      <a href="/stock/adjust" class="btn-outline">Adjust stock</a>
+      <a href="/purchase-orders/new?low=1" class="btn-primary">Restock low items</a>
+    </div>
+  </div>
+  <form method="GET" class="mb-4 flex flex-wrap items-center gap-2">
+    <input name="q" value="{{q}}" class="field max-w-xs" placeholder="Search name or code">
+    <label class="flex items-center gap-2 font-semibold"><input type="checkbox" name="low" value="1" class="h-5 w-5 accent-brand" {{#if lowOnly}}checked{{/if}}> Low stock only</label>
+    <button class="btn-outline">Filter</button>
+  </form>
+  {{#if (and lowOnly (eq items.length 0))}}<div class="card p-8 text-center font-semibold text-leaf">All stock OK.</div>{{else}}
+  <div class="card overflow-x-auto">
+    <table class="w-full text-left text-[15px]">
+      <thead class="border-b border-line text-sm text-ink-muted"><tr>
+        <th class="px-4 py-3">Code</th><th class="px-4 py-3">Product</th><th class="px-4 py-3">Category</th>
+        <th class="px-4 py-3 text-right">On hand</th><th class="px-4 py-3 text-right">Reorder at</th>
+        <th class="px-4 py-3 text-right">Avg cost</th><th class="px-4 py-3 text-right">Value</th><th class="px-4 py-3"></th></tr></thead>
+      <tbody class="divide-y divide-line">
+        {{#each items}}
+        <tr class="{{#if low}}bg-danger-bg/40{{/if}}">
+          <td class="px-4 py-3 font-bold">{{product_code}}</td>
+          <td class="px-4 py-3">{{name}} {{#if (eq status 'inactive')}}<span class="badge bg-danger-bg text-danger">inactive</span>{{/if}}</td>
+          <td class="px-4 py-3">{{category}}</td>
+          <td class="px-4 py-3 text-right font-bold">{{qty}} {{unit}} {{#if low}}<span class="badge ml-1 bg-danger-bg text-danger">LOW</span>{{/if}}</td>
+          <td class="px-4 py-3 text-right">{{reorder_level}}</td>
+          <td class="px-4 py-3 text-right">{{peso cost_price}}</td>
+          <td class="px-4 py-3 text-right">{{peso value}}</td>
+          <td class="px-4 py-3 text-right whitespace-nowrap">
+            <a href="/stock/adjust?product_id={{id}}" class="text-sm font-bold text-brand">Adjust</a> ·
+            <a href="/stock/movements?product_id={{id}}" class="text-sm font-bold text-brand">History</a>
+          </td>
+        </tr>
+        {{else}}<tr><td colspan="8" class="px-4 py-8 text-center text-ink-muted">No products found.</td></tr>{{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{/if}}
+</main>
+{{> pos-footer}}

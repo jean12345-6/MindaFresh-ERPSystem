@@ -1,0 +1,4 @@
+{{!-- Flash messages are shown as SweetAlert toasts (public/js/app.js). --}}
+<script>
+  window.__flash = { success: {{{json success_msg}}}, error: {{{json error_msg}}} };
+</script>

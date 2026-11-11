@@ -1,0 +1,45 @@
+{{> pos-head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+  {{> flash}}
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold">Audit log</h1>
+    </div>
+    <form method="GET" class="flex flex-wrap items-end gap-2">
+      <div><label class="label" for="type">Event</label>
+        <select id="type" name="type" class="field mt-1">
+          <option value="">All events</option>
+          {{#each types}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{this.label}}</option>{{/each}}
+        </select></div>
+      <div><label class="label" for="date">Date</label><input id="date" type="date" name="date" value="{{@root.date}}" class="field mt-1"></div>
+      <button class="btn-outline">Filter</button>
+    </form>
+  </div>
+
+  <div class="card overflow-x-auto">
+    <table class="w-full text-left text-[15px]">
+      <thead class="border-b border-line text-sm text-ink-muted"><tr>
+        <th class="px-4 py-3">When</th><th class="px-4 py-3">Event</th><th class="px-4 py-3">Cashier</th><th class="px-4 py-3">Details</th><th class="px-4 py-3 text-right">Value</th></tr></thead>
+      <tbody class="divide-y divide-line">
+        {{#each events}}
+        <tr>
+          <td class="whitespace-nowrap px-4 py-3">{{dateTime at}}</td>
+          <td class="px-4 py-3"><span class="badge {{#if (eq type 'sale_voided')}}bg-danger-bg text-danger{{else}}{{#if (eq type 'void_refused')}}bg-danger-bg text-danger{{else}}bg-peach text-ink{{/if}}{{/if}}">{{this.label}}</span></td>
+          <td class="px-4 py-3">{{employee}}<span class="block text-xs text-ink-muted">{{role}}</span></td>
+          <td class="px-4 py-3 text-sm">
+            {{#each items}}<div>{{quantity}} × {{name}}</div>{{/each}}
+            {{#if sale_code}}<div><strong>{{sale_code}}</strong>{{#if reason}} · {{reason}}{{/if}}</div>{{/if}}
+            {{#if approver}}<div class="text-ink-muted">Approved by {{approver}}</div>{{/if}}
+            {{#if note}}<div class="text-ink-muted">{{note}}</div>{{/if}}
+          </td>
+          <td class="px-4 py-3 text-right font-bold">{{#if total}}{{peso total}}{{/if}}</td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5" class="px-4 py-8 text-center text-ink-muted">Nothing logged yet.</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
+{{> pos-footer}}
