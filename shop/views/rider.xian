@@ -1,0 +1,69 @@
+{{> head}}
+{{> admin-nav}}
+
+<main class="mx-auto flex w-full max-w-[1100px] flex-col gap-6 p-4 sm:p-6 lg:p-9">
+  <div class="flex flex-col gap-1.5">
+    <span class="text-sm font-semibold text-ink-muted">Hi, {{staff.full_name}}</span>
+    <h1 class="text-[30px] font-extrabold tracking-tight">Deliveries</h1>
+    <p class="text-[15px] text-ink-soft">Hand over the order, take a photo of it at the customer's door, then tap <b>Mark delivered</b>. The photo is the proof of delivery.</p>
+  </div>
+
+  <section aria-labelledby="road-title" class="flex flex-col gap-4">
+    <h2 id="road-title" class="flex items-center gap-2 text-xl font-extrabold">Out for delivery <span class="badge bg-peach text-brand-dark">{{onTheWay.length}}</span></h2>
+    {{#each onTheWay}}
+    <article class="card flex flex-col gap-4 p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="flex min-w-0 flex-col gap-1">
+          <span class="text-lg font-extrabold">{{order_code}}</span>
+          <span class="text-[15px] font-semibold">{{customer.name}}</span>
+          {{#if customer.phone}}<a href="tel:{{customer.phone}}" class="text-[15px] font-semibold text-brand">Call {{customer.phone}}</a>{{/if}}
+        </div>
+        {{#if toCollect}}
+          <span class="badge bg-[#FFF1D6] px-3 py-1.5 text-sm text-[#7A4A00]">Collect cash {{peso toCollect}}</span>
+        {{else}}
+          <span class="badge bg-leaf-bg px-3 py-1.5 text-sm text-[#2F4A12]">{{payMethod payment_method}} · already paid</span>
+        {{/if}}
+      </div>
+      <div class="flex flex-col gap-1 rounded-xl bg-cream px-4 py-3 text-[15px]">
+        <span class="font-bold">Deliver to</span>
+        <span class="leading-normal text-ink-soft">{{delivery_address}}</span>
+      </div>
+      <ul class="flex flex-col gap-1 text-[15px] text-ink-soft">
+        {{#each items}}<li>{{quantity}} × {{product_name}}</li>{{/each}}
+      </ul>
+      {{> delivery-form action=(concat "/rider/orders/" order_code "/deliver") code=order_code}}
+    </article>
+    {{else}}
+    <p class="card p-6 text-[15px] text-ink-muted">No orders are out for delivery right now. When the admin marks an order "out for delivery", it shows up here.</p>
+    {{/each}}
+  </section>
+
+  <section aria-labelledby="done-title" class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 id="done-title" class="flex items-center gap-2 text-xl font-extrabold">Delivered today <span class="badge bg-leaf-bg text-[#2F4A12]">{{deliveredToday.length}}</span></h2>
+      <a href="/rider/history" class="text-[15px] font-semibold text-brand">See all history →</a>
+    </div>
+    {{#if deliveredToday.length}}
+    <ul class="card flex flex-col divide-y divide-[#F6EADD] px-5">
+      {{#each deliveredToday}}
+      <li class="flex items-center gap-4 py-3.5">
+        {{#if delivery_photo}}
+          <a href="{{delivery_photo}}" target="_blank" rel="noopener" class="shrink-0"><img src="{{delivery_photo}}" alt="Proof of delivery for {{order_code}}" class="h-16 w-16 rounded-xl border border-line object-cover"></a>
+        {{else}}
+          <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#F3E9DF] text-xs text-ink-muted">No photo</span>
+        {{/if}}
+        <span class="flex min-w-0 flex-1 flex-col">
+          <span class="font-bold">{{order_code}} · {{customer.name}}</span>
+          <span class="text-sm text-ink-muted">Delivered {{datetime delivered_at}}{{#if delivered_by}} by {{delivered_by}}{{/if}} · {{peso total_amount}} {{payMethod payment_method}}</span>
+        </span>
+      </li>
+      {{/each}}
+    </ul>
+    {{else}}
+    <p class="text-[15px] text-ink-muted">Nothing delivered yet today.</p>
+    {{/if}}
+  </section>
+</main>
+
+{{> alert/alert}}
+{{> admin-footer}}

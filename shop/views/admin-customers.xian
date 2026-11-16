@@ -1,11 +1,10 @@
 {{> head}}
 {{> admin-nav}}
 
-<div class="mx-auto flex w-full max-w-[1440px] flex-wrap gap-6 p-6 md:flex-nowrap">
-  {{> admin-side}}
+<div class="mx-auto flex w-full max-w-[1440px] gap-6 p-6 lg:p-9">
 
   <main class="flex min-w-0 flex-1 flex-col gap-5">
-    <h1 class="text-[28px] font-extrabold tracking-tight">Customers</h1>
+    <h1 class="text-[32px] font-extrabold tracking-tight">Customers</h1>
     <div class="card overflow-x-auto rounded-[18px]">
       <table class="w-full min-w-[760px] border-collapse text-sm">
         <thead>
@@ -56,4 +55,4 @@
 </div>
 
 {{> alert/alert}}
-{{> footer}}
+{{> admin-footer}}

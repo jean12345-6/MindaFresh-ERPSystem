@@ -5,6 +5,7 @@ import { fn, col, Op } from "sequelize";
 import { ProductReview, Product, Customer, Order, OrderItem } from "../models/index.js";
 import { AppError } from "../utils/appError.js";
 import { round1 } from "../utils/rating.js";
+import * as reviewPhotoService from "./reviewPhotoService.js";
 
 const RECEIVED = ["delivered", "returned"];
 const MAX_COMMENT = 500;
@@ -67,6 +68,7 @@ export async function forProduct(productId, customerId = null) {
       rating: r.rating,
       comment: r.comment,
       date: r.updated_at,
+      photos: reviewPhotoService.photoUrls(r.id),
       verified: true, // every review is tied to a delivered order
       own: customerId && r.customer_id === customerId
     }))
@@ -77,12 +79,14 @@ export async function forProduct(productId, customerId = null) {
 export async function mineForOrder(customerId, productIds) {
   if (!productIds.length) return {};
   const rows = await ProductReview.findAll({ where: { customer_id: customerId, product_id: { [Op.in]: productIds } } });
-  return Object.fromEntries(rows.map((r) => [r.product_id, { rating: r.rating, comment: r.comment || "", hidden: !r.isVisible() }]));
+  return Object.fromEntries(rows.map((r) => [r.product_id,
+    { rating: r.rating, comment: r.comment || "", hidden: !r.isVisible(), photos: reviewPhotoService.photoUrls(r.id) }]));
 }
 
-// +saveReview(customerId, orderCode, productCode, { rating, comment }) — from a delivered order on My orders.
-// Creates the review, or updates the customer's own review of that product.
-export async function saveReview(customerId, orderCode, productCode, { rating, comment }) {
+// +saveReview(customerId, orderCode, productCode, { rating, comment, remove_photos }, photos) — from a delivered
+// order on My orders. Creates the review, or updates the customer's own review of that product.
+// photos: up to 3 uploaded images; new photos replace the old ones. remove_photos = "1" removes them.
+export async function saveReview(customerId, orderCode, productCode, { rating, comment, remove_photos }, photos = []) {
   const order = await Order.findOne({
     where: { order_code: orderCode, customer_id: customerId },
     include: [{ model: OrderItem, include: [Product] }]
@@ -96,14 +100,17 @@ export async function saveReview(customerId, orderCode, productCode, { rating, c
   if (!Number.isInteger(stars) || stars < 1 || stars > 5) throw new AppError("VALIDATION_ERROR", "Please choose a rating from 1 to 5 stars.");
   const text = (comment || "").trim();
   if (text.length > MAX_COMMENT) throw new AppError("VALIDATION_ERROR", `Please keep your review under ${MAX_COMMENT} characters.`);
+  if (photos.length > reviewPhotoService.MAX_PHOTOS)
+    throw new AppError("VALIDATION_ERROR", `You can attach up to ${reviewPhotoService.MAX_PHOTOS} photos.`);
+  const checked = reviewPhotoService.checkPhotos(photos); // all photos are checked before anything is saved
 
   const existing = await ProductReview.findOne({ where: { customer_id: customerId, product_id: item.product_id } });
-  if (existing) {
-    await existing.update({ rating: stars, comment: text || null });
-    return { product: item.Product, created: false, hidden: !existing.isVisible() };
-  }
-  await ProductReview.create({ customer_id: customerId, product_id: item.product_id, order_id: order.id, rating: stars, comment: text || null });
-  return { product: item.Product, created: true, hidden: false };
+  const review = existing
+    ? await existing.update({ rating: stars, comment: text || null })
+    : await ProductReview.create({ customer_id: customerId, product_id: item.product_id, order_id: order.id, rating: stars, comment: text || null });
+  if (checked.length) reviewPhotoService.replacePhotos(review.id, checked);
+  else if (remove_photos === "1") reviewPhotoService.removePhotos(review.id);
+  return { product: item.Product, created: !existing, hidden: !review.isVisible(), photos: checked.length };
 }
 
 // +listForAdmin({ status }): every review with its product, customer and order, newest first
@@ -126,6 +133,7 @@ export async function listForAdmin({ status = "" } = {}) {
       order_code: r.Order?.order_code,
       rating: r.rating,
       comment: r.comment,
+      photos: reviewPhotoService.photoUrls(r.id),
       status: r.status,
       date: r.updated_at
     }))

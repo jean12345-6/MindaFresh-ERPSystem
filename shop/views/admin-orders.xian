@@ -1,12 +1,11 @@
 {{> head}}
 {{> admin-nav}}
 
-<div class="mx-auto flex w-full max-w-[1440px] flex-wrap gap-6 p-6 md:flex-nowrap">
-  {{> admin-side}}
+<div class="mx-auto flex w-full max-w-[1440px] gap-6 p-6 lg:p-9">
 
   <main class="flex min-w-0 flex-1 flex-col gap-5">
     <div class="flex flex-wrap items-end justify-between gap-3">
-      <h1 class="text-[28px] font-extrabold tracking-tight">Orders</h1>
+      <h1 class="text-[32px] font-extrabold tracking-tight">Orders</h1>
       <form action="/admin/orders" method="GET" class="flex min-h-[44px] w-full max-w-xs items-center gap-2 rounded-xl border border-line-strong bg-white pl-3.5 pr-1.5">
         {{#if status}}<input type="hidden" name="status" value="{{status}}">{{/if}}
         <label for="aq" class="sr-only">Search orders</label>
@@ -77,4 +76,4 @@
 </div>
 
 {{> alert/alert}}
-{{> footer}}
+{{> admin-footer}}

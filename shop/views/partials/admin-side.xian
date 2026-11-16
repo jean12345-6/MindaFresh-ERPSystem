@@ -1,9 +1,0 @@
-<nav aria-label="Admin" class="flex w-full flex-row flex-wrap gap-1 md:w-56 md:flex-col print:hidden">
-  <a href="/admin/orders" {{#if (eq nav "orders")}}aria-current="page" class="flex min-h-[44px] items-center rounded-[10px] bg-peach px-3.5 text-[15px] font-bold text-brand-dark"{{else}}class="flex min-h-[44px] items-center rounded-[10px] px-3.5 text-[15px] font-semibold hover:bg-peach-soft"{{/if}}>Orders</a>
-  <a href="/admin/report" {{#if (eq nav "report")}}aria-current="page" class="flex min-h-[44px] items-center rounded-[10px] bg-peach px-3.5 text-[15px] font-bold text-brand-dark"{{else}}class="flex min-h-[44px] items-center rounded-[10px] px-3.5 text-[15px] font-semibold hover:bg-peach-soft"{{/if}}>Sales report</a>
-  {{#if (eq staff.role "admin")}}
-    <a href="/admin/products" {{#if (eq nav "products")}}aria-current="page" class="flex min-h-[44px] items-center rounded-[10px] bg-peach px-3.5 text-[15px] font-bold text-brand-dark"{{else}}class="flex min-h-[44px] items-center rounded-[10px] px-3.5 text-[15px] font-semibold hover:bg-peach-soft"{{/if}}>Product photos</a>
-    <a href="/admin/reviews" {{#if (eq nav "reviews")}}aria-current="page" class="flex min-h-[44px] items-center rounded-[10px] bg-peach px-3.5 text-[15px] font-bold text-brand-dark"{{else}}class="flex min-h-[44px] items-center rounded-[10px] px-3.5 text-[15px] font-semibold hover:bg-peach-soft"{{/if}}>Reviews</a>
-    <a href="/admin/customers" {{#if (eq nav "customers")}}aria-current="page" class="flex min-h-[44px] items-center rounded-[10px] bg-peach px-3.5 text-[15px] font-bold text-brand-dark"{{else}}class="flex min-h-[44px] items-center rounded-[10px] px-3.5 text-[15px] font-semibold hover:bg-peach-soft"{{/if}}>Customers</a>
-  {{/if}}
-</nav>

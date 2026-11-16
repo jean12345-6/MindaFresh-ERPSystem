@@ -38,6 +38,8 @@ export function registerViewHelpers() {
     JSON.stringify({ success: [].concat(success || []), error: [].concat(error || []) }).replace(/</g, "\\u003c"));
   hbs.registerHelper("stars", (r) => starText(r));
   hbs.registerHelper("list", (...args) => args.slice(0, -1));
+  hbs.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
   hbs.registerHelper("rating1", (r) => Number(r || 0).toFixed(1));
+  hbs.registerHelper("initial", (s) => String(s || "?").trim().charAt(0).toUpperCase());
   hbs.registerHelper("isoDate", (d) => (d ? new Date(d).toISOString().slice(0, 10) : ""));
 }

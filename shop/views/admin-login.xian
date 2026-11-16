@@ -1,29 +1,55 @@
 {{> head}}
-<header class="bg-ink text-white">
-  <div class="flex items-center gap-2.5 px-6 py-3">
-    <img src="/images/freshcart-logo.png" alt="" width="40" height="40" class="h-9 w-9 shrink-0">
-    <span class="text-[17px] font-extrabold">FreshCart Admin</span>
-  </div>
-</header>
+{{!-- Staff log in, same look as the POS log in. Left: photo panel (public/images/login-bg.jpg,
+     dark brown if the file is missing; partial auth-panel). Right: the form. --}}
+<div class="grid min-h-screen flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+  {{> auth-panel badge="Admin" eyebrow="Online shop admin" tagline="Calapan City, Oriental Mindoro"}}
 
-<main class="mx-auto flex w-full max-w-md flex-col gap-5 px-6 pb-14 pt-12">
-  <form action="/admin/login" method="POST" class="card flex flex-col gap-4 p-8">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-[28px] font-extrabold tracking-tight">Staff log in</h1>
-      <p class="text-[15px] text-ink-muted">Use the same username and password as the other MindaFresh modules.</p>
+  <main class="flex min-w-0 flex-col items-center justify-center bg-cream px-6 py-12">
+    <div class="flex w-full max-w-[630px] flex-col gap-8">
+      <a href="/" class="flex items-center gap-3 no-underline lg:hidden">
+        <img src="/images/freshcart-logo.png" alt="" width="52" height="52" class="h-[52px] w-[52px] shrink-0">
+        <span class="text-[24px] font-extrabold text-ink">FreshCart <span class="text-brand">Admin</span></span>
+      </a>
+
+      <h1 class="text-[48px] font-extrabold leading-tight tracking-tight lg:text-[56px]">Log in</h1>
+
+      <form action="/admin/login" method="POST" class="flex flex-col gap-6">
+        <div class="flex flex-col gap-2.5">
+          <label for="username" class="text-[20px] font-bold">Username</label>
+          <div class="flex min-h-[72px] items-center gap-4 rounded-2xl border border-[#D9C6B4] bg-[#E8F0FE] px-6 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6B4F3F" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6.5 8-6.5s7 2.3 8 6.5"/></svg>
+            <input id="username" name="username" autocomplete="username" required autofocus
+                   class="min-w-0 flex-1 border-0 bg-transparent text-[20px] text-ink outline-none">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          <label for="password" class="text-[20px] font-bold">Password</label>
+          <div class="flex min-h-[72px] items-center gap-4 rounded-2xl border border-[#D9C6B4] bg-[#E8F0FE] px-6 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6B4F3F" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   class="min-w-0 flex-1 border-0 bg-transparent text-[20px] text-ink outline-none">
+            <button type="button" data-toggle-for="password" aria-label="Show password" aria-pressed="false"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-white/60">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="mt-2 min-h-[72px] rounded-2xl bg-brand text-[22px] font-bold text-white hover:bg-brand-dark">Log in</button>
+      </form>
+
+      <p class="text-center text-[17px] text-ink-muted">
+        Use the same username and password as the other MindaFresh modules.<br>
+        <a href="/" class="font-semibold text-ink">← Back to the shop</a>
+      </p>
+      <p class="text-center text-[16px] text-ink-muted">MindaFresh Food Distribution, Inc. · Calapan City, Oriental Mindoro</p>
     </div>
-    <div class="flex flex-col gap-1.5">
-      <label for="username" class="label">Username</label>
-      <input id="username" name="username" autocomplete="username" required class="field">
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <label for="password" class="label">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required class="field">
-    </div>
-    <button type="submit" class="btn-dark min-h-[50px] text-base">Log in</button>
-  </form>
-  <p class="text-center text-sm text-ink-muted"><a href="/" class="font-semibold">← Back to the shop</a></p>
-</main>
+  </main>
+</div>
+
+{{> password-toggle}}
 
 {{> alert/alert}}
-{{> footer}}
+</body>
+</html>

@@ -1,8 +1,7 @@
 {{> head}}
 {{> admin-nav}}
 
-<div class="mx-auto flex w-full max-w-[1440px] flex-wrap gap-6 p-6 md:flex-nowrap">
-  {{> admin-side}}
+<div class="mx-auto flex w-full max-w-[1440px] gap-6 p-6 lg:p-9">
 
   <main class="flex min-w-0 flex-1 flex-col gap-5">
     <a href="/admin/orders" class="text-[15px] font-semibold">← All orders</a>
@@ -22,7 +21,7 @@
     {{#if isAdmin}}
     <section aria-label="Actions" class="card flex flex-wrap items-center justify-between gap-4 bg-peach-soft p-5">
       <p class="text-[15px] text-ink-soft">
-        {{#if nextLabel}}Next step for this order:{{else}}{{#if canReturn}}This order was delivered. If the customer sends it back, mark it returned.{{else}}No more steps for this order.{{/if}}{{/if}}
+        {{#if nextLabel}}Next step for this order:{{else}}{{#if withRider}}With the rider. The rider marks it delivered with a proof photo. If the delivery fails, cancel it here.{{else}}{{#if canReturn}}This order was delivered. If the customer sends it back, mark it returned.{{else}}No more steps for this order.{{/if}}{{/if}}{{/if}}
       </p>
       <div class="flex flex-wrap gap-2.5">
         {{#if nextLabel}}
@@ -87,6 +86,7 @@
           <h2 class="mb-1 text-lg font-extrabold">Delivery to</h2>
           <span class="leading-normal text-ink-soft">{{order.delivery_address}}</span>
         </section>
+        {{> delivery-proof order=order}}
         <section class="card flex flex-col gap-1.5 p-5 text-[15px]">
           <h2 class="mb-1 text-lg font-extrabold">Payment</h2>
           <span>{{payMethod order.payment_method}}</span>
@@ -98,4 +98,4 @@
 </div>
 
 {{> alert/alert}}
-{{> footer}}
+{{> admin-footer}}

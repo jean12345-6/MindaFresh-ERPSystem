@@ -1,7 +1,7 @@
 // shop/services/productPhotoService.js — the photo the Online Shop shows for each product.
 // Products belong to POS, so the Shop never writes the products table. The admin's photo is a file
 // owned by the Shop: public/images/products/<product_code>.jpg|png|webp.
-// If POS fills products.image_url, that one is shown first.
+// The admin's photo is shown first; POS's products.image_url is the fallback.
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -32,8 +32,19 @@ export function photoUrl(code) {
   return null;
 }
 
-// What the storefront shows: POS's image_url first, else the Shop's photo, else the placeholder
-export const imageFor = (product) => product.image_url || photoUrl(product.product_code);
+// +photoFile(code): the photo file on disk, or null. Used by GET /photos/:code, which POS shows over the LAN.
+export function photoFile(code) {
+  if (!CODE.test(code || "")) return null;
+  for (const ext of Object.values(TYPES)) {
+    const file = fileFor(code, ext);
+    if (fs.existsSync(file)) return file;
+  }
+  return null;
+}
+
+// What the storefront shows: the photo the Shop admin uploaded first (a local file, works with no internet),
+// else POS's image_url (often an internet link), else the placeholder
+export const imageFor = (product) => photoUrl(product.product_code) || product.image_url;
 
 // Save an uploaded photo (multer memory file) as <code>.<ext>, replacing the old one
 export function savePhoto(code, file) {

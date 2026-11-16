@@ -1,13 +1,17 @@
 // shop/services/orderService.js — OrderService (class diagram Figure 2, composite structure Figure 5)
 // Golden rule: an order and its stock change happen in ONE transaction, so there is never half an order.
 import { Op } from "sequelize";
-import { sequelize, Product, Order, OrderItem, Customer } from "../models/index.js";
+import { sequelize, Product, Order, OrderItem, Customer, Employee } from "../models/index.js";
 import { ORDER_FLOW, CANCEL_RULES } from "../models/Order.js";
 import { deductStock, returnStock } from "./stockService.js";
 import * as cartService from "./cartService.js";
+import * as deliveryPhotoService from "./deliveryPhotoService.js";
 import { AppError } from "../utils/appError.js";
 import { round2 } from "../utils/money.js";
 import { manilaDate } from "../utils/dates.js";
+
+// The rider who delivered an order (only the name is needed)
+const deliveredBy = { model: Employee, as: "DeliveredBy", attributes: ["id", "employee_code", "first_name", "last_name"] };
 
 export const ORDER_STATUSES = ["pending", "confirmed", "out_for_delivery", "delivered", "cancelled", "returned"];
 
@@ -86,20 +90,40 @@ export const nextStep = (status) => {
 };
 
 // +advanceStatus(orderCode, next) — IManageOrder: one delivery step at a time, never skipping
-export async function advanceStatus(orderCode, next = null) {
+// employeeId: on "delivered", the rider (or admin) who delivered it is saved in delivered_by_id
+export async function advanceStatus(orderCode, next = null, { employeeId = null } = {}) {
   return sequelize.transaction(async (t) => {
     const order = await lockOrder(orderCode, t);
     const step = nextStep(order.order_status);
     if (!step || (next && next !== step) || !order.nextStatuses().includes(step))
       throw new AppError("VALIDATION_ERROR", `A ${words(order.order_status)} order cannot move to ${words(next || "the next step")}.`);
+    if (step === "delivered" && !deliveryPhotoService.photoFile(order.order_code))
+      throw new AppError("VALIDATION_ERROR", "Attach a proof-of-delivery photo to mark this order delivered.");
     order.order_status = step;
     if (step === "delivered") {
       order.payment_status = "paid";  // COD is collected by the rider; GCash was already paid
       order.delivered_at = new Date(); // Accounting posts the sale on delivery
+      order.delivered_by_id = employeeId;
     }
     await order.save({ transaction: t });
     return order;
   });
+}
+
+// +markDelivered(orderCode, photo) — the rider hands over the order: the proof-of-delivery photo is
+// saved first, then the order moves out_for_delivery → delivered. If the order cannot move, the photo is removed again.
+export async function markDelivered(orderCode, photo, { employeeId = null } = {}) {
+  const order = await Order.findOne({ where: { order_code: orderCode } });
+  if (!order) throw new AppError("VALIDATION_ERROR", "Order not found.");
+  if (order.order_status !== "out_for_delivery")
+    throw new AppError("VALIDATION_ERROR", `Only an order that is out for delivery can be marked delivered. ${order.order_code} is ${words(order.order_status)}.`);
+  deliveryPhotoService.savePhoto(order.order_code, photo);
+  try {
+    return await advanceStatus(order.order_code, "delivered", { employeeId });
+  } catch (err) {
+    deliveryPhotoService.removePhoto(order.order_code);
+    throw err;
+  }
 }
 
 // +cancelOrder(orderCode, role) — before delivery: return the stock, refund GCash.
@@ -147,6 +171,8 @@ function toView(o) {
     subtotal: Number(o.subtotal),
     shipping_fee: Number(o.shipping_fee),
     total_amount: Number(o.total_amount),
+    delivery_photo: deliveryPhotoService.photoUrl(o.order_code), // proof of delivery, or null
+    delivered_by: o.DeliveredBy ? `${o.DeliveredBy.first_name} ${o.DeliveredBy.last_name}` : null,
     items: (o.OrderItems || []).map((i) => ({
       product_name: i.product_name,
       product_id: i.product_id,
@@ -168,7 +194,8 @@ export async function listForCustomer(customerId) {
 }
 
 export async function getForCustomer(customerId, orderCode) {
-  const o = await Order.findOne({ where: { order_code: orderCode, customer_id: customerId }, include: { model: OrderItem, include: Product } });
+  const o = await Order.findOne({ where: { order_code: orderCode, customer_id: customerId },
+    include: [{ model: OrderItem, include: Product }, deliveredBy] });
   return o && toView(o);
 }
 
@@ -201,10 +228,56 @@ export async function listForAdmin({ status = "", q = "" } = {}) {
 }
 
 export async function getForAdmin(orderCode) {
-  const o = await Order.findOne({ where: { order_code: orderCode }, include: [safeCustomer, OrderItem] });
+  const o = await Order.findOne({ where: { order_code: orderCode }, include: [safeCustomer, OrderItem, deliveredBy] });
   if (!o) return null;
   const c = o.Customer;
   return { ...toView(o), customer: { name: `${c.first_name} ${c.last_name}`, customer_code: c.customer_code, email: c.email, phone: c.phone } };
+}
+
+// +listForRider(): what the rider page shows — orders on the road now, and orders delivered today
+export async function listForRider() {
+  const today = manilaDate(new Date());
+  const [onTheWay, recent] = await Promise.all([
+    Order.findAll({ where: { order_status: "out_for_delivery" }, include: [safeCustomer, OrderItem], order: [["ordered_at", "ASC"]] }),
+    Order.findAll({ where: { order_status: "delivered", delivered_at: { [Op.gte]: new Date(Date.now() - 36 * 3600 * 1000) } },
+      include: [safeCustomer, OrderItem, deliveredBy], order: [["delivered_at", "DESC"]] })
+  ]);
+  const card = (o) => ({
+    ...toView(o),
+    customer: { name: `${o.Customer.first_name} ${o.Customer.last_name}`, phone: o.Customer.phone },
+    toCollect: o.payment_method === "cod" && o.payment_status !== "paid" ? Number(o.total_amount) : 0
+  });
+  return {
+    onTheWay: onTheWay.map(card),
+    deliveredToday: recent.filter((o) => manilaDate(o.delivered_at) === today).map(card)
+  };
+}
+
+// +riderHistory({ riderId, from, to }): delivered (or later returned) orders in a date range, newest first.
+// riderId = null lists every rider's deliveries (admin view).
+export async function riderHistory({ riderId = null, from, to }) {
+  const where = { order_status: { [Op.in]: ["delivered", "returned"] }, delivered_by_id: riderId ?? { [Op.ne]: null },
+    delivered_at: { [Op.between]: [new Date(`${from}T00:00:00+08:00`), new Date(`${to}T23:59:59+08:00`)] } };
+  const rows = await Order.findAll({ where, include: [safeCustomer, OrderItem, deliveredBy], order: [["delivered_at", "DESC"]] });
+  const orders = rows.map((o) => ({ ...toView(o), customer: { name: `${o.Customer.first_name} ${o.Customer.last_name}` },
+    cashCollected: o.payment_method === "cod" ? Number(o.total_amount) : 0 }));
+  const days = new Set(orders.map((o) => manilaDate(o.delivered_at)));
+  return {
+    orders,
+    totals: {
+      deliveries: orders.length,
+      days: days.size,
+      cash: round2(orders.reduce((s, o) => s + o.cashCollected, 0)),
+      withPhoto: orders.filter((o) => o.delivery_photo).length
+    }
+  };
+}
+
+// +riders(): employees with a rider login, for the admin's filter
+export async function riders() {
+  const rows = await Employee.findAll({ include: [{ association: "User", where: { role: "rider" }, attributes: [] }],
+    attributes: ["id", "employee_code", "first_name", "last_name"], order: [["last_name", "ASC"], ["first_name", "ASC"]] });
+  return rows.map((e) => ({ id: e.id, code: e.employee_code, name: `${e.first_name} ${e.last_name}` }));
 }
 
 // --- Sales report (DFD process 7, use case "View sales report") ------------------------

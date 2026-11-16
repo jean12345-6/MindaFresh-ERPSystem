@@ -26,7 +26,8 @@ INSERT INTO users (user_code, employee_id, username, password, role, status) VAL
   ('USR-0003', 3, 'jose.inventory', '$2b$10$dgF/oWHHZCRUQ.16.aGacucDihB6WK.rOwmy3u7ilG/uihAMPYIFe', 'inventory_staff', 'active'),
   ('USR-0004', 4, 'liza.hr', '$2b$10$NPWnKmqwxMXripnw9ze72.E3nzZRmu3w8CMg.uVl.Er9jfI6VWP3W', 'hr_staff', 'active'),
   ('USR-0005', 5, 'carla.accountant', '$2b$10$yEzOa.CcvB/MBSJFVcPube/vDhZAf157rN7aQAjo9A26klb3ccDrO', 'accountant', 'active'),
-  ('USR-0006', 6, 'pedro.employee', '$2b$10$qIbri2JyMZiNOMuB8jdHLeHL.9/8rR4aobOg9QWmIQ6PEL7aNL3UC', 'employee', 'active');
+  ('USR-0006', 6, 'pedro.employee', '$2b$10$qIbri2JyMZiNOMuB8jdHLeHL.9/8rR4aobOg9QWmIQ6PEL7aNL3UC', 'employee', 'active'),
+  ('USR-0007', 7, 'ramon.rider', '$2b$10$vU0jj6FTSUa59gvdMBdAHu/YZg67j093vaMgxYXMWrj1nxt2d4OZ2', 'rider', 'active');
 
 INSERT INTO categories (category_code, name) VALUES
   ('CAT-0001', 'Fresh Produce'),

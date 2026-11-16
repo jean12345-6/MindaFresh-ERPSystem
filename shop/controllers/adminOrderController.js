@@ -42,7 +42,9 @@ export const show = async (req, res, next) => {
       nav: "orders",
       order,
       isAdmin,
-      nextLabel: isAdmin && nextStatus ? NEXT_LABEL[nextStatus] : null,
+      // Only the rider marks an order delivered (with a proof photo), so the admin gets no button for that step
+      nextLabel: isAdmin && nextStatus && nextStatus !== "delivered" ? NEXT_LABEL[nextStatus] : null,
+      withRider: order.order_status === "out_for_delivery",
       canCancel: isAdmin && orderService.CANCEL_RULES.admin.includes(order.order_status),
       canReturn: isAdmin && order.order_status === "delivered"
     });

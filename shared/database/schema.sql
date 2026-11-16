@@ -64,7 +64,7 @@ CREATE TABLE users (
   UNIQUE KEY uq_users_employee_id (employee_id),
   CONSTRAINT fk_users_employee_id FOREIGN KEY (employee_id) REFERENCES employees (id),
   UNIQUE KEY uq_users_username (username),
-  CONSTRAINT chk_users_role CHECK (role IN ('admin', 'cashier', 'inventory_staff', 'hr_staff', 'accountant', 'employee')),
+  CONSTRAINT chk_users_role CHECK (role IN ('admin', 'cashier', 'inventory_staff', 'hr_staff', 'accountant', 'employee', 'rider')),
   CONSTRAINT chk_users_status CHECK (status IN ('active', 'disabled'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -80,6 +80,7 @@ CREATE TABLE leave_requests (
   reason VARCHAR(255) NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
   approved_by_id INT UNSIGNED NULL,
+  decision_remarks VARCHAR(255) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -88,7 +89,8 @@ CREATE TABLE leave_requests (
   CONSTRAINT chk_leave_requests_leave_type CHECK (leave_type IN ('vacation', 'sick', 'emergency', 'unpaid')),
   CONSTRAINT chk_leave_requests_status CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
   CONSTRAINT fk_leave_requests_approved_by_id FOREIGN KEY (approved_by_id) REFERENCES employees (id),
-  CONSTRAINT chk_leave_dates CHECK (end_date >= start_date AND days > 0)
+  CONSTRAINT chk_leave_dates CHECK (end_date >= start_date AND days > 0),
+  CONSTRAINT chk_leave_reject_reason CHECK (status <> 'rejected' OR (decision_remarks IS NOT NULL AND TRIM(decision_remarks) <> ''))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- HR (Fate): payroll_runs
@@ -129,8 +131,10 @@ CREATE TABLE payroll_items (
   unpaid_days INT NOT NULL,
   late_minutes INT NOT NULL,
   undertime_minutes INT NOT NULL,
+  overtime_minutes INT NOT NULL DEFAULT 0,
   basic_pay DECIMAL(12,2) NOT NULL,
   tardiness_deduction DECIMAL(12,2) NOT NULL,
+  overtime_pay DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   gross_pay DECIMAL(12,2) NOT NULL,
   sss DECIMAL(12,2) NOT NULL,
   philhealth DECIMAL(12,2) NOT NULL,
@@ -142,7 +146,8 @@ CREATE TABLE payroll_items (
   PRIMARY KEY (id),
   CONSTRAINT fk_payroll_items_payroll_run_id FOREIGN KEY (payroll_run_id) REFERENCES payroll_runs (id),
   CONSTRAINT fk_payroll_items_employee_id FOREIGN KEY (employee_id) REFERENCES employees (id),
-  UNIQUE KEY uq_payroll_item (payroll_run_id, employee_id)
+  UNIQUE KEY uq_payroll_item (payroll_run_id, employee_id),
+  CONSTRAINT chk_payroll_overtime CHECK (overtime_minutes >= 0 AND overtime_pay >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- POS with Inventory and Purchasing (Bren): categories
@@ -366,6 +371,7 @@ CREATE TABLE orders (
   delivery_address VARCHAR(255) NOT NULL,
   ordered_at DATETIME NOT NULL,
   delivered_at DATETIME NULL,
+  delivered_by_id INT UNSIGNED NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -373,7 +379,8 @@ CREATE TABLE orders (
   CONSTRAINT fk_orders_customer_id FOREIGN KEY (customer_id) REFERENCES customers (id),
   CONSTRAINT chk_orders_payment_method CHECK (payment_method IN ('cod', 'gcash')),
   CONSTRAINT chk_orders_payment_status CHECK (payment_status IN ('unpaid', 'paid', 'refunded')),
-  CONSTRAINT chk_orders_order_status CHECK (order_status IN ('pending', 'confirmed', 'out_for_delivery', 'delivered', 'cancelled', 'returned'))
+  CONSTRAINT chk_orders_order_status CHECK (order_status IN ('pending', 'confirmed', 'out_for_delivery', 'delivered', 'cancelled', 'returned')),
+  CONSTRAINT fk_orders_delivered_by_id FOREIGN KEY (delivered_by_id) REFERENCES employees (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Online Shop (Ali): order_items
@@ -440,6 +447,7 @@ CREATE TABLE attendance_logs (
   hours_worked DECIMAL(5,2) NOT NULL DEFAULT 0.00,
   late_minutes INT NOT NULL DEFAULT 0,
   undertime_minutes INT NOT NULL DEFAULT 0,
+  overtime_minutes INT NOT NULL DEFAULT 0,
   status VARCHAR(20) NOT NULL,
   remarks VARCHAR(255) NULL,
   corrected_by_id INT UNSIGNED NULL,
@@ -457,7 +465,8 @@ CREATE TABLE attendance_logs (
     AND (lunch_out IS NULL OR time_in  IS NULL OR lunch_out >= time_in)
     AND (lunch_in  IS NULL OR lunch_in >= lunch_out)
     AND (lunch_in  IS NULL OR time_out IS NULL OR time_out >= lunch_in)
-  )
+  ),
+  CONSTRAINT chk_attendance_overtime CHECK (overtime_minutes BETWEEN 0 AND 240)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Accounting & Finance (Jean): accounts

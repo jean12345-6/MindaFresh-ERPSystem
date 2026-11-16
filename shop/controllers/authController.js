@@ -4,7 +4,9 @@ import * as customerService from "../services/customerService.js";
 import { login as staffLoginService } from "../services/authService.js";
 import { AppError } from "../utils/appError.js";
 
-const SHOP_STAFF_ROLES = ["admin", "accountant"];
+const SHOP_STAFF_ROLES = ["admin", "accountant", "rider"];
+// Where each staff role lands after logging in
+const homeFor = (role) => (role === "rider" ? "/rider" : "/admin");
 
 function goBack(req, res) {
   const to = req.session.returnTo || "/";
@@ -94,7 +96,7 @@ export const showStaffLogin = (req, res) => {
   if (req.session.user && SHOP_STAFF_ROLES.includes(req.session.user.role)) {
     // Already logged in (e.g. sent here by requireRole): keep the message for the next page
     res.locals.error_msg.forEach((m) => req.flash("error_msg", m));
-    return res.redirect("/admin/orders");
+    return res.redirect(homeFor(req.session.user.role));
   }
   res.render("admin-login", { title: "Staff log in" });
 };
@@ -103,11 +105,11 @@ export const staffLogin = async (req, res, next) => {
   try {
     const user = await staffLoginService((req.body.username || "").trim(), req.body.password || "");
     if (!SHOP_STAFF_ROLES.includes(user.role)) {
-      req.flash("error_msg", "Your account cannot use the Shop admin. Only admin and accountant accounts can.");
+      req.flash("error_msg", "Your account cannot use the Shop admin. Only admin, accountant and rider accounts can.");
       return res.redirect("/admin/login");
     }
     req.session.user = user;
-    res.redirect("/admin/orders");
+    res.redirect(homeFor(user.role));
   } catch (err) {
     if (!(err instanceof AppError)) return next(err);
     req.flash("error_msg", err.message);

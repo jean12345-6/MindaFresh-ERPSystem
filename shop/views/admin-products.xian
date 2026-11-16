@@ -1,12 +1,11 @@
 {{> head}}
 {{> admin-nav}}
 
-<div class="mx-auto flex w-full max-w-[1440px] flex-wrap gap-6 p-6 md:flex-nowrap">
-  {{> admin-side}}
+<div class="mx-auto flex w-full max-w-[1440px] gap-6 p-6 lg:p-9">
 
   <main class="flex min-w-0 flex-1 flex-col gap-5">
     <div class="flex flex-col gap-1">
-      <h1 class="text-[28px] font-extrabold tracking-tight">Product photos</h1>
+      <h1 class="text-[32px] font-extrabold tracking-tight">Product photos</h1>
       <p class="text-sm text-ink-muted">Products, prices and stock are managed in POS. Here you choose the photo customers see in the shop. JPG, PNG or WebP, up to 2 MB. Square photos look best.</p>
     </div>
 
@@ -40,9 +39,6 @@
               {{#if online}}<span class="badge bg-leaf-bg text-[#2F4A12]">Shown</span>{{else}}<span class="badge bg-[#F3E9DF] text-ink-soft">Hidden in POS</span>{{/if}}
             </td>
             <td class="px-4 py-3">
-              {{#if fromPos}}
-                <span class="text-xs text-ink-muted">Photo set in POS</span>
-              {{else}}
               <div class="flex flex-wrap items-center gap-2">
                 <form action="/admin/products/{{product_code}}/photo" method="POST" enctype="multipart/form-data" class="flex flex-wrap items-center gap-2">
                   <label for="photo-{{product_code}}" class="sr-only">Photo for {{name}}</label>
@@ -51,12 +47,12 @@
                   <button type="submit" class="btn-dark min-h-[36px] px-3.5 text-sm">{{#if hasShopPhoto}}Replace{{else}}Upload{{/if}}</button>
                 </form>
                 {{#if hasShopPhoto}}
-                <form action="/admin/products/{{product_code}}/photo/remove" method="POST" data-confirm="Remove the photo of {{name}}?" data-confirm-text="The shop will show the plain placeholder until you upload a new photo." data-confirm-button="Yes, remove">
+                <form action="/admin/products/{{product_code}}/photo/remove" method="POST" data-confirm="Remove the photo of {{name}}?" data-confirm-text="The shop will show the POS photo link, or the plain placeholder if there is none." data-confirm-button="Yes, remove">
                   <button type="submit" class="btn-outline min-h-[36px] px-3.5 text-sm">Remove</button>
                 </form>
                 {{/if}}
               </div>
-              {{/if}}
+              <p class="mt-1.5 text-xs text-ink-muted">{{#if hasShopPhoto}}Showing your uploaded photo{{else}}{{#if fromPos}}Showing the photo link set in POS (needs internet){{else}}No photo yet{{/if}}{{/if}}</p>
             </td>
           </tr>
           {{else}}
@@ -69,4 +65,4 @@
 </div>
 
 {{> alert/alert}}
-{{> footer}}
+{{> admin-footer}}

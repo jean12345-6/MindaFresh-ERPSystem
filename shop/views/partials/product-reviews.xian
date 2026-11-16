@@ -43,6 +43,11 @@
           <span class="text-xs text-ink-muted">{{datetime date}}</span>
         </div>
         {{#if comment}}<p class="text-[15px] leading-relaxed text-ink-soft">{{comment}}</p>{{/if}}
+        {{#if photos.length}}
+        <div class="flex flex-wrap gap-2 pt-1">
+          {{#each photos}}<a href="{{this}}" target="_blank" rel="noopener"><img src="{{this}}" alt="Photo from {{../name}}'s review" loading="lazy" class="h-24 w-24 rounded-xl border border-line object-cover"></a>{{/each}}
+        </div>
+        {{/if}}
       </li>
       {{/each}}
     </ul>

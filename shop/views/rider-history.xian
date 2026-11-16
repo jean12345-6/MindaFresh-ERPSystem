@@ -1,0 +1,62 @@
+{{> head}}
+{{> admin-nav}}
+
+<main class="mx-auto flex w-full max-w-[1100px] flex-col gap-6 p-4 sm:p-6 lg:p-9">
+  <div class="flex flex-col gap-1.5">
+    <h1 class="text-[30px] font-extrabold tracking-tight">{{#if isRider}}My delivery history{{else}}Delivery history{{/if}}</h1>
+    <p class="text-[15px] text-ink-soft">{{#if isRider}}Every order you delivered, with its proof photo.{{else}}Which rider delivered each order, with its proof photo.{{/if}}</p>
+  </div>
+
+  <form method="GET" action="/rider/history" class="card flex flex-wrap items-end gap-3 p-4">
+    <label class="flex flex-col gap-1 text-sm font-bold">From
+      <input type="date" name="from" value="{{from}}" class="field min-h-[44px]">
+    </label>
+    <label class="flex flex-col gap-1 text-sm font-bold">To
+      <input type="date" name="to" value="{{to}}" class="field min-h-[44px]">
+    </label>
+    {{#unless isRider}}
+    <label class="flex flex-col gap-1 text-sm font-bold">Rider
+      <select name="rider" class="field min-h-[44px]">
+        <option value="" {{#if allRiders}}selected{{/if}}>All riders</option>
+        {{#each riders}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{code}})</option>{{/each}}
+      </select>
+    </label>
+    {{/unless}}
+    <button type="submit" class="btn-primary min-h-[44px]">Show</button>
+  </form>
+
+  <section aria-label="Totals" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div class="card flex flex-col gap-1 p-4"><span class="text-sm text-ink-muted">Deliveries</span><span class="text-2xl font-extrabold">{{totals.deliveries}}</span></div>
+    <div class="card flex flex-col gap-1 p-4"><span class="text-sm text-ink-muted">Days with deliveries</span><span class="text-2xl font-extrabold">{{totals.days}}</span></div>
+    <div class="card flex flex-col gap-1 p-4"><span class="text-sm text-ink-muted">COD cash collected</span><span class="text-2xl font-extrabold">{{peso totals.cash}}</span></div>
+    <div class="card flex flex-col gap-1 p-4"><span class="text-sm text-ink-muted">With proof photo</span><span class="text-2xl font-extrabold">{{totals.withPhoto}} of {{totals.deliveries}}</span></div>
+  </section>
+
+  {{#if orders.length}}
+  <ul class="card flex flex-col divide-y divide-[#F6EADD] px-5">
+    {{#each orders}}
+    <li class="flex items-center gap-4 py-3.5">
+      {{#if delivery_photo}}
+        <a href="{{delivery_photo}}" target="_blank" rel="noopener" class="shrink-0"><img src="{{delivery_photo}}" alt="Proof of delivery for {{order_code}}" loading="lazy" class="h-16 w-16 rounded-xl border border-line object-cover"></a>
+      {{else}}
+        <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#F3E9DF] text-center text-xs text-ink-muted">No photo</span>
+      {{/if}}
+      <span class="flex min-w-0 flex-1 flex-col">
+        <span class="font-bold">{{order_code}} · {{customer.name}}{{#if (eq order_status "returned")}} <span class="badge bg-danger-bg text-[#8A2C17]">Returned later</span>{{/if}}</span>
+        <span class="text-sm text-ink-muted">Delivered {{datetime delivered_at}}{{#unless ../isRider}} by <b class="text-ink-soft">{{delivered_by}}</b>{{/unless}}</span>
+        <span class="truncate text-sm text-ink-muted">{{delivery_address}}</span>
+      </span>
+      <span class="flex shrink-0 flex-col items-end text-sm">
+        <span class="font-bold">{{peso total_amount}}</span>
+        <span class="text-ink-muted">{{#if cashCollected}}Cash collected{{else}}{{payMethod payment_method}}{{/if}}</span>
+      </span>
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <p class="card p-6 text-[15px] text-ink-muted">No deliveries between {{from}} and {{to}}.</p>
+  {{/if}}
+</main>
+
+{{> alert/alert}}
+{{> admin-footer}}

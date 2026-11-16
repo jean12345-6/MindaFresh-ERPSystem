@@ -1,0 +1,115 @@
+{{> head}}
+{{> admin-nav}}
+
+<main class="mx-auto flex w-full max-w-[1440px] flex-col gap-6 p-6 lg:p-9">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-[32px] font-extrabold tracking-tight">Good day, {{staff.full_name}}</h1>
+      <p class="mt-1 text-[18px] text-ink-muted">{{d.date}}</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="/admin/orders?status=pending" class="btn-primary min-h-[56px] px-6 text-[18px]">Orders to confirm</a>
+      <a href="/admin/report" class="btn-outline min-h-[56px] px-6 text-[18px]">Sales report</a>
+    </div>
+  </div>
+
+  <section aria-label="Today" class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
+    <div class="card flex flex-col gap-1.5 p-7">
+      <span class="text-[17px] font-semibold text-ink-soft">Online sales today</span>
+      <span class="text-[36px] font-extrabold leading-tight">{{peso d.salesToday}}</span>
+      <span class="text-[16px] text-ink-muted">{{d.deliveredToday}} delivered {{plural d.deliveredToday "order" "orders"}}</span>
+    </div>
+    <div class="card flex flex-col gap-1.5 p-7">
+      <span class="text-[17px] font-semibold text-ink-soft">Gross profit today</span>
+      <span class="text-[36px] font-extrabold leading-tight text-leaf">{{peso d.profitToday}}</span>
+      <span class="text-[16px] text-ink-muted">product sales minus cost of goods</span>
+    </div>
+    <div class="card flex flex-col gap-1.5 p-7">
+      <span class="text-[17px] font-semibold text-ink-soft">Orders to confirm</span>
+      <span class="text-[36px] font-extrabold leading-tight {{#if d.toConfirm}}text-brand{{/if}}">{{d.toConfirm}}</span>
+      <span class="text-[16px] text-ink-muted">{{d.onTheWay}} confirmed or on the way</span>
+    </div>
+    <div class="card flex flex-col gap-1.5 p-7">
+      <span class="text-[17px] font-semibold text-ink-soft">Orders placed today</span>
+      <span class="text-[36px] font-extrabold leading-tight">{{d.ordersToday}}</span>
+      <span class="text-[16px] text-ink-muted">{{d.unitsToday}} {{plural d.unitsToday "unit" "units"}} taken from POS stock</span>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5">
+    <div class="card flex flex-col gap-4 p-7">
+      <h2 class="text-[22px] font-extrabold">By payment method</h2>
+      <dl class="flex flex-col gap-3 text-[17px]">
+        {{#each d.methods}}
+          <div class="flex justify-between gap-3"><dt>{{label}}</dt><dd class="font-extrabold">{{peso amount}}</dd></div>
+        {{/each}}
+      </dl>
+      <p class="text-[14px] text-ink-muted">Orders delivered today</p>
+    </div>
+
+    <div class="card flex flex-col gap-4 p-7">
+      <h2 class="text-[22px] font-extrabold">Top products today</h2>
+      {{#if d.topProducts.length}}
+        <ol class="flex flex-col gap-3 text-[17px]">
+          {{#each d.topProducts}}
+            <li class="flex justify-between gap-3"><span>{{name}}</span><span class="whitespace-nowrap font-extrabold">{{quantity}} · {{peso sales}}</span></li>
+          {{/each}}
+        </ol>
+      {{else}}
+        <p class="text-[16px] text-ink-muted">No orders delivered yet today.</p>
+      {{/if}}
+    </div>
+
+    <div class="card flex flex-col gap-4 p-7">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-[22px] font-extrabold">Low stock</h2>
+        {{#if (eq staff.role "admin")}}<a href="/admin/products" class="text-[16px] font-bold text-brand">See all</a>{{/if}}
+      </div>
+      {{#if d.lowStock.length}}
+        <ul class="flex flex-col gap-3 text-[17px]">
+          {{#each d.lowStock}}
+            <li class="flex items-center justify-between gap-3">
+              <span>{{name}}</span>
+              <span class="badge bg-danger-bg px-3 text-[15px] text-danger">{{qty}} {{unit}} / {{reorder}}</span>
+            </li>
+          {{/each}}
+        </ul>
+        <p class="text-[14px] text-ink-muted">{{d.lowStockCount}} online {{plural d.lowStockCount "product is" "products are"}} at or below the reorder level. POS restocks them.</p>
+      {{else}}
+        <p class="text-[16px] text-ink-muted">Every online product is above its reorder level.</p>
+      {{/if}}
+    </div>
+  </section>
+
+  <section class="card flex flex-col gap-4 p-7">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-[22px] font-extrabold">Recent orders</h2>
+      <a href="/admin/orders" class="text-[16px] font-bold text-brand">See all</a>
+    </div>
+    {{#if d.recent.length}}
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[560px] text-left text-[16px]">
+          <thead class="text-[14px] text-ink-muted">
+            <tr><th class="py-2 font-semibold">Order</th><th class="py-2 font-semibold">Customer</th><th class="py-2 font-semibold">Placed</th><th class="py-2 font-semibold">Status</th><th class="py-2 text-right font-semibold">Total</th></tr>
+          </thead>
+          <tbody>
+            {{#each d.recent}}
+              <tr class="border-t border-line">
+                <td class="py-3"><a href="/admin/orders/{{order_code}}" class="font-bold text-brand">{{order_code}}</a></td>
+                <td class="py-3">{{customer}}</td>
+                <td class="py-3 text-ink-muted">{{datetime ordered_at}}</td>
+                <td class="py-3"><span class="badge {{statusBadge order_status}}">{{statusLabel order_status}}</span></td>
+                <td class="py-3 text-right font-bold">{{peso total_amount}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="text-[16px] text-ink-muted">No orders yet.</p>
+    {{/if}}
+  </section>
+</main>
+
+{{> alert/alert}}
+{{> admin-footer}}

@@ -1,12 +1,11 @@
 {{> head}}
 {{> admin-nav}}
 
-<div class="mx-auto flex w-full max-w-[1440px] flex-wrap gap-6 p-6 md:flex-nowrap">
-  {{> admin-side}}
+<div class="mx-auto flex w-full max-w-[1440px] gap-6 p-6 lg:p-9">
 
   <main class="flex min-w-0 flex-1 flex-col gap-5">
     <div class="flex flex-col gap-1">
-      <h1 class="text-[28px] font-extrabold tracking-tight">Reviews</h1>
+      <h1 class="text-[32px] font-extrabold tracking-tight">Reviews</h1>
       <p class="text-sm text-ink-muted">Only customers whose order was delivered can review a product. Hide a review that is rude or not about the product; hidden reviews are kept but not shown in the shop.</p>
     </div>
 
@@ -34,7 +33,7 @@
             <td class="px-4 py-3"><div class="font-bold">{{product_name}}</div><div class="text-xs text-ink-muted">{{product_code}}</div></td>
             <td class="px-4 py-3"><div class="font-semibold">{{customer_name}}</div><div class="text-xs text-ink-muted">{{customer_code}} · {{order_code}}</div></td>
             <td class="whitespace-nowrap px-4 py-3"><span class="tracking-wider text-[#E8A317]" aria-label="{{rating}} out of 5 stars">{{stars rating}}</span></td>
-            <td class="max-w-[420px] px-4 py-3"><p class="text-ink-soft">{{#if comment}}{{comment}}{{else}}<span class="text-ink-muted">(no comment)</span>{{/if}}</p><div class="pt-1 text-xs text-ink-muted">{{datetime date}}</div></td>
+            <td class="max-w-[420px] px-4 py-3"><p class="text-ink-soft">{{#if comment}}{{comment}}{{else}}<span class="text-ink-muted">(no comment)</span>{{/if}}</p>{{#if photos.length}}<div class="flex flex-wrap gap-1.5 pt-1.5">{{#each photos}}<a href="{{this}}" target="_blank" rel="noopener"><img src="{{this}}" alt="Photo attached to this review" class="h-14 w-14 rounded-lg border border-line object-cover"></a>{{/each}}</div>{{/if}}<div class="pt-1 text-xs text-ink-muted">{{datetime date}}</div></td>
             <td class="px-4 py-3">{{#if (eq status "visible")}}<span class="badge bg-leaf-bg text-[#2F4A12]">Visible</span>{{else}}<span class="badge bg-[#F3E9DF] text-ink-soft">Hidden</span>{{/if}}</td>
             <td class="px-4 py-3 text-right">
               {{#if (eq status "visible")}}
@@ -60,4 +59,4 @@
 </div>
 
 {{> alert/alert}}
-{{> footer}}
+{{> admin-footer}}

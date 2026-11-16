@@ -11,13 +11,17 @@ import * as adminOrder from "../controllers/adminOrderController.js";
 import * as adminCustomer from "../controllers/adminCustomerController.js";
 import * as report from "../controllers/reportController.js";
 import * as adminProduct from "../controllers/adminProductController.js";
+import * as adminDashboard from "../controllers/adminDashboardController.js";
 import * as review from "../controllers/reviewController.js";
+import * as delivery from "../controllers/deliveryController.js";
 
 const router = express.Router();
 
 // Storefront (anyone)
 router.get("/", catalog.index);
 router.get("/products/:code", catalog.show);
+router.get("/photos/:code", catalog.photo);
+router.get("/delivery-photos/:code", delivery.photo); // checks the viewer itself: staff or the order's customer
 
 // Customer accounts
 router.get("/login", auth.showLogin);
@@ -45,7 +49,7 @@ router.post("/orders/:code/cancel", requireCustomer, order.cancel);
 router.post("/orders/:code/reviews", requireCustomer, review.save);
 
 // Staff (users ⨝ employees)
-router.get("/admin", (req, res) => res.redirect("/admin/orders"));
+router.get("/admin", requireRole("admin", "accountant"), adminDashboard.index);
 router.get("/admin/login", auth.showStaffLogin);
 router.post("/admin/login", auth.staffLogin);
 router.get("/admin/logout", auth.staffLogout);
@@ -66,5 +70,10 @@ router.post("/admin/products/:code/photo", requireRole("admin"), adminProduct.up
 router.post("/admin/products/:code/photo/remove", requireRole("admin"), adminProduct.removePhoto);
 router.get("/admin/reviews", requireRole("admin"), review.list);
 router.post("/admin/reviews/:id/status", requireRole("admin"), review.setStatus);
+
+// Rider: only riders deliver, with a proof-of-delivery photo. The admin can view the history.
+router.get("/rider", requireRole("rider"), delivery.riderPage);
+router.get("/rider/history", requireRole("rider", "admin"), delivery.history);
+router.post("/rider/orders/:code/deliver", requireRole("rider"), delivery.riderDeliver);
 
 export default router;

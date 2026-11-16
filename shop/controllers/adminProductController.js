@@ -24,7 +24,7 @@ export const list = async (req, res, next) => {
         stock: p.StockLevel?.quantity_on_hand ?? 0,
         online: p.status === "active" && Boolean(p.is_online),
         image_url: photoService.imageFor(p),
-        fromPos: Boolean(p.image_url), // POS set an image_url: that one wins
+        fromPos: Boolean(p.image_url), // POS set an image_url: shown only when the Shop has no uploaded photo
         hasShopPhoto: Boolean(photoService.photoUrl(p.product_code))
       }))
     });

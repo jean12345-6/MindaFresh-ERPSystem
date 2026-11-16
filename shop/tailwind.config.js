@@ -2,7 +2,7 @@
 // The built file public/css/app.css is committed, so the Shop looks right even with no internet.
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./views/**/*.xian"],
+  content: ["./views/**/*.xian", "./utils/viewHelpers.js"],
   theme: {
     extend: {
       colors: {

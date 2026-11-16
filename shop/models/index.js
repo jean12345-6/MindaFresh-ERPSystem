@@ -34,6 +34,7 @@ Customer.hasMany(CartItem, { foreignKey: "customer_id" });
 Order.belongsTo(Customer, { foreignKey: "customer_id" });
 Customer.hasMany(Order, { foreignKey: "customer_id" });
 Order.hasMany(OrderItem, { foreignKey: "order_id" });
+Order.belongsTo(Employee, { foreignKey: "delivered_by_id", as: "DeliveredBy" });
 OrderItem.belongsTo(Order, { foreignKey: "order_id" });
 OrderItem.belongsTo(Product, { foreignKey: "product_id" });
 ProductReview.belongsTo(Customer, { foreignKey: "customer_id" });

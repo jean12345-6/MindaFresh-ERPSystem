@@ -1,6 +1,12 @@
 // reviewController — use cases "Write review" (Customer) and "Moderate reviews" (Admin)
+import multer from "multer";
 import * as reviewService from "../services/reviewService.js";
+import { MAX_PHOTOS } from "../services/reviewPhotoService.js";
+import { MAX_BYTES, uploadMessage } from "../utils/imageFile.js";
 import { AppError } from "../utils/appError.js";
+
+// Up to 3 photos, kept in memory until reviewPhotoService checks them
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_BYTES, files: MAX_PHOTOS } }).array("photos", MAX_PHOTOS);
 
 const handle = (err, req, next) => {
   if (!(err instanceof AppError)) return next(err);
@@ -8,19 +14,21 @@ const handle = (err, req, next) => {
   return null;
 };
 
-// POST /orders/:code/reviews — rate a product from a delivered order (customer); body: product_code, rating, comment
-export const save = async (req, res, next) => {
-  const productCode = String(req.body.product_code || "");
+// POST /orders/:code/reviews — rate a product from a delivered order (customer)
+// multipart form: product_code, rating, comment, photos (up to 3), remove_photos
+export const save = (req, res, next) => upload(req, res, async (uploadErr) => {
+  const productCode = String(req.body?.product_code || "");
   const back = `/orders/${encodeURIComponent(req.params.code)}#rate-${encodeURIComponent(productCode)}`;
   try {
-    const { product, created, hidden } = await reviewService.saveReview(req.session.customer.id, req.params.code, productCode, req.body);
+    if (uploadErr) throw new AppError("VALIDATION_ERROR", uploadMessage(uploadErr, MAX_PHOTOS));
+    const { product, created, hidden } = await reviewService.saveReview(req.session.customer.id, req.params.code, productCode, req.body, req.files || []);
     req.flash("success_msg", hidden ? `Your review of ${product.name} was updated. It is hidden by the store, so other customers cannot see it.`
       : created ? `Thanks! Your review of ${product.name} is posted.` : `Your review of ${product.name} was updated.`);
     res.redirect(back);
   } catch (err) {
     if (handle(err, req, next) === null) res.redirect(back);
   }
-};
+});
 
 // GET /admin/reviews?status= — all reviews (admin)
 export const list = async (req, res, next) => {

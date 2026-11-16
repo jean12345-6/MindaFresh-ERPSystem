@@ -3,7 +3,7 @@
 // cost_price is never sent to a view.
 import { Op } from "sequelize";
 import { Product, Category, StockLevel } from "../models/index.js";
-import { imageFor } from "../services/productPhotoService.js";
+import { imageFor, photoFile } from "../services/productPhotoService.js";
 import * as reviewService from "../services/reviewService.js";
 
 const LOW_STOCK = 10;
@@ -19,7 +19,7 @@ function toCard(p, ratings = {}) {
     category_code: p.Category?.category_code,
     unit: p.unit,
     price: Number(p.selling_price),
-    image_url: imageFor(p), // POS image_url, else the photo the Shop admin uploaded
+    image_url: imageFor(p), // the photo the Shop admin uploaded, else POS image_url
     stock,
     inStock: stock > 0,
     lowStock: stock > 0 && stock <= LOW_STOCK,
@@ -74,4 +74,13 @@ export const show = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// GET /photos/:code — the product photo the Shop admin uploaded, shared so POS (and any module)
+// can show it with <img src="http://<shop-ip>:3001/photos/PRD-0001">. 404 when there is no photo.
+export const photo = (req, res) => {
+  const file = photoFile(req.params.code);
+  if (!file) return res.status(404).end();
+  res.set("Cache-Control", "no-cache"); // the browser checks for a newer photo each time
+  res.sendFile(file);
 };

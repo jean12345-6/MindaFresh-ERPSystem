@@ -60,7 +60,7 @@
                 <span>Rate this product</span>
               {{/if}}
             </summary>
-            <form action="/orders/{{../order.order_code}}/reviews" method="POST" class="mt-3 flex flex-col gap-3">
+            <form action="/orders/{{../order.order_code}}/reviews" method="POST" enctype="multipart/form-data" class="mt-3 flex flex-col gap-3">
               <input type="hidden" name="product_code" value="{{product_code}}">
               <fieldset class="flex flex-col gap-2">
                 <legend class="label mb-1">Your rating for {{product_name}}</legend>
@@ -75,6 +75,18 @@
               </fieldset>
               <label for="comment-{{product_code}}" class="label">Your review <span class="font-normal text-ink-muted">(optional)</span></label>
               <textarea id="comment-{{product_code}}" name="comment" rows="2" maxlength="500" placeholder="How was the quality and freshness?" class="field">{{review.comment}}</textarea>
+              {{#if review.photos.length}}
+                <div class="flex flex-col gap-2">
+                  <span class="label">Your photos</span>
+                  <div class="flex flex-wrap gap-2">
+                    {{#each review.photos}}<img src="{{this}}" alt="Your photo of {{../product_name}}" class="h-20 w-20 rounded-xl border border-line object-cover">{{/each}}
+                  </div>
+                  <label class="flex items-center gap-2 text-sm text-ink-soft"><input type="checkbox" name="remove_photos" value="1" class="h-4 w-4 accent-brand"> Remove my photos</label>
+                </div>
+              {{/if}}
+              <label for="photos-{{product_code}}" class="label">{{#if review.photos.length}}Replace photos{{else}}Add photos{{/if}} <span class="font-normal text-ink-muted">(optional, up to 3 · JPG, PNG or WebP, 2 MB each)</span></label>
+              <input id="photos-{{product_code}}" type="file" name="photos" multiple accept="image/jpeg,image/png,image/webp" data-max-files="3"
+                     class="block w-full min-w-0 rounded-xl border border-line-strong bg-white text-sm file:mr-3 file:min-h-[44px] file:cursor-pointer file:border-0 file:bg-peach-soft file:px-4 file:font-semibold file:text-ink">
               <button type="submit" class="btn-primary self-start">{{#if review}}Update review{{else}}Post review{{/if}}</button>
             </form>
           </details>
@@ -94,6 +106,7 @@
         <span class="text-[15px] font-semibold">{{customer.first_name}} {{customer.last_name}}</span>
         <span class="text-[15px] leading-normal text-ink-soft">{{order.delivery_address}}</span>
       </section>
+      {{> delivery-proof order=order}}
       {{#unless stopped}}
       <section class="card flex flex-col gap-2.5 p-6">
         <h2 class="text-lg font-extrabold">Need to cancel?</h2>
@@ -113,5 +126,15 @@
   </div>
 </main>
 
+<script>
+  // A review takes up to 3 photos: stop a 4th before the form is sent
+  document.querySelectorAll("input[data-max-files]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const max = Number(input.dataset.maxFiles);
+      input.setCustomValidity(input.files.length > max ? `Please choose up to ${max} photos.` : "");
+      input.reportValidity();
+    });
+  });
+</script>
 {{> alert/alert}}
 {{> footer}}

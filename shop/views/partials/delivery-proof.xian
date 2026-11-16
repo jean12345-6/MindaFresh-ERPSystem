@@ -1,0 +1,16 @@
+{{!-- Proof of delivery photo for an order. Param: order (needs order_status, delivery_photo, order_code). --}}
+{{#if order.delivery_photo}}
+<section class="card flex flex-col gap-2.5 p-5 text-[15px]">
+  <h2 class="text-lg font-extrabold">Proof of delivery</h2>
+  <a href="{{order.delivery_photo}}" target="_blank" rel="noopener" class="block overflow-hidden rounded-xl border border-line">
+    <img src="{{order.delivery_photo}}" alt="Photo taken by the rider when {{order.order_code}} was delivered" class="block max-h-72 w-full object-cover">
+  </a>
+  <span class="text-sm text-ink-muted">Taken by {{#if order.delivered_by}}{{order.delivered_by}}{{else}}the rider{{/if}} at delivery{{#if order.delivered_at}} · {{datetime order.delivered_at}}{{/if}}. Tap to open full size.</span>
+</section>
+{{else}}{{#if (or (eq order.order_status "delivered") (eq order.order_status "returned"))}}
+<section class="card flex flex-col gap-1.5 p-5 text-[15px]">
+  <h2 class="text-lg font-extrabold">Proof of delivery</h2>
+  <span class="text-sm text-ink-muted">No photo. This order was delivered before proof-of-delivery photos were required.</span>
+  {{#if order.delivered_by}}<span class="text-sm text-ink-muted">Delivered by {{order.delivered_by}}.</span>{{/if}}
+</section>
+{{/if}}{{/if}}

@@ -1,13 +1,63 @@
-<header class="bg-ink text-white">
-  <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
-    <a href="/admin/orders" class="flex items-center gap-2.5 text-white no-underline">
-      <img src="/images/freshcart-logo.png" alt="" width="40" height="40" class="h-9 w-9 shrink-0">
-      <span class="text-[17px] font-extrabold">FreshCart Admin</span>
+{{!-- Admin layout, part 1: dark sidebar (same look as POS), then opens the page column.
+     Every admin page ends with {{> admin-footer}}, which closes what this opens. --}}
+<div class="flex min-h-screen flex-col lg:flex-row">
+  <aside class="flex flex-col bg-[#3B2016] text-[#F3DCC8] lg:fixed lg:inset-y-0 lg:left-0 lg:w-72 print:hidden">
+    <input id="admin-menu" type="checkbox" class="peer sr-only">
+    <div class="flex items-center justify-between gap-3 px-6 pb-4 pt-5 lg:pb-5 lg:pt-6">
+    <a href="{{#if (eq staff.role "rider")}}/rider{{else}}/admin{{/if}}" class="flex items-center gap-3 no-underline">
+      <img src="/images/freshcart-logo.png" alt="" width="52" height="52" class="h-[52px] w-[52px] shrink-0">
+      <span class="leading-tight">
+        <span class="block text-[22px] font-extrabold text-white">FreshCart</span>
+        <span class="block text-[20px] font-extrabold text-brand-light">{{#if (eq staff.role "rider")}}Rider{{else}}Admin{{/if}}</span>
+      </span>
     </a>
-    <div class="flex items-center gap-4 text-sm">
-      <span class="text-[#F3DCC8]">{{staff.full_name}} · {{staff.employee_code}} · <strong class="text-white">{{staff.role}}</strong></span>
-      <a href="/" class="flex min-h-[44px] items-center font-semibold text-[#F3DCC8] hover:text-white">View shop</a>
-      <a href="/admin/logout" class="flex min-h-[44px] items-center font-semibold text-white">Log out</a>
+    <label for="admin-menu" class="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-white/20 px-4 text-[15px] font-semibold text-white lg:hidden">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      Menu
+    </label>
     </div>
-  </div>
-</header>
+
+    <div class="hidden min-h-0 flex-1 flex-col peer-checked:flex lg:flex">
+    <nav aria-label="Admin" class="flex flex-1 flex-col gap-1 overflow-y-auto px-4 pb-4">
+      {{#if (eq staff.role "rider")}}
+      {{> admin-link href="/rider" key="deliveries" icon="delivery" label="Deliveries"}}
+      {{> admin-link href="/rider/history" key="history" icon="history" label="My history"}}
+      {{else}}
+      {{> admin-link href="/admin" key="dashboard" icon="dashboard" label="Dashboard"}}
+
+      <p class="mt-5 px-4 pb-1 text-[13px] font-bold uppercase tracking-[0.08em] text-[#C9A891]">Orders</p>
+      {{> admin-link href="/admin/orders" key="orders" icon="orders" label="Orders"}}
+      {{#if (eq staff.role "admin")}}{{> admin-link href="/rider/history" key="history" icon="history" label="Delivery history"}}{{/if}}
+      {{> admin-link href="/admin/report" key="report" icon="report" label="Sales report"}}
+      {{/if}}
+
+      {{#if (eq staff.role "admin")}}
+        <p class="mt-5 px-4 pb-1 text-[13px] font-bold uppercase tracking-[0.08em] text-[#C9A891]">Catalog</p>
+        {{> admin-link href="/admin/products" key="products" icon="photo" label="Product photos"}}
+        {{> admin-link href="/admin/reviews" key="reviews" icon="reviews" label="Reviews"}}
+
+        <p class="mt-5 px-4 pb-1 text-[13px] font-bold uppercase tracking-[0.08em] text-[#C9A891]">People</p>
+        {{> admin-link href="/admin/customers" key="customers" icon="customers" label="Customers"}}
+      {{/if}}
+
+      <p class="mt-5 px-4 pb-1 text-[13px] font-bold uppercase tracking-[0.08em] text-[#C9A891]">Store</p>
+      {{> admin-link href="/" key="shop" icon="shop" label="View shop"}}
+    </nav>
+
+    <div class="flex flex-col gap-3 border-t border-white/10 p-4">
+      <div class="flex items-center gap-3 px-2">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-extrabold text-white" aria-hidden="true">{{initial staff.full_name}}</span>
+        <span class="min-w-0 leading-tight">
+          <span class="block truncate text-[16px] font-bold text-white">{{staff.full_name}}</span>
+          <span class="block text-[14px] text-[#E2C6B0]">{{staff.employee_code}} · {{staff.role}}</span>
+        </span>
+      </div>
+      <a href="/admin/logout" class="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-white/20 text-[16px] font-semibold text-[#F3DCC8] hover:bg-white/10 hover:text-white">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Log out
+      </a>
+    </div>
+    </div>
+  </aside>
+
+  <div class="flex min-w-0 flex-1 flex-col lg:pl-72">

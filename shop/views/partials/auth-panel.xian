@@ -1,0 +1,16 @@
+{{!-- Left photo panel shared by the log in pages (admin, customer log in, register).
+     Photo: public/images/login-bg.jpg (dark brown if the file is missing).
+     Params: badge = word after "FreshCart", eyebrow = small orange line, tagline = line under the company name --}}
+<section aria-hidden="true"
+  class="relative hidden flex-col justify-between overflow-hidden bg-[#3B2016] bg-cover bg-center p-10 text-white lg:flex xl:p-16"
+  style="background-image: linear-gradient(180deg, rgba(110,52,20,.78) 0%, rgba(59,32,22,.62) 40%, rgba(42,26,18,.95) 100%), url('/images/login-bg.jpg');">
+  <a href="/" class="flex items-center gap-4 text-white no-underline">
+    <img src="/images/freshcart-logo.png" alt="" width="72" height="72" class="h-[72px] w-[72px] shrink-0">
+    <span class="text-[34px] font-extrabold tracking-tight">FreshCart{{#if badge}} <span class="text-brand-light">{{badge}}</span>{{/if}}</span>
+  </a>
+  <div class="flex flex-col gap-4">
+    <p class="text-[20px] font-bold uppercase tracking-[0.22em] text-brand-light">{{eyebrow}}</p>
+    <p class="text-[52px] font-extrabold leading-[1.1] tracking-tight">MindaFresh Food Distribution, Inc.</p>
+    <p class="text-[24px] text-[#E8CDB8]">{{tagline}}</p>
+  </div>
+</section>

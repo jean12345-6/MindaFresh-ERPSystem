@@ -1,55 +1,91 @@
 {{> head}}
-{{> shop-nav}}
+{{!-- Customer register, same look as the log in pages (partial auth-panel on the left) --}}
+<div class="grid min-h-screen flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+  {{> auth-panel eyebrow="Create your account" tagline="Order online · delivery in Calapan City"}}
 
-<main class="mx-auto flex w-full max-w-xl flex-col gap-5 px-6 pb-14 pt-10">
-  <form action="/register" method="POST" class="card flex flex-col gap-4 p-8">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-[28px] font-extrabold tracking-tight">Create your account</h1>
-      <p class="text-[15px] text-ink-muted">Order fresh food for delivery in Calapan City.</p>
-    </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-      <div class="flex flex-col gap-1.5">
-        <label for="first_name" class="label">First name</label>
-        <input id="first_name" name="first_name" value="{{form.first_name}}" autocomplete="given-name" required maxlength="50" class="field">
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label for="last_name" class="label">Last name</label>
-        <input id="last_name" name="last_name" value="{{form.last_name}}" autocomplete="family-name" required maxlength="50" class="field">
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <label for="email" class="label">Email</label>
-      <input id="email" name="email" type="email" value="{{form.email}}" autocomplete="email" required maxlength="100" class="field">
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <label for="phone" class="label">Mobile number <span class="font-normal text-ink-muted">(optional)</span></label>
-      <input id="phone" name="phone" type="tel" value="{{form.phone}}" placeholder="09171234567" pattern="09[0-9]{9}" title="11 digits, starting with 09" class="field">
-    </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-      <div class="flex flex-col gap-1.5">
-        <label for="address" class="label">Address <span class="font-normal text-ink-muted">(optional)</span></label>
-        <input id="address" name="address" value="{{form.address}}" placeholder="House no., street, barangay" maxlength="200" class="field">
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label for="city" class="label">City</label>
-        <input id="city" name="city" value="{{#if form.city}}{{form.city}}{{else}}Calapan City{{/if}}" maxlength="100" class="field">
-      </div>
-    </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-      <div class="flex flex-col gap-1.5">
-        <label for="password" class="label">Password</label>
-        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" class="field">
-        <span class="text-[13px] text-ink-muted">At least 8 characters</span>
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label for="confirm_password" class="label">Confirm password</label>
-        <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required minlength="8" class="field">
-      </div>
-    </div>
-    <button type="submit" class="btn-primary min-h-[50px] text-base">Create account</button>
-    <p class="text-center text-sm text-ink-muted">Already have an account? <a href="/login" class="font-bold">Log in</a></p>
-  </form>
-</main>
+  <main class="flex min-w-0 flex-col items-center justify-center bg-cream px-6 py-12">
+    <div class="flex w-full max-w-[680px] flex-col gap-7">
+      <a href="/" class="flex items-center gap-3 no-underline lg:hidden">
+        <img src="/images/freshcart-logo.png" alt="" width="52" height="52" class="h-[52px] w-[52px] shrink-0">
+        <span class="text-[24px] font-extrabold text-ink">FreshCart</span>
+      </a>
 
+      <div class="flex flex-col gap-2">
+        <h1 class="text-[44px] font-extrabold leading-tight tracking-tight lg:text-[50px]">Create account</h1>
+        <p class="text-[19px] text-ink-muted">Order fresh food for delivery in Calapan City.</p>
+      </div>
+
+      <form action="/register" method="POST" class="flex flex-col gap-5">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
+          <div class="flex flex-col gap-2">
+            <label for="first_name" class="text-[18px] font-bold">First name</label>
+            <input id="first_name" name="first_name" value="{{form.first_name}}" autocomplete="given-name" required maxlength="50" class="auth-field">
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="last_name" class="text-[18px] font-bold">Last name</label>
+            <input id="last_name" name="last_name" value="{{form.last_name}}" autocomplete="family-name" required maxlength="50" class="auth-field">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="email" class="text-[18px] font-bold">Email</label>
+          <input id="email" name="email" type="email" value="{{form.email}}" autocomplete="email" required maxlength="100" class="auth-field">
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="phone" class="text-[18px] font-bold">Mobile number <span class="font-normal text-ink-muted">(optional)</span></label>
+          <input id="phone" name="phone" type="tel" value="{{form.phone}}" placeholder="09171234567" pattern="09[0-9]{9}" title="11 digits, starting with 09" class="auth-field">
+        </div>
+
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
+          <div class="flex flex-col gap-2">
+            <label for="address" class="text-[18px] font-bold">Address <span class="font-normal text-ink-muted">(optional)</span></label>
+            <input id="address" name="address" value="{{form.address}}" placeholder="House no., street, barangay" maxlength="200" class="auth-field">
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="city" class="text-[18px] font-bold">City</label>
+            <input id="city" name="city" value="{{#if form.city}}{{form.city}}{{else}}Calapan City{{/if}}" maxlength="100" class="auth-field">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
+          <div class="flex flex-col gap-2">
+            <label for="password" class="text-[18px] font-bold">Password</label>
+            <div class="flex min-h-[60px] items-center gap-2 rounded-2xl border border-[#D9C6B4] bg-[#E8F0FE] pl-5 pr-2 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30">
+              <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8"
+                     class="min-w-0 flex-1 border-0 bg-transparent text-[18px] text-ink outline-none">
+              <button type="button" data-toggle-for="password" aria-label="Show password" aria-pressed="false"
+                      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-white/60">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <span class="text-[15px] text-ink-muted">At least 8 characters</span>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="confirm_password" class="text-[18px] font-bold">Confirm password</label>
+            <div class="flex min-h-[60px] items-center gap-2 rounded-2xl border border-[#D9C6B4] bg-[#E8F0FE] pl-5 pr-2 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30">
+              <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required minlength="8"
+                     class="min-w-0 flex-1 border-0 bg-transparent text-[18px] text-ink outline-none">
+              <button type="button" data-toggle-for="confirm_password" aria-label="Show password" aria-pressed="false"
+                      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-white/60">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="mt-2 min-h-[68px] rounded-2xl bg-brand text-[21px] font-bold text-white hover:bg-brand-dark">Create account</button>
+      </form>
+
+      <div class="flex flex-col gap-2 text-center text-[17px] text-ink-muted">
+        <p>Already have an account? <a href="/login" class="font-bold text-brand">Log in</a></p>
+        <p><a href="/" class="font-semibold text-ink">← Back to the shop</a></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+{{> password-toggle}}
 {{> alert/alert}}
-{{> footer}}
+</body>
+</html>
