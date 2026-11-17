@@ -8,6 +8,7 @@
       <p class="text-ink-muted">Stock value at cost: <strong class="text-ink">{{peso totalValue}}</strong> · {{lowCount}} item(s) at or below reorder level</p>
     </div>
     <div class="flex flex-wrap gap-2">
+      <a href="/products/labels" class="btn-outline">Barcode labels</a>
       <a href="/stock/movements" class="btn-outline">Movement history</a>
       <a href="/stock/adjust" class="btn-outline">Adjust stock</a>
       <a href="/purchase-orders/new?low=1" class="btn-primary">Restock low items</a>

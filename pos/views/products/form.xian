@@ -3,7 +3,10 @@
 <main class="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:px-6">
   {{> flash}}
   <a href="/products" class="text-sm font-bold text-brand">← Products</a>
-  <h1 class="mt-2 text-2xl font-extrabold">{{#if isNew}}New product{{else}}Edit {{product.product_code}}{{/if}}</h1>
+  <div class="mt-2 flex flex-wrap items-center gap-3">
+    <h1 class="mr-auto text-2xl font-extrabold">{{#if isNew}}New product{{else}}Edit {{product.product_code}}{{/if}}</h1>
+    {{#unless isNew}}<a href="/products/labels?ids={{product.id}}" class="btn-outline">Print barcode label</a>{{/unless}}
+  </div>
   <form action="{{#if isNew}}/products{{else}}/products/{{product.id}}{{/if}}" method="POST" enctype="multipart/form-data" class="card mt-4 grid gap-4 p-6 sm:grid-cols-2">
     <div class="sm:col-span-2"><label class="label" for="name">Name</label><input id="name" name="name" value="{{product.name}}" class="field mt-1" required maxlength="150"></div>
     {{#if hasBarcode}}
@@ -18,7 +21,6 @@
       <div class="mt-3 flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-white p-3">
         <img id="barcodePreview" src="{{#if product.barcode}}/barcode/{{product.barcode}}.svg{{/if}}" alt="" class="max-w-full {{#unless product.barcode}}hidden{{/unless}}">
         <span id="barcodeEmpty" class="text-sm text-ink-muted {{#if product.barcode}}hidden{{/if}}">The barcode picture shows here.</span>
-        {{#unless isNew}}<a href="/products/{{product.id}}/label" target="_blank" rel="noopener" class="btn-outline ml-auto">Print label</a>{{/unless}}
       </div>
     </div>
     {{else}}

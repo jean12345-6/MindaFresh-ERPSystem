@@ -4,6 +4,7 @@
   {{> flash}}
   <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
     <div><h1 class="text-2xl font-extrabold">Products and prices</h1></div>
+    <a href="/products/labels" class="btn-outline">Print barcode labels</a>
     <a href="/products/new" class="btn-primary">Add product</a>
   </div>
   <form method="GET" class="mb-4 flex flex-wrap items-end gap-2">

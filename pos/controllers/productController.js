@@ -123,12 +123,16 @@ export const toggleProduct = async (req, res) => {
   res.redirect("/products");
 };
 
-// Printable shelf label: name, price and the barcode (the product's own barcode, or its code when it has none).
-export const productLabel = async (req, res) => {
-  await ensureBarcode();
-  const p = await Product.findByPk(req.params.id, { raw: true });
-  if (!p) return res.redirect("/products");
-  res.render("products/label", { title: `Label ${p.product_code}`, p, code: p.barcode || p.product_code });
+// Label sheet: every active product (or the ids in ?ids=1,2) with its product code as a Code 128 barcode.
+// No database change: the barcode value is the code the product already has. A registered barcode can be chosen on the page.
+export const productLabels = async (req, res) => {
+  const hasBarcode = await ensureBarcode();
+  const only = String(req.query.ids || "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0);
+  const where = { status: "active" };
+  if (only.length) where.id = only;
+  const rows = await Product.findAll({ where, order: [["product_code", "ASC"]], raw: true });
+  const products = rows.map((p) => ({ id: p.id, code: p.product_code, barcode: hasBarcode ? p.barcode || "" : "", name: p.name, price: Number(p.selling_price), checked: true }));
+  res.render("products/labels", { title: "Barcode labels", products, hasBarcode, anyBarcode: products.some((p) => p.barcode), single: only.length === 1 });
 };
 
 export const listCategories = async (req, res) => {

@@ -1,0 +1,102 @@
+{{> pos-head}}
+{{> nav}}
+<style>
+  .label-sheet { width: 62mm; padding: 3mm; background: #fff; color: #000; box-shadow: 0 0 0 1px #ccc; box-sizing: border-box; text-align: center; font-family: Arial, Helvetica, sans-serif; }
+  .label-sheet .nm { font-size: 11pt; font-weight: 700; line-height: 1.15; max-height: 2.4em; overflow: hidden; }
+  .label-sheet .pr { font-size: 15pt; font-weight: 800; margin: 1mm 0; }
+  .label-sheet img { width: 100%; height: auto; display: block; }
+  #labels { display: flex; flex-wrap: wrap; gap: 12px; }
+  @media print {
+    html, body { background: #fff !important; }
+    .no-print { display: none !important; }
+    main { padding: 0 !important; margin: 0 !important; max-width: none !important; display: block !important; }
+    #labels { display: block; gap: 0; margin: 0 !important; }
+    .label-sheet { box-shadow: none; margin: 0; break-after: page; }
+    .label-sheet:last-child { break-after: auto; }
+  }
+</style>
+<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
+  <div class="no-print">
+    {{> flash}}
+    <a href="/products" class="text-sm font-bold text-brand">← Products</a>
+    <h1 class="mt-2 text-2xl font-extrabold">Barcode labels</h1>
+    <p class="mt-1 text-sm text-ink-muted">Each label shows the product name, price and its product code as a Code 128 barcode. Scanning it at the Cashier adds the product. Labels print on a 62 mm wide strip, one label per page.</p>
+
+    <div class="card mt-4 space-y-4 p-5">
+      <div class="flex flex-wrap items-end gap-4">
+        <label class="font-semibold">Copies of each label
+          <input id="copies" type="number" min="1" max="20" value="1" class="field mt-1 h-11 w-28"></label>
+        {{#if anyBarcode}}
+        <label class="font-semibold">Barcode on the label
+          <select id="source" class="field mt-1 h-11">
+            <option value="code">Product code (PRD-0001)</option>
+            <option value="barcode">Registered barcode (when the product has one)</option>
+          </select></label>
+        {{/if}}
+        <button type="button" id="printBtn" class="btn-primary ml-auto">Print labels</button>
+      </div>
+      {{#unless single}}
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="label">Products</span>
+          <button type="button" id="toggleAll" class="text-sm font-bold text-brand">Select none</button>
+        </div>
+        <ul class="mt-2 grid gap-1 sm:grid-cols-2">
+          {{#each products}}
+          <li><label class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-peach-soft"><input type="checkbox" class="pick h-5 w-5 accent-brand" value="{{id}}" checked>
+            <span class="text-xs font-bold text-ink-muted">{{code}}</span> <span class="truncate font-semibold">{{name}}</span></label></li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/unless}}
+    </div>
+  </div>
+  <div id="labels" class="mt-4" aria-label="Labels to print"></div>
+</main>
+<script>
+  const PRODUCTS = {{{json products}}};
+  const money = (n) => "₱" + Number(n).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const style = document.createElement("style"); document.head.appendChild(style);
+
+  function selectedIds() {
+    const picks = [...document.querySelectorAll(".pick")];
+    return picks.length ? new Set(picks.filter((p) => p.checked).map((p) => Number(p.value))) : new Set(PRODUCTS.map((p) => p.id));
+  }
+  function build() {
+    const copies = Math.min(Math.max(parseInt(document.getElementById("copies").value, 10) || 1, 1), 20);
+    const useBarcode = document.getElementById("source")?.value === "barcode";
+    const ids = selectedIds();
+    let html = "";
+    for (const p of PRODUCTS) {
+      if (!ids.has(p.id)) continue;
+      const code = useBarcode && p.barcode ? p.barcode : p.code;
+      for (let i = 0; i < copies; i++) html += '<div class="label-sheet"><div class="nm">' + esc(p.name) + '</div><div class="pr">' + money(p.price) + '</div><img src="/barcode/' + encodeURIComponent(code) + '.svg?h=70" alt="Barcode ' + esc(code) + '"></div>';
+    }
+    document.getElementById("labels").innerHTML = html || '<p class="no-print text-ink-muted">Pick at least one product.</p>';
+    fit();
+  }
+  // Browsers cannot print "as tall as the content", so the paper height is set to one label's height just before printing.
+  function fit() {
+    const el = document.querySelector(".label-sheet"); if (!el) return;
+    const px = el.getBoundingClientRect().height;
+    style.textContent = "@page { size: 62mm " + Math.max(Math.ceil(px * 25.4 / 96), 20) + "mm; margin: 0; }";
+  }
+  window.addEventListener("beforeprint", fit);
+  window.addEventListener("load", fit);
+  document.querySelectorAll("#copies, #source, .pick").forEach((el) => el.addEventListener("input", build));
+  document.getElementById("toggleAll")?.addEventListener("click", (e) => {
+    const picks = [...document.querySelectorAll(".pick")], allOn = picks.every((p) => p.checked);
+    picks.forEach((p) => { p.checked = !allOn; });
+    e.target.textContent = allOn ? "Select all" : "Select none";
+    build();
+  });
+  document.getElementById("printBtn").addEventListener("click", () => {
+    if (!document.querySelector(".label-sheet")) { Swal.fire({ icon: "warning", title: "Nothing to print", text: "Pick at least one product.", confirmButtonColor: "#C2410C" }); return; }
+    fit(); window.print();
+  });
+  build();
+  // images load after build: measure again once they are in
+  document.getElementById("labels").addEventListener("load", fit, true);
+</script>
+{{> pos-footer}}
