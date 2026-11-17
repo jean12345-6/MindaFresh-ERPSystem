@@ -4,96 +4,470 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MindaFresh | Attendance</title>
+  <title>MindaFresh | Attendance ERP</title>
+
   <link rel="stylesheet" href="/style.css">
 
-  <!-- Laptop Camera QR Scanner Library -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script
+    src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+    defer>
+  </script>
 
   <style>
-    .qr-controls {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 12px 0;
+    * {
+      box-sizing: border-box;
     }
 
-    .qr-controls button {
-      padding: 11px 14px;
-      border: 1px solid #e9d4c7;
-      border-radius: 8px;
+    body.auth-page {
+      margin: 0;
+      min-height: 100vh;
+      background: #ffeadb;
+      color: #3b241a;
+      font-family: Arial, sans-serif;
+    }
+
+    .auth-wrap {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 35px 20px;
+    }
+
+    .auth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      max-width: 1220px;
+      min-height: 750px;
       background: #fff;
-      color: #492b1e;
+      border: 1px solid #f0d8c8;
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 15px 45px rgba(100, 52, 25, .08);
+    }
+
+    .clock-panel {
+      background: #fff9f5;
+      padding: 40px;
+    }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
+
+    .auth-brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .auth-brand strong {
+      font-size: 21px;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 25px;
+      background: #e8c4b2;
+    }
+
+    .auth-brand > span:last-child {
+      font-size: 13px;
+      color: #cf3b00;
+    }
+
+    .shift-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e0f7e9;
+      color: #166a40;
+      padding: 9px 14px;
+      border-radius: 25px;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #16a34a;
+      border-radius: 50%;
+    }
+
+    .hero-clock {
+      font-size: clamp(42px, 4vw, 62px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      margin-top: 20px;
+    }
+
+    .hero-clock small {
+      font-size: 20px;
+      color: #c83c05;
+      letter-spacing: 0;
+    }
+
+    .hero-date {
+      font-size: 14px;
+      color: #815d4e;
+      margin: 8px 0 28px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 750;
+      margin: 0 0 8px;
+    }
+
+    .section-description {
+      color: #8b6555;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .auth-section-label {
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .code-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #edcbb8;
+      border-radius: 11px;
+      background: #fff;
+      padding: 0 14px;
+      height: 49px;
+    }
+
+    .code-field span {
+      color: #cf3b00;
+    }
+
+    .code-field input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      color: #3b241a;
+    }
+
+    .qr-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin: 14px 0;
+    }
+
+    .qr-open-btn {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d64005;
+      border-radius: 11px;
+      background: #fff;
+      color: #d64005;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .qr-open-btn:hover {
+      background: #fff0e8;
+    }
+
+    .qr-cancel-btn {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d43d00;
+      border-radius: 11px;
+      background: #fff0e9;
+      color: #bd3500;
+      font-size: 13px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    #qr-status {
-      font-size: 12px;
-      color: #7b5849;
-      overflow-wrap: anywhere;
+    .qr-cancel-btn:hover {
+      background: #ffe0d1;
+    }
+
+    .qr-open-btn:disabled,
+    .qr-cancel-btn:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .qr-camera-container {
+      display: none;
+      background: #241c19;
+      padding: 10px;
+      border-radius: 14px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    .qr-camera-container.active {
+      display: block;
     }
 
     #qr-reader {
       width: 100%;
-      max-width: 420px;
-      margin: 12px 0;
+      min-height: 230px;
+      border-radius: 10px;
       overflow: hidden;
-      border-radius: 12px;
     }
 
     #qr-reader video {
-      width: 100%;
-      border-radius: 12px;
+      width: 100% !important;
+      border-radius: 10px;
+      object-fit: cover;
     }
 
-    .mf-qr-modal {
-      border: 1px solid #ead4c5;
-      border-radius: 16px;
-      padding: 25px;
-      width: min(390px, 90vw);
-      color: #432719;
-      background: #fff;
+    #qr-status {
+      display: block;
+      font-size: 12px;
+      color: #795544;
+      margin: 8px 0 16px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
-    .mf-qr-modal::backdrop {
-      background: rgba(24, 16, 12, .55);
-    }
-
-    .mf-qr-modal h2 {
-      margin: 0 0 10px;
-    }
-
-    .mf-qr-modal p {
-      margin: 10px 0;
-    }
-
-    .mf-qr-actions {
-      display: flex;
+    .punch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 15px;
     }
 
-    .mf-qr-actions button {
-      flex: 1;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
+    .punch-step {
+      border: 1px solid #efd0be;
+      border-radius: 12px;
+      background: #fff;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
-    .mf-qr-actions .outline {
-      background: white;
-      border: 1px solid #e5cbbb;
+    .punch-step strong {
+      font-size: 13px;
     }
 
-    .mf-qr-actions .confirm {
-      background: #cf3b00;
+    .punch-step small {
+      color: #8b6250;
+      font-size: 11px;
+    }
+
+    .record-btn {
+      width: 100%;
+      border: none;
+      border-radius: 11px;
+      background: #d43d00;
       color: white;
-      border: 0;
+      padding: 16px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .record-btn:hover,
+    .login-submit:hover {
+      background: #b93300;
+    }
+
+    .record-btn:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    .hours-note {
+      border-top: 1px solid #efd5c6;
+      padding-top: 18px;
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .hours-note strong {
+      font-size: 12px;
+      display: block;
+    }
+
+    .hours-note small {
+      display: block;
+      color: #86604f;
+      margin-top: 5px;
+      font-size: 11px;
+    }
+
+    .scanner-note {
+      font-size: 11px;
+      color: #947061;
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+
+    .auth-notice {
+      padding: 13px;
+      border-radius: 9px;
+      background: #e5f8eb;
+      color: #17633a;
+      font-size: 13px;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .auth-error {
+      padding: 13px;
+      border-radius: 9px;
+      background: #fff0ee;
+      color: #b42d15;
+      font-size: 13px;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .login-panel {
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 45px;
+    }
+
+    .login-center {
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 65px;
+      height: 65px;
+      object-fit: contain;
+      margin-bottom: 20px;
+    }
+
+    .login-center h1 {
+      font-size: 36px;
+      margin: 0 0 10px;
+      font-weight: 800;
+    }
+
+    .login-center > p {
+      font-size: 13px;
+      color: #79584a;
+      margin-bottom: 38px;
+    }
+
+    .login-form {
+      text-align: left;
+    }
+
+    .login-form > label {
+      display: block;
+      font-size: 11px;
+      font-weight: bold;
+      margin: 18px 0 8px;
+    }
+
+    .login-input {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 50px;
+      border: 1px solid #eac8b6;
+      border-radius: 11px;
+      padding: 0 14px;
+    }
+
+    .login-input > span {
+      color: #d43d00;
+    }
+
+    .login-input input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: #3b241a;
+      background: transparent;
+    }
+
+    .toggle-password {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #79584a;
+    }
+
+    .login-submit {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 11px;
+      background: #d43d00;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 17px;
+      margin-top: 26px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .login-foot {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #886859;
     }
 
     [hidden] {
       display: none !important;
+    }
+
+    @media (max-width: 850px) {
+      .auth-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .clock-panel,
+      .login-panel {
+        padding: 28px 22px;
+      }
+
+      .login-panel {
+        min-height: 500px;
+      }
+
+      .login-center h1 {
+        font-size: 29px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .punch-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-clock {
+        font-size: 42px;
+      }
     }
   </style>
 </head>
@@ -102,8 +476,9 @@
   <main class="auth-wrap">
     <div class="auth-grid">
 
-      <!-- EMPLOYEE ATTENDANCE KIOSK -->
+      <!-- LEFT: EMPLOYEE ATTENDANCE -->
       <section class="clock-panel">
+
         <div class="auth-brand">
           <img src="/mindafresh-logo.png" alt="MindaFresh">
           <strong>MindaFresh</strong>
@@ -113,7 +488,7 @@
 
         <div class="shift-chip">
           <span class="status-dot"></span>
-          Employee attendance kiosk
+          Employee Attendance Kiosk
         </div>
 
         <div class="hero-clock" id="clock">
@@ -121,87 +496,114 @@
         </div>
 
         <div class="hero-date" id="date">
-          Loading date…
+          Loading date...
         </div>
 
-        <div class="auth-section-label">EMPLOYEE CODE</div>
+        <h2 class="section-title">
+          Employee QR Attendance
+        </h2>
+
+        <p class="section-description">
+          Tap the scan button to open your camera.
+          Scan your employee QR card to record attendance
+          automatically, or enter your employee code manually.
+        </p>
 
         {{#if message}}
-          <div class="auth-notice">{{message}}</div>
-        {{/if}}
-
-        {{#if error}}
-          <div class="auth-error">{{error}}</div>
-        {{/if}}
-
-        {{#if employee}}
-          <div class="auth-notice">
-            {{employee.first_name}} {{employee.last_name}}
-            · Next: <strong>{{action}}</strong>
+          <div class="auth-notice" role="status">
+            {{message}}
           </div>
         {{/if}}
 
-        <form action="/kiosk/punch" method="post" id="punch-form">
+        {{#if punchError}}
+          <div class="auth-error" role="alert">
+            {{punchError}}
+          </div>
+        {{/if}}
+
+        <form
+          id="punch-form"
+          action="/kiosk/punch"
+          method="post"
+        >
+          <div class="auth-section-label">
+            EMPLOYEE CODE
+          </div>
 
           <label class="code-field">
             <span>▣</span>
             <input
-              name="code"
               id="employee-code"
-              required
-              autocomplete="off"
+              name="code"
               placeholder="Enter or scan your employee code"
-              value="{{#if employee}}{{employee.employee_code}}{{/if}}"
+              autocomplete="off"
+              maxlength="100"
+              required
             >
           </label>
 
-          <!-- LAPTOP CAMERA QR SCANNER -->
           <div class="qr-controls">
-            <button type="button" id="start-qr">
-              📷 Scan QR using laptop camera
+            <button
+              type="button"
+              class="qr-open-btn"
+              id="start-qr-btn"
+            >
+              📷 Tap to Scan QR
             </button>
 
-            <button type="button" id="stop-qr" hidden>
-              Stop camera
+            <button
+              type="button"
+              class="qr-cancel-btn"
+              id="cancel-qr-btn"
+              hidden
+            >
+              ✕ Cancel Camera
             </button>
-
-            <span
-              id="qr-status"
-              role="status"
-              aria-live="polite"
-            ></span>
           </div>
 
-          <div id="qr-reader" hidden></div>
+          <div
+            class="qr-camera-container"
+            id="qr-camera-container"
+          >
+            <div id="qr-reader"></div>
+          </div>
+
+          <span
+            id="qr-status"
+            role="status"
+            aria-live="polite"
+          >
+            Camera is off. Tap the button to scan.
+          </span>
 
           <div class="punch-grid">
             <div class="punch-step">
-              <span>☀</span>
-              <strong>AM In</strong>
+              <strong>☀ AM In</strong>
               <small>Starts 8:00 AM</small>
             </div>
 
             <div class="punch-step">
-              <span>↗</span>
-              <strong>AM Out</strong>
+              <strong>↗ AM Out</strong>
               <small>Lunch 12:00 PM</small>
             </div>
 
             <div class="punch-step">
-              <span>◒</span>
-              <strong>PM In</strong>
+              <strong>◒ PM In</strong>
               <small>Resumes 1:00 PM</small>
             </div>
 
             <div class="punch-step">
-              <span>↗</span>
-              <strong>PM Out</strong>
+              <strong>↗ PM Out</strong>
               <small>Ends 5:00 PM</small>
             </div>
           </div>
 
-          <button class="record-btn" type="submit">
-            Record next attendance punch <span>→</span>
+          <button
+            class="record-btn"
+            id="record-btn"
+            type="submit"
+          >
+            Record Attendance Manually →
           </button>
         </form>
 
@@ -216,13 +618,13 @@
         </div>
 
         <p class="scanner-note">
-          Enter your employee code manually or scan your
-          employee QR card using the laptop camera.
-          Camera access requires localhost or HTTPS.
+          Attendance is recorded directly after a successful
+          QR scan. No confirmation is required.
         </p>
+
       </section>
 
-      <!-- HR / ADMIN LOGIN -->
+      <!-- RIGHT: HR / ADMIN LOGIN -->
       <section class="login-panel">
         <div class="login-center">
 
@@ -243,16 +645,15 @@
               Signed in as {{staff.username}}.
             </div>
 
-            <a
-              class="login-submit link-submit"
-              href="/dashboard"
-            >
-              Go to dashboard →
+            <a class="login-submit" href="/dashboard">
+              Go to Dashboard →
             </a>
           {{else}}
 
             {{#if error}}
-              <div class="auth-error">{{error}}</div>
+              <div class="auth-error" role="alert">
+                {{error}}
+              </div>
             {{/if}}
 
             <form
@@ -260,7 +661,6 @@
               action="/login"
               class="login-form"
             >
-
               <label for="username">USERNAME</label>
 
               <div class="login-input">
@@ -269,8 +669,8 @@
                   id="username"
                   name="username"
                   placeholder="Enter your username"
-                  required
                   autocomplete="username"
+                  required
                 >
               </div>
 
@@ -278,89 +678,47 @@
 
               <div class="login-input">
                 <span>♧</span>
-
                 <input
                   id="password"
-                  type="password"
                   name="password"
+                  type="password"
                   placeholder="Enter your password"
-                  required
                   autocomplete="current-password"
+                  required
                 >
 
                 <button
                   type="button"
                   class="toggle-password"
-                  aria-label="Show password"
                   id="toggle-password"
+                  aria-label="Show password"
                 >
                   ◉
                 </button>
               </div>
 
-              <button
-                class="login-submit"
-                type="submit"
-              >
-                Log in <span>→</span>
+              <button class="login-submit" type="submit">
+                Log in →
               </button>
             </form>
 
             <div class="login-foot">
               Need access? Contact your HR or IT Administrator.
             </div>
-          {{/if}}
 
+          {{/if}}
         </div>
       </section>
 
     </div>
   </main>
 
-  <!-- ATTENDANCE CONFIRMATION MODAL -->
-  <dialog id="punch-confirm" class="mf-qr-modal">
-    <h2>Confirm attendance</h2>
-
-    <p>
-      Are you sure you want to record this
-      attendance punch?
-    </p>
-
-    <p>
-      <strong>Employee code:</strong>
-      <span id="confirm-code"></span>
-    </p>
-
-    <p>
-      <strong>Time:</strong>
-      <span id="confirm-time"></span>
-    </p>
-
-    <div class="mf-qr-actions">
-      <button
-        type="button"
-        id="cancel-punch"
-        class="outline"
-      >
-        Cancel
-      </button>
-
-      <button
-        type="button"
-        id="confirm-punch"
-        class="confirm"
-      >
-        Confirm punch
-      </button>
-    </div>
-  </dialog>
-
   <script>
     // LIVE CLOCK
     function tick() {
-      const d = new Date();
+      const now = new Date();
 
-      const time = d.toLocaleTimeString('en-US', {
+      const time = now.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
@@ -373,7 +731,7 @@
         parts[0] + ' <small>' + parts[1] + '</small>';
 
       document.getElementById('date').textContent =
-        d.toLocaleDateString('en-US', {
+        now.toLocaleDateString('en-US', {
           weekday: 'long',
           month: 'long',
           day: 'numeric',
@@ -393,216 +751,238 @@
         const password =
           document.getElementById('password');
 
-        password.type =
-          password.type === 'password'
-            ? 'text'
-            : 'password';
+        const showing = password.type === 'text';
+        password.type = showing ? 'password' : 'text';
+
+        togglePassword.setAttribute(
+          'aria-label',
+          showing ? 'Show password' : 'Hide password'
+        );
       });
     }
 
-    // ATTENDANCE CONFIRMATION
-    const punchForm =
-      document.getElementById('punch-form');
+    // QR SCANNER
+    const startButton =
+      document.getElementById('start-qr-btn');
+
+    const cancelButton =
+      document.getElementById('cancel-qr-btn');
+
+    const cameraContainer =
+      document.getElementById('qr-camera-container');
+
+    const qrStatus =
+      document.getElementById('qr-status');
 
     const employeeCode =
       document.getElementById('employee-code');
 
-    const punchDialog =
-      document.getElementById('punch-confirm');
+    const punchForm =
+      document.getElementById('punch-form');
 
-    punchForm.addEventListener('submit', (event) => {
-      if (punchForm.dataset.confirmed === 'yes') {
+    const recordButton =
+      document.getElementById('record-btn');
+
+    let scanner = null;
+    let scannerRunning = false;
+    let cameraBusy = false;
+    let submitting = false;
+    let scanHandled = false;
+    let cameraCancelled = false;
+
+    function resetCameraUI() {
+      cameraContainer.classList.remove('active');
+
+      startButton.hidden = false;
+      startButton.disabled = false;
+      startButton.textContent = '📷 Tap to Scan QR';
+
+      cancelButton.hidden = true;
+      cancelButton.disabled = false;
+    }
+
+    async function stopCamera() {
+      cameraCancelled = true;
+      cancelButton.disabled = true;
+
+      if (cameraBusy) {
+        qrStatus.textContent = 'Closing camera...';
         return;
       }
 
-      event.preventDefault();
+      if (scanner && scannerRunning) {
+        cameraBusy = true;
 
-      if (!punchForm.reportValidity()) {
+        try {
+          await scanner.stop();
+        } catch (error) {
+          console.warn('Camera stop:', error);
+        } finally {
+          scannerRunning = false;
+          cameraBusy = false;
+        }
+      }
+
+      resetCameraUI();
+      qrStatus.textContent =
+        'Camera closed. Tap to Scan QR to open again.';
+    }
+
+    // PREVENT DUPLICATE SUBMISSION
+    punchForm.addEventListener('submit', event => {
+      employeeCode.value = employeeCode.value.trim();
+
+      if (!employeeCode.value || submitting) {
+        event.preventDefault();
         return;
       }
 
-      document.getElementById('confirm-code').textContent =
-        employeeCode.value.trim();
+      submitting = true;
 
-      document.getElementById('confirm-time').textContent =
-        new Date().toLocaleTimeString('en-PH');
+      recordButton.disabled = true;
+      startButton.disabled = true;
+      cancelButton.disabled = true;
 
-      punchDialog.showModal();
+      qrStatus.textContent = 'Recording attendance...';
     });
 
-    document.getElementById('cancel-punch')
-      .addEventListener('click', () => {
-        punchDialog.close();
-      });
+    async function startCamera() {
+      if (cameraBusy || scannerRunning || submitting) {
+        return;
+      }
 
-    document.getElementById('confirm-punch')
-      .addEventListener('click', () => {
-        punchDialog.close();
-        punchForm.dataset.confirmed = 'yes';
-        punchForm.requestSubmit();
-      });
+      if (!navigator.mediaDevices?.getUserMedia) {
+        qrStatus.textContent =
+          'Camera requires localhost or HTTPS. ' +
+          'Manual attendance is still available.';
+        return;
+      }
 
-    // LAPTOP CAMERA QR SCANNER
-    (() => {
-      const startBtn =
-        document.getElementById('start-qr');
+      if (typeof Html5Qrcode === 'undefined') {
+        qrStatus.textContent =
+          'QR scanner library unavailable. ' +
+          'Check your internet connection.';
+        return;
+      }
 
-      const stopBtn =
-        document.getElementById('stop-qr');
+      cameraBusy = true;
+      cameraCancelled = false;
+      scanHandled = false;
 
-      const panel =
-        document.getElementById('qr-reader');
+      startButton.hidden = true;
+      cancelButton.hidden = false;
+      cancelButton.disabled = false;
 
-      const status =
-        document.getElementById('qr-status');
+      cameraContainer.classList.add('active');
+      qrStatus.textContent = 'Opening camera...';
 
-      let scanner = null;
-      let running = false;
-      let starting = false;
-      let processing = false;
-
-      async function stopCamera() {
+      try {
         if (!scanner) {
-          panel.hidden = true;
-          startBtn.hidden = false;
-          stopBtn.hidden = true;
-          return;
+          scanner = new Html5Qrcode('qr-reader');
         }
 
-        try {
-          if (running) {
-            await scanner.stop();
-          }
-        } catch (error) {
-          console.warn('Camera stop error:', error);
-        }
+        await scanner.start(
+          { facingMode: 'user' },
+          {
+            fps: 10,
+            qrbox: {
+              width: 220,
+              height: 220
+            }
+          },
+          decodedText => {
+            if (
+              submitting ||
+              scanHandled ||
+              cameraCancelled
+            ) {
+              return;
+            }
 
-        running = false;
+            const code = String(decodedText || '').trim();
 
-        try {
-          scanner.clear();
-        } catch (error) {
-          console.warn('Scanner cleanup:', error);
-        }
+            if (!code || code.length > 100) {
+              qrStatus.textContent =
+                'Invalid QR code. Please try again.';
+              return;
+            }
 
-        scanner = null;
-        panel.hidden = true;
-        stopBtn.hidden = true;
-        startBtn.hidden = false;
-      }
+            // PREVENT ACCIDENTAL REPEATED SCANS
+            try {
+              const last = JSON.parse(
+                sessionStorage.getItem('mf-last-qr') ||
+                'null'
+              );
 
-      function normalizeCode(value) {
-        const text = String(value || '').trim();
-
-        // Accept plain employee codes or a simple
-        // QR payload containing an employee code.
-        return text;
-      }
-
-      startBtn.addEventListener('click', async () => {
-        if (running || starting) return;
-
-        if (typeof Html5Qrcode === 'undefined') {
-          status.textContent =
-            'QR scanner library failed to load. Check internet connection.';
-          return;
-        }
-
-        if (!navigator.mediaDevices?.getUserMedia) {
-          status.textContent =
-            'Camera requires localhost or HTTPS.';
-          return;
-        }
-
-        starting = true;
-        processing = false;
-        startBtn.disabled = true;
-
-        status.textContent =
-          'Opening laptop camera...';
-
-        panel.hidden = false;
-
-        try {
-          scanner = new Html5Qrcode('qr-reader', {
-            verbose: false
-          });
-
-          await scanner.start(
-            { facingMode: 'user' },
-            {
-              fps: 10,
-              qrbox: (width, height) => {
-                const size = Math.min(
-                  220,
-                  width - 20,
-                  height - 20
-                );
-
-                return {
-                  width: Math.max(80, size),
-                  height: Math.max(80, size)
-                };
-              },
-              aspectRatio: 1.333333
-            },
-            async (decodedText) => {
-              if (processing) return;
-
-              const code = normalizeCode(decodedText);
-
-              if (!code || code.length > 100) {
-                status.textContent =
-                  'Invalid QR code. Please scan an employee QR card.';
+              if (
+                last &&
+                last.code === code &&
+                Date.now() - last.at < 8000
+              ) {
+                qrStatus.textContent =
+                  'This card was scanned recently. ' +
+                  'Please wait before scanning again.';
                 return;
               }
 
-              processing = true;
-              employeeCode.value = code;
-
-              status.textContent =
-                'QR scanned: ' + code;
-
-              await stopCamera();
-
-              // Opens the existing attendance
-              // confirmation dialog.
-              punchForm.requestSubmit();
-            },
-            () => {
-              // Ignore individual frames without QR codes.
+              sessionStorage.setItem(
+                'mf-last-qr',
+                JSON.stringify({
+                  code,
+                  at: Date.now()
+                })
+              );
+            } catch (_) {
+              // Storage may be unavailable.
             }
-          );
 
-          running = true;
-          stopBtn.hidden = false;
-          startBtn.hidden = true;
+            scanHandled = true;
+            employeeCode.value = code;
 
-          status.textContent =
-            'Camera ready. Show your employee QR code.';
-        } catch (error) {
-          await stopCamera();
+            qrStatus.textContent =
+              'QR detected. Recording attendance...';
 
-          status.textContent =
-            'Camera error: ' +
-            (error.message || String(error));
-        } finally {
-          starting = false;
-          startBtn.disabled = false;
+            // AUTOMATIC RECORDING - NO CONFIRMATION
+            punchForm.requestSubmit();
+          },
+          () => {
+            // Ignore frames without a QR code.
+          }
+        );
+
+        scannerRunning = true;
+
+        if (cameraCancelled) {
+          await scanner.stop();
+          scannerRunning = false;
+          resetCameraUI();
+          qrStatus.textContent = 'Camera cancelled.';
+        } else {
+          qrStatus.textContent =
+            'Camera ready. Show your employee QR card.';
         }
-      });
+      } catch (error) {
+        scannerRunning = false;
+        resetCameraUI();
 
-      stopBtn.addEventListener('click', async () => {
-        await stopCamera();
-        status.textContent = 'Camera stopped.';
-      });
+        qrStatus.textContent =
+          cameraCancelled
+            ? 'Camera cancelled.'
+            : 'Unable to open camera: ' +
+              (error?.message || String(error));
+      } finally {
+        cameraBusy = false;
+      }
+    }
 
-      window.addEventListener('pagehide', () => {
-        if (scanner && running) {
-          scanner.stop().catch(() => {});
-        }
-      });
-    })();
+    startButton.addEventListener('click', startCamera);
+    cancelButton.addEventListener('click', stopCamera);
+
+    window.addEventListener('pagehide', () => {
+      if (scanner && scannerRunning) {
+        scanner.stop().catch(() => {});
+      }
+    });
   </script>
 </body>
 </html>
