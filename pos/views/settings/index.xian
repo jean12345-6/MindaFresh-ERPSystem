@@ -27,6 +27,11 @@
       </div>
       <h2 class="pt-2 text-lg font-extrabold">Receipt</h2>
       <div><label class="label" for="receiptFooter">Footer message</label><input id="receiptFooter" name="receiptFooter" value="{{s.receiptFooter}}" maxlength="120" class="field mt-1"></div>
+      <div class="max-w-xs"><label class="label" for="receiptWidth">Receipt paper width</label>
+        <select id="receiptWidth" name="receiptWidth" class="field mt-1">
+          <option value="80" {{#if (eq s.receiptWidth 80)}}selected{{/if}}>80 mm (standard receipt roll)</option>
+          <option value="58" {{#if (eq s.receiptWidth 58)}}selected{{/if}}>58 mm (small receipt roll)</option>
+        </select></div>
       <label class="flex items-center gap-3 font-semibold"><input type="checkbox" name="receiptShowCashier" value="1" class="h-5 w-5 accent-brand" {{#if s.receiptShowCashier}}checked{{/if}}> Show the cashier name on the receipt</label>
       <label class="flex items-center gap-3 font-semibold"><input type="checkbox" name="autoPrint" value="1" class="h-5 w-5 accent-brand" {{#if s.autoPrint}}checked{{/if}}> Open the print window right after a sale</label>
     </section>
@@ -66,6 +71,7 @@
         <h2 class="text-lg font-extrabold">Cash entry</h2>
         <div class="mt-2 max-w-md"><label class="label" for="quickCash">Quick cash buttons (pesos, separated by commas)</label>
           <input id="quickCash" name="quickCash" value="{{s.quickCash}}" class="field mt-1" placeholder="100,200,500,1000"></div>
+        <label class="mt-3 flex items-center gap-3 font-semibold"><input type="checkbox" name="scanAutoAdd" value="1" class="h-5 w-5 accent-brand" {{#if s.scanAutoAdd}}checked{{/if}}> Add a scanned barcode to the sale by itself (no Enter needed)</label>
         <label class="mt-3 flex items-center gap-3 font-semibold"><input type="checkbox" name="scanSound" value="1" class="h-5 w-5 accent-brand" {{#if s.scanSound}}checked{{/if}}> Beep when an item is added or not found</label>
         <label class="mt-3 flex items-center gap-3 font-semibold"><input type="checkbox" name="printSound" value="1" class="h-5 w-5 accent-brand" {{#if s.printSound}}checked{{/if}}> Play the receipt-printing sound after a sale</label>
       </div>

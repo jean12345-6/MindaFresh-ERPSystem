@@ -27,6 +27,7 @@ export const DEFAULTS = {
   receiptFooter: "Thank you for buying fresh!",
   receiptShowCashier: true,
   autoPrint: true,
+  receiptWidth: 80,            // paper roll width in mm: 58 or 80
   // Cashier
   showStoreImage: true,
   storeImageUrl: DEFAULT_IMAGE_URL,
@@ -36,6 +37,7 @@ export const DEFAULTS = {
   maxDiscountPct: 100,
   quickCash: "100,200,500,1000",
   scanSound: true,
+  scanAutoAdd: true,           // a scanned barcode is added without pressing Enter
   printSound: true,
   // Shortcuts
   shortcuts: { ...DEFAULT_SHORTCUTS },
@@ -92,6 +94,7 @@ export function parseSettingsForm(b) {
     receiptFooter: text(b.receiptFooter, 120),
     receiptShowCashier: on(b.receiptShowCashier),
     autoPrint: on(b.autoPrint),
+    receiptWidth: Number(b.receiptWidth) === 58 ? 58 : 80,
     showStoreImage: on(b.showStoreImage),
     defaultPayment: enabled[wanted] ? wanted : first,
     ...pays,
@@ -99,6 +102,7 @@ export function parseSettingsForm(b) {
     maxDiscountPct: int(b.maxDiscountPct, 0, 100, 100),
     quickCash: (quick.length ? [...new Set(quick)].slice(0, 6) : [100, 200, 500, 1000]).join(","),
     scanSound: on(b.scanSound),
+    scanAutoAdd: on(b.scanAutoAdd),
     printSound: on(b.printSound),
     shortcuts,
     defaultReorder: int(b.defaultReorder, 0, 100000, 10),

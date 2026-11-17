@@ -95,7 +95,9 @@
   function exact(term) {
     const t = term.toLowerCase();
     if (!t) return null;
-    return PRODUCTS.find((p) => p.barcode && p.barcode.toLowerCase() === t)
+    // A scanner may report a 12-digit UPC-A as a 13-digit EAN with a leading 0 (or the other way round).
+    const alt = /^0\d{12}$/.test(t) ? t.slice(1) : /^\d{12}$/.test(t) ? "0" + t : null;
+    return PRODUCTS.find((p) => p.barcode && (p.barcode.toLowerCase() === t || p.barcode === alt))
       || PRODUCTS.find((p) => (p.code || "").toLowerCase() === t)
       || (/^\d+$/.test(t) ? PRODUCTS.find((p) => !p.barcode && numPart(p.code) === numPart(t)) : null) || null;
   }
@@ -255,7 +257,23 @@
     render();
   }
 
-  $("search").addEventListener("input", () => { hi = 0; render(); });
+  // Scanner without an Enter key (many USB scanners and phone apps): when the typed text is exactly one product's barcode or code
+  // and nothing more arrives for a moment, add it. A person typing never gets there by accident: the pause is longer than a scanner's gap between digits.
+  let scanTimer;
+  const exactCode = (term) => {
+    const t = term.toLowerCase();
+    const alt = /^0d{12}$/.test(t) ? t.slice(1) : /^d{12}$/.test(t) ? "0" + t : null;
+    return PRODUCTS.find((p) => p.barcode && (p.barcode.toLowerCase() === t || p.barcode === alt)) || PRODUCTS.find((p) => (p.code || "").toLowerCase() === t) || null;
+  };
+  $("search").addEventListener("input", () => {
+    hi = 0; render();
+    clearTimeout(scanTimer);
+    if (!CFG.scanAutoAdd) return;
+    scanTimer = setTimeout(() => {
+      const { term } = parse($("search").value);
+      if (term.length >= 4 && exactCode(term)) submitSearch();
+    }, 150);
+  });
   $("search").addEventListener("keydown", (e) => {
     const { term } = parse($("search").value);
     const n = Math.min(matches(term).length, 8);
@@ -348,6 +366,8 @@
     if (Swal.isVisible()) return;
     const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName);
     if (keymap[e.key]) { e.preventDefault(); keymap[e.key](); return; }
+    // A scanner types like a very fast keyboard. If focus is on a button or the page, send the scan to the search box so nothing is lost.
+    if (!typing && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.length === 1 && /[\w@*.-]/.test(e.key) && !(e.key === "-" && cart.size)) $("search").focus();
     const emptySearch = document.activeElement === $("search") ? !$("search").value : !typing;
     if (!emptySearch || !cart.size) return;
     const ids = [...cart.keys()];

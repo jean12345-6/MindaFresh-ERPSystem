@@ -4,7 +4,18 @@
   {{> flash}}
   <div class="grid gap-6 lg:grid-cols-[360px_1fr]">
     <!-- Receipt (the only part that prints) -->
-    <section id="receipt" class="card mx-auto w-full max-w-[360px] p-5 font-mono text-[13px] leading-relaxed print:max-w-none print:border-0 print:p-0">
+    <style>
+      /* Receipt paper: a thermal roll ({{cfg.receiptWidth}} mm wide). The page height is set from the receipt's own height just before printing. */
+      #receipt { width: {{cfg.receiptWidth}}mm; max-width: 100%; box-sizing: border-box; padding: 3mm 4mm 6mm; font-size: {{#if (eq cfg.receiptWidth 58)}}10px{{else}}11.5px{{/if}}; line-height: 1.35; }
+      @media print {
+        html, body { width: {{cfg.receiptWidth}}mm; margin: 0 !important; background: #fff !important; }
+        main { padding: 0 !important; margin: 0 !important; max-width: none !important; display: block !important; }
+        main > .grid { display: block !important; }
+        #receipt { margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; color: #000 !important; background: #fff !important; }
+        #receipt * { color: #000 !important; border-color: #000 !important; }
+      }
+    </style>
+    <section id="receipt" class="card mx-auto font-mono">
       <div class="text-center">
         <p class="text-base font-extrabold">{{cfg.storeName}}</p>
         {{#if cfg.storeAddress}}<p>{{cfg.storeAddress}}</p>{{/if}}
@@ -153,4 +164,18 @@
   });
 </script>
 {{/if}}
+<script>
+  // Browsers cannot print "as long as the content", so the paper height is set from the receipt's height right before printing.
+  (() => {
+    const W = {{cfg.receiptWidth}};
+    const style = document.createElement("style"); style.id = "pageSize"; document.head.appendChild(style);
+    const fit = () => {
+      const px = document.getElementById("receipt").getBoundingClientRect().height;
+      style.textContent = "@page { size: " + W + "mm " + (Math.ceil(px * 25.4 / 96) + 4) + "mm; margin: 0; }";
+    };
+    window.addEventListener("beforeprint", fit);
+    fit();
+    window.addEventListener("load", fit);
+  })();
+</script>
 {{> pos-footer}}

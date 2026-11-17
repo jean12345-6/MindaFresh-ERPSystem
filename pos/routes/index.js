@@ -3,12 +3,13 @@
 import express from "express";
 import { imageField } from "../utils/upload.js";
 import { checkDb } from "../utils/dbStatus.js";
+import { barcodeSvg, barcodeText, generateEan13 } from "../utils/barcodeSvg.js";
 import { loginLimiter } from "../middleware/security.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { loginPage, loginUser, logoutUser, homeFor } from "../controllers/authController.js";
 import { dashboard } from "../controllers/dashboardController.js";
 import { cashierPage, checkoutSale, listSales, showSale, voidSaleAction } from "../controllers/saleController.js";
-import { listProducts, newProduct, createProduct, editProduct, updateProduct, toggleProduct, listCategories, saveCategory } from "../controllers/productController.js";
+import { listProducts, newProduct, createProduct, editProduct, updateProduct, toggleProduct, productLabel, listCategories, saveCategory } from "../controllers/productController.js";
 import { logRemoval, auditPage } from "../controllers/auditController.js";
 import { settingsPage, saveSettingsAction, resetSettingsAction, refreshImageLinksAction } from "../controllers/settingsController.js";
 import { stockList, adjustForm, adjustSave, movements } from "../controllers/inventoryController.js";
@@ -31,6 +32,16 @@ router.post("/login", loginLimiter, a(loginUser));
 router.get("/logout", logoutUser);
 router.post("/logout", logoutUser);
 
+// Barcode picture (EAN-13 or Code 128) for any text: used by the product form, labels and receipts.
+router.get("/barcode/:text.svg", ANY, (req, res) => {
+  const text = barcodeText(req.params.text);
+  if (!text) return res.status(400).type("text/plain").send("Invalid barcode text.");
+  const h = Math.min(Math.max(Number(req.query.h) || 60, 20), 200);
+  const m = Math.min(Math.max(Number(req.query.m) || 2, 1), 4);
+  res.set("Cache-Control", "private, max-age=3600").type("image/svg+xml").send(barcodeSvg(text, { height: h, module: m, label: req.query.t !== "0" }).svg);
+});
+router.get("/barcode-new", ADMIN, (req, res) => res.set("Cache-Control", "no-store").json({ barcode: generateEan13() }));
+
 router.get("/dashboard", ANY, a(dashboard));
 
 // Sales (cashier)
@@ -48,6 +59,7 @@ router.post("/products", ADMIN, imageField("image"), a(createProduct));
 router.get("/products/:id/edit", ADMIN, a(editProduct));
 router.post("/products/:id", ADMIN, imageField("image"), a(updateProduct));
 router.post("/products/:id/toggle", ADMIN, a(toggleProduct));
+router.get("/products/:id/label", ADMIN, a(productLabel));
 router.get("/categories", ADMIN, a(listCategories));
 router.post("/categories", ADMIN, a(saveCategory));
 router.post("/categories/:id", ADMIN, a(saveCategory));

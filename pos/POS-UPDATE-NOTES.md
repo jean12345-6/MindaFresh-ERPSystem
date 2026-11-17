@@ -38,3 +38,11 @@ Local now: `DB_HOST=127.0.0.1`. To go back to the classmate database, comment th
 - Uploaded files are saved in `pos/public/uploads/` on that laptop only (git-ignored). Classmates (Shop) will not see them. The seed products use Unsplash links, which work everywhere.
 - Optional SQL `pos/sql/product-images.sql`: sets Unsplash images for products 1-11 and turns "Show in the Online Shop" OFF for ALL products. Already run on the local DB. On the shared DB only Jean runs it, because it changes the Shop.
 - After pulling: run `npm install` in `pos/` (new packages: multer, sweetalert2).
+
+## Barcodes and receipt size (defense recommendations)
+- Receipt prints on a receipt roll (80 mm or 58 mm, set in Settings > Store & receipt), not a full sheet. The page height follows the receipt.
+- Products > New/Edit has a Barcode field. Click it and scan the package, or type it, or press Generate (makes a valid 13-digit EAN-13). A barcode picture shows under the field. Duplicates and wrong check digits are refused.
+- Products > Edit > Print label prints a 62 mm label (name, price, barcode). A product with no barcode uses its product code.
+- Cashier: scan with the barcode scanner (it types the number and presses Enter). Scanning works even when the search box is not focused.
+- Barcodes are drawn by the POS itself (EAN-13 and Code 128). No outside library or internet needed.
+- DB host (Jean) must run pos/sql/optional-barcode.sql ONCE for the Barcode field to appear on the shared database.

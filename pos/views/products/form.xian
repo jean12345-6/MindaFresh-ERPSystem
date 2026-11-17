@@ -6,7 +6,27 @@
   <h1 class="mt-2 text-2xl font-extrabold">{{#if isNew}}New product{{else}}Edit {{product.product_code}}{{/if}}</h1>
   <form action="{{#if isNew}}/products{{else}}/products/{{product.id}}{{/if}}" method="POST" enctype="multipart/form-data" class="card mt-4 grid gap-4 p-6 sm:grid-cols-2">
     <div class="sm:col-span-2"><label class="label" for="name">Name</label><input id="name" name="name" value="{{product.name}}" class="field mt-1" required maxlength="150"></div>
-    {{#if hasBarcode}}<div class="sm:col-span-2"><label class="label" for="barcode">Barcode (optional)</label><input id="barcode" name="barcode" value="{{product.barcode}}" class="field mt-1" maxlength="50" placeholder="e.g. 112233 (type it or scan it)"></div>{{/if}}
+    {{#if hasBarcode}}
+    <div class="sm:col-span-2">
+      <label class="label" for="barcode">Barcode</label>
+      <div class="mt-1 flex flex-wrap gap-2">
+        <input id="barcode" name="barcode" value="{{product.barcode}}" class="field min-w-0 flex-1" maxlength="40" autocomplete="off" placeholder="Click here, then scan the product barcode">
+        <button type="button" id="genBarcode" class="btn-outline">Generate</button>
+        <button type="button" id="clearBarcode" class="btn-outline">Clear</button>
+      </div>
+      <p class="mt-1 text-sm text-ink-muted">Scan the package with the barcode scanner, or type the number. No barcode on the package? Press Generate, then print the label.</p>
+      <div class="mt-3 flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-white p-3">
+        <img id="barcodePreview" src="{{#if product.barcode}}/barcode/{{product.barcode}}.svg{{/if}}" alt="" class="max-w-full {{#unless product.barcode}}hidden{{/unless}}">
+        <span id="barcodeEmpty" class="text-sm text-ink-muted {{#if product.barcode}}hidden{{/if}}">The barcode picture shows here.</span>
+        {{#unless isNew}}<a href="/products/{{product.id}}/label" target="_blank" rel="noopener" class="btn-outline ml-auto">Print label</a>{{/unless}}
+      </div>
+    </div>
+    {{else}}
+    <div class="rounded-2xl border border-line bg-peach-soft p-4 sm:col-span-2">
+      <p class="font-bold">Barcodes are not set up on this database yet.</p>
+      <p class="mt-1 text-sm">The database host runs <span class="font-mono">pos/sql/optional-barcode.sql</span> once. After that, this form gets a Barcode field.</p>
+    </div>
+    {{/if}}
     <div><label class="label" for="category_id">Category</label>
       <select id="category_id" name="category_id" class="field mt-1" required>
         <option value="">Choose…</option>
@@ -39,4 +59,25 @@
     <div class="flex gap-2 sm:col-span-2"><button class="btn-primary">Save product</button><a href="/products" class="btn-outline">Cancel</a></div>
   </form>
 </main>
+{{#if hasBarcode}}
+<script>
+  (() => {
+    const input = document.getElementById("barcode"), img = document.getElementById("barcodePreview"), empty = document.getElementById("barcodeEmpty");
+    const show = () => {
+      const v = input.value.trim();
+      const ok = /^[\x21-\x7e]{1,40}$/.test(v);
+      if (ok) img.src = "/barcode/" + encodeURIComponent(v) + ".svg";
+      img.classList.toggle("hidden", !ok); empty.classList.toggle("hidden", ok);
+    };
+    input.addEventListener("input", show);
+    // A scanner ends every scan with Enter. Do not let that save the form half-filled.
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); show(); document.getElementById("cost_price").focus(); } });
+    document.getElementById("clearBarcode").addEventListener("click", () => { input.value = ""; show(); input.focus(); });
+    document.getElementById("genBarcode").addEventListener("click", async () => {
+      if (input.value.trim() && !(await Swal.fire({ icon: "question", title: "Replace the barcode?", text: "This product already has a barcode.", showCancelButton: true, confirmButtonText: "Replace", cancelButtonText: "Keep it", reverseButtons: true, confirmButtonColor: "#C2410C" })).isConfirmed) return;
+      try { input.value = (await (await fetch("/barcode-new", { cache: "no-store" })).json()).barcode; show(); } catch { window.notify && window.notify("error", "Could not make a barcode. Try again."); }
+    });
+  })();
+</script>
+{{/if}}
 {{> pos-footer}}

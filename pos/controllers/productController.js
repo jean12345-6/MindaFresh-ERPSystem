@@ -7,6 +7,14 @@ import { AppError } from "../utils/appError.js";
 import { round2 } from "../utils/money.js";
 import { removeUpload } from "../utils/upload.js";
 import { ensureBarcode } from "../utils/barcode.js";
+import { isEan13 } from "../utils/barcodeSvg.js";
+
+// Reject a barcode that another product already uses, before the database does.
+async function assertBarcodeFree(barcode, exceptId = null) {
+  if (!barcode) return;
+  const other = await Product.findOne({ where: { barcode }, attributes: ["id", "product_code", "name"], raw: true });
+  if (other && String(other.id) !== String(exceptId)) throw new AppError("VALIDATION_ERROR", `That barcode is already used by ${other.product_code} ${other.name}.`);
+}
 
 // An optional internet link for the photo. Only https links are accepted.
 const imageLink = (v) => { const t = String(v || "").trim(); return /^https:\/\/[^\s]{4,240}$/.test(t) ? t : null; };
@@ -24,7 +32,11 @@ function readProduct(body, hasBarcode = false) {
     reorder_level: Number(body.reorder_level),
     is_online: body.is_online === "1" || body.is_online === "on"
   };
-  if (hasBarcode) data.barcode = String(body.barcode || "").trim().slice(0, 50) || null;
+  if (hasBarcode) {
+    data.barcode = String(body.barcode || "").trim() || null;
+    if (data.barcode && !/^[\x21-\x7e]{1,40}$/.test(data.barcode)) throw new AppError("VALIDATION_ERROR", "The barcode can have letters, numbers and symbols only, no spaces, up to 40 characters.");
+    if (data.barcode && /^\d{13}$/.test(data.barcode) && !isEan13(data.barcode)) throw new AppError("VALIDATION_ERROR", "That 13-digit barcode has a wrong check digit. Scan it again or use the Generate button.");
+  }
   if (!data.name) throw new AppError("VALIDATION_ERROR", "Enter the product name.");
   if (!UNITS.includes(data.unit)) throw new AppError("VALIDATION_ERROR", "Choose a unit.");
   if (!(data.cost_price >= 0) || !(data.selling_price >= 0)) throw new AppError("VALIDATION_ERROR", "Prices must be ₱0.00 or more.");
@@ -57,6 +69,7 @@ export const createProduct = async (req, res, next) => {
   try {
     const hasBarcode = await ensureBarcode();
     const data = readProduct(req.body, hasBarcode);
+    await assertBarcodeFree(data.barcode);
     const opening = Number(req.body.opening_stock || 0);
     const product = await sequelize.transaction(async (t) => {
       if (!(await Category.findByPk(data.category_id, { transaction: t }))) throw new AppError("VALIDATION_ERROR", "Choose a category.");
@@ -85,6 +98,7 @@ export const updateProduct = async (req, res, next) => {
   try {
     const hasBarcode = await ensureBarcode();
     const data = readProduct(req.body, hasBarcode);
+    await assertBarcodeFree(data.barcode, product.id);
     if (!(await Category.findByPk(data.category_id))) throw new AppError("VALIDATION_ERROR", "Choose a category.");
     const old = product.image_url;
     if (req.uploadedImageUrl) data.image_url = req.uploadedImageUrl;
@@ -107,6 +121,14 @@ export const toggleProduct = async (req, res) => {
     req.flash("success_msg", `${product.product_code} is now ${product.status}.`);
   }
   res.redirect("/products");
+};
+
+// Printable shelf label: name, price and the barcode (the product's own barcode, or its code when it has none).
+export const productLabel = async (req, res) => {
+  await ensureBarcode();
+  const p = await Product.findByPk(req.params.id, { raw: true });
+  if (!p) return res.redirect("/products");
+  res.render("products/label", { title: `Label ${p.product_code}`, p, code: p.barcode || p.product_code });
 };
 
 export const listCategories = async (req, res) => {
