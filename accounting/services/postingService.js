@@ -243,6 +243,27 @@ export async function payrollReleases() {
      ORDER BY sr.status = 'released', sr.id DESC`);
 }
 
+// One salary release with the list of employees it pays (read from HR's payroll_items, nothing copied).
+export async function releaseDetail(release_id) {
+  const [rel] = await select(
+    `SELECT sr.id, sr.release_code, sr.status, sr.release_method, sr.released_at,
+            CONCAT(e.first_name, ' ', e.last_name) AS released_by, pr.id AS payroll_run_id, pr.payroll_code,
+            pr.employee_count, pr.total_net,
+            DATE_FORMAT(pr.period_start, '%Y-%m-%d') AS period_start, DATE_FORMAT(pr.period_end, '%Y-%m-%d') AS period_end
+     FROM salary_releases sr JOIN payroll_runs pr ON pr.id = sr.payroll_run_id
+     LEFT JOIN employees e ON e.id = sr.released_by_id
+     WHERE sr.id = :id`, { id: release_id });
+  if (!rel) throw new AppError("VALIDATION_ERROR", "Salary release not found.");
+  const employees = await select(
+    `SELECT e.employee_code, CONCAT(e.last_name, ', ', e.first_name) AS full_name, e.position,
+            pi.days_worked, pi.net_pay
+     FROM payroll_items pi JOIN employees e ON e.id = pi.employee_id
+     WHERE pi.payroll_run_id = :run AND pi.net_pay > 0
+     ORDER BY e.last_name, e.first_name`, { run: rel.payroll_run_id });
+  const listTotal = round2(employees.reduce((sum, r) => sum + Number(r.net_pay), 0));
+  return { rel, employees, listTotal, matches: listTotal === round2(rel.total_net) };
+}
+
 export async function releaseSalary(release_id, release_method, employee_id) {
   if (!["bank_transfer", "cash"].includes(release_method))
     throw new AppError("VALIDATION_ERROR", "Choose bank transfer or cash.");
@@ -251,6 +272,10 @@ export async function releaseSalary(release_id, release_method, employee_id) {
     if (!rel) throw new AppError("VALIDATION_ERROR", "Salary release not found.");
     if (rel.status === "released") throw new AppError("DUPLICATE", `${rel.release_code} was already released.`);
     const [run] = await select(`SELECT payroll_code, total_net FROM payroll_runs WHERE id = :id`, { id: rel.payroll_run_id }, t);
+    const [paid] = await select(`SELECT COALESCE(SUM(net_pay), 0) AS total FROM payroll_items WHERE payroll_run_id = :id AND net_pay > 0`,
+      { id: rel.payroll_run_id }, t);
+    if (round2(paid.total) !== round2(run.total_net))
+      throw new AppError("VALIDATION_ERROR", `The employee list of ${run.payroll_code} does not add up to its total net pay. Ask HR to check it.`);
     const payrollPosted = await JournalEntry.count({ where: { source_module: "hr", entry_type: "payroll", reference_code: run.payroll_code }, transaction: t });
     if (!payrollPosted) throw new AppError("VALIDATION_ERROR", `Post payroll ${run.payroll_code} first.`);
 

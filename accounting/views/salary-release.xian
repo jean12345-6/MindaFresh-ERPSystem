@@ -1,0 +1,47 @@
+{{> head}}
+{{> nav}}
+<main class="mx-auto w-full max-w-4xl flex-1 px-6 py-6">
+  <a href="/salary-releases" class="text-sm font-bold text-brand print:hidden">← Salary releases</a>
+  <div class="card mt-3 p-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <p class="text-sm font-bold uppercase tracking-wide text-brand">Salary release · {{rel.payroll_code}}</p>
+        <h1 class="text-2xl font-extrabold">{{rel.release_code}}</h1>
+        <p class="mt-1 text-ink-soft">Pay period {{rel.period_start}} to {{rel.period_end}}</p>
+      </div>
+      {{#if (eq rel.status "released")}}<span class="badge bg-leaf-bg text-leaf">released</span>{{else}}<span class="badge bg-peach text-brand-dark">pending</span>{{/if}}
+    </div>
+    {{#if (eq rel.status "released")}}
+    <p class="mt-2 text-sm text-ink-muted">Released by {{label rel.release_method}} · {{dateTime rel.released_at}}{{#if rel.released_by}} · {{rel.released_by}}{{/if}}</p>
+    {{/if}}
+
+    <table class="mt-5 w-full text-sm">
+      <thead class="text-left text-ink-muted"><tr><th class="py-2">Code</th><th>Employee</th><th>Position</th><th class="text-right">Days worked</th><th class="text-right">Net pay</th></tr></thead>
+      <tbody>
+      {{#each employees}}
+        <tr class="border-t border-line"><td class="py-2 font-bold">{{employee_code}}</td><td>{{full_name}}</td><td class="text-ink-muted">{{position}}</td><td class="text-right">{{days_worked}}</td><td class="whitespace-nowrap text-right">{{peso net_pay}}</td></tr>
+      {{else}}
+        <tr><td colspan="5" class="py-4 text-ink-muted">HR has no payslips with net pay for this payroll run.</td></tr>
+      {{/each}}
+      </tbody>
+      <tfoot>
+        <tr class="border-t-2 border-line-strong font-extrabold"><td class="py-2" colspan="4">Total · {{employees.length}} employee(s)</td><td class="whitespace-nowrap text-right">{{peso listTotal}}</td></tr>
+        <tr class="text-ink-muted"><td class="py-1" colspan="4">Payroll run total net ({{rel.payroll_code}})</td><td class="whitespace-nowrap text-right">{{peso rel.total_net}}</td></tr>
+      </tfoot>
+    </table>
+    {{#unless matches}}
+    <p class="mt-3 rounded-lg bg-danger-bg p-3 text-sm font-semibold text-danger">The list does not add up to the run's total net pay. Ask HR to check {{rel.payroll_code}} before releasing.</p>
+    {{/unless}}
+
+    <div class="mt-6 flex flex-wrap items-center gap-3 print:hidden">
+      <button onclick="window.print()" class="btn-outline">Print</button>
+      {{#if (and (eq rel.status "pending") (hasRole currentUser "accountant" "admin"))}}
+      <form method="POST" action="/salary-releases/{{rel.id}}/release" class="flex items-center gap-2" onsubmit="return confirm('Release {{peso rel.total_net}} in salaries to {{employees.length}} employee(s) for {{rel.payroll_code}}?')">
+        <select class="field min-h-[40px] w-40" name="release_method"><option value="bank_transfer">Bank transfer</option><option value="cash">Cash</option></select>
+        <button class="btn-primary min-h-[40px]" {{#unless matches}}disabled{{/unless}}>Release</button>
+      </form>
+      {{/if}}
+    </div>
+  </div>
+</main>
+{{> footer}}

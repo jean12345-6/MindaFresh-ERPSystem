@@ -6,7 +6,7 @@ import { home, dashboardPage } from "../controllers/dashboardController.js";
 import { pendingPage, postNew } from "../controllers/postingController.js";
 import { journalList, entryPage, newEntryPage, createManual, voidEntry } from "../controllers/journalController.js";
 import { accountsPage, createAccount, toggleAccount } from "../controllers/accountController.js";
-import { releasesPage, release } from "../controllers/payrollController.js";
+import { releasesPage, releaseView, release } from "../controllers/payrollController.js";
 import { remittancesPage, suggest, create as createRemittance, pay as payRemittance } from "../controllers/remittanceController.js";
 import { reportsIndex, trialBalancePage, incomeStatementPage, balanceSheetPage, ledgerPage, salesSummaryPage } from "../controllers/reportController.js";
 
@@ -35,6 +35,7 @@ router.post("/accounts", ACC, createAccount);
 router.post("/accounts/:id/toggle", ACC, toggleAccount);
 
 router.get("/salary-releases", VIEW_RELEASES, releasesPage);
+router.get("/salary-releases/:id", VIEW_RELEASES, releaseView);
 router.post("/salary-releases/:id/release", ACC, release);
 
 router.get("/remittances", ACC, remittancesPage);
