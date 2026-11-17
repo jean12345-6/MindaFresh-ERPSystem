@@ -50,7 +50,8 @@ const categoryOptions = () => Category.findAll({ order: [["name", "ASC"]], raw: 
 export const listProducts = async (req, res) => {
   const where = {};
   const q = String(req.query.q || "").trim();
-  if (q) where[Op.or] = [{ name: { [Op.like]: `%${q}%` } }, { product_code: { [Op.like]: `%${q}%` } }];
+  const hasBarcode = await ensureBarcode();
+  if (q) where[Op.or] = [{ name: { [Op.like]: `%${q}%` } }, { product_code: { [Op.like]: `%${q}%` } }, ...(hasBarcode ? [{ barcode: { [Op.like]: `%${q}%` } }] : [])];
   if (req.query.category_id) where.category_id = req.query.category_id;
   if (["active", "inactive"].includes(req.query.status)) where.status = req.query.status;
   const products = await Product.findAll({

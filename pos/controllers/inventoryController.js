@@ -1,8 +1,10 @@
 // pos/controllers/inventoryController.js — stock levels, low-stock list, adjustments, movement history.
 import { sequelize, Product, StockMovement, Employee, Sale, Order, PurchaseOrder } from "../models/index.js";
 import { adjustStock } from "../services/stockService.js";
+import { ensureBarcode } from "../utils/barcode.js";
 
 export const stockList = async (req, res) => {
+  const hasBarcode = await ensureBarcode();
   const lowOnly = req.query.low === "1";
   const q = String(req.query.q || "").trim();
   const [rows] = await sequelize.query(
@@ -12,7 +14,7 @@ export const stockList = async (req, res) => {
        FROM products p
        JOIN categories c ON c.id = p.category_id
        LEFT JOIN stock_levels s ON s.product_id = p.id
-      WHERE (:q = '' OR p.name LIKE :like OR p.product_code LIKE :like)
+      WHERE (:q = '' OR p.name LIKE :like OR p.product_code LIKE :like${hasBarcode ? " OR p.barcode LIKE :like" : ""})
         ${lowOnly ? "AND p.status = 'active' AND COALESCE(s.quantity_on_hand, 0) <= p.reorder_level" : ""}
       ORDER BY p.product_code`,
     { replacements: { q, like: `%${q}%` } });

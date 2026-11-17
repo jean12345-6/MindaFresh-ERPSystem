@@ -128,7 +128,7 @@
       const left = p.stock - (cart.get(p.id) || 0);
       return `<li data-id="${p.id}" class="flex cursor-pointer items-center gap-3 px-4 py-3 ${i === hi ? "bg-peach" : "hover:bg-peach-soft"} ${left <= 0 ? "opacity-50" : ""}">
         ${thumb(p, 40)}
-        <span class="w-20 shrink-0 text-xs font-bold text-ink-muted">${esc(p.barcode || p.code)}</span>
+        <span class="w-28 shrink-0 text-xs font-bold leading-tight text-ink-muted">${esc(p.code)}${p.barcode ? "<br>" + esc(p.barcode) : ""}</span>
         <span class="flex-1 font-bold">${esc(p.name)}</span>
         <span class="text-xs ${left <= 5 ? "font-bold text-danger" : "text-ink-muted"}">${left <= 0 ? "Out of stock" : left + " " + esc(p.unit)}</span>
         <span class="w-24 text-right font-extrabold text-brand">${fmt(p.price)}</span></li>`;
@@ -257,18 +257,25 @@
     render();
   }
 
-  // Scanner without an Enter key (many USB scanners and phone apps): when the typed text is exactly one product's barcode or code
-  // and nothing more arrives for a moment, add it. A person typing never gets there by accident: the pause is longer than a scanner's gap between digits.
-  let scanTimer;
+  // A scanner without an Enter key (many USB scanners and phone apps): when the text is exactly one product's barcode or code and nothing
+  // more arrives, add it. Only for a SCAN: a scanner types every character within a few milliseconds. Typing by hand never adds by itself:
+  // the cashier sees the matching products in the list and presses Enter or clicks one.
+  let scanTimer, lastKey = 0, byHand = false;
+  const FAST_MS = 80;
   const exactCode = (term) => {
     const t = term.toLowerCase();
     const alt = /^0d{12}$/.test(t) ? t.slice(1) : /^d{12}$/.test(t) ? "0" + t : null;
     return PRODUCTS.find((p) => p.barcode && (p.barcode.toLowerCase() === t || p.barcode === alt)) || PRODUCTS.find((p) => (p.code || "").toLowerCase() === t) || null;
   };
-  $("search").addEventListener("input", () => {
+  $("search").addEventListener("input", (e) => {
     hi = 0; render();
+    const now = performance.now(), v = $("search").value;
+    const wholeAtOnce = e.inputType === "insertText" && e.data && e.data.length >= 3;   // a device that sends the whole code in one go
+    if (v.length <= 1) byHand = false;                                                   // a new entry starts
+    else if (!wholeAtOnce && now - lastKey > FAST_MS) byHand = true;                    // a person typing: too slow for a scanner
+    lastKey = now;
     clearTimeout(scanTimer);
-    if (!CFG.scanAutoAdd) return;
+    if (!CFG.scanAutoAdd || byHand) return;
     scanTimer = setTimeout(() => {
       const { term } = parse($("search").value);
       if (term.length >= 4 && exactCode(term)) submitSearch();
