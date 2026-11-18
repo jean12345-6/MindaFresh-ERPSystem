@@ -20,3 +20,9 @@ export const Product = sequelize.define("Product", {
 }, { tableName: "products" });
 
 addCodeHook(Product, "product_code", "PRD");
+
+// Class diagram (Figure 2): +isAvailable(qty): boolean — sold online, active, and enough stock.
+// Needs the StockLevel included (include: StockLevel). Used by the Online Shop.
+Product.prototype.isAvailable = function (qty = 1) {
+  return this.status === "active" && Boolean(this.is_online) && (this.StockLevel?.quantity_on_hand ?? 0) >= qty;
+};

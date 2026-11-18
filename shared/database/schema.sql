@@ -165,6 +165,7 @@ CREATE TABLE categories (
 CREATE TABLE products (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   product_code VARCHAR(20) NULL,
+  barcode VARCHAR(50) NULL,
   name VARCHAR(150) NOT NULL,
   description TEXT NULL,
   category_id INT UNSIGNED NOT NULL,
@@ -179,6 +180,7 @@ CREATE TABLE products (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_products_product_code (product_code),
+  UNIQUE KEY uq_products_barcode (barcode),
   CONSTRAINT fk_products_category_id FOREIGN KEY (category_id) REFERENCES categories (id),
   CONSTRAINT chk_products_unit CHECK (unit IN ('pc', 'kg', 'pack', 'box', 'tray')),
   CONSTRAINT chk_products_status CHECK (status IN ('active', 'inactive'))

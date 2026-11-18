@@ -13,12 +13,33 @@ import { CartItem } from "./CartItem.js";
 import { Order } from "./Order.js";
 import { OrderItem } from "./OrderItem.js";
 import { ProductReview } from "./ProductReview.js";
+// POS (Bren)
+import { Supplier } from "./Supplier.js";
+import { PurchaseOrder } from "./PurchaseOrder.js";
+import { PurchaseOrderItem } from "./PurchaseOrderItem.js";
+import { Sale } from "./Sale.js";
+import { SaleItem } from "./SaleItem.js";
 // Accounting (Jean)
 import { Account } from "./Account.js";
 import { JournalEntry } from "./JournalEntry.js";
 import { JournalLine } from "./JournalLine.js";
 import { SalaryRelease } from "./SalaryRelease.js";
 import { Remittance } from "./Remittance.js";
+
+// POS (Bren)
+Product.hasMany(StockMovement, { foreignKey: "product_id" });
+StockMovement.belongsTo(Sale, { foreignKey: "sale_id" });
+StockMovement.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
+Supplier.hasMany(PurchaseOrder, { foreignKey: "supplier_id" });
+PurchaseOrder.belongsTo(Supplier, { foreignKey: "supplier_id" });
+PurchaseOrder.belongsTo(Employee, { foreignKey: "employee_id" });
+PurchaseOrder.hasMany(PurchaseOrderItem, { foreignKey: "purchase_order_id" });
+PurchaseOrderItem.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
+PurchaseOrderItem.belongsTo(Product, { foreignKey: "product_id" });
+Sale.belongsTo(Employee, { foreignKey: "employee_id" });
+Sale.hasMany(SaleItem, { foreignKey: "sale_id" });
+SaleItem.belongsTo(Sale, { foreignKey: "sale_id" });
+SaleItem.belongsTo(Product, { foreignKey: "product_id" });
 
 // HR
 User.belongsTo(Employee, { foreignKey: "employee_id" });
@@ -62,6 +83,7 @@ export {
   sequelize,
   Employee, User,
   Category, Product, StockLevel, StockMovement,
+  Supplier, PurchaseOrder, PurchaseOrderItem, Sale, SaleItem,
   Customer, CartItem, Order, OrderItem, ProductReview,
   Account, JournalEntry, JournalLine, SalaryRelease, Remittance
 };

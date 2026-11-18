@@ -18,3 +18,8 @@ export const Customer = sequelize.define("Customer", {
 }, { tableName: "customers" });
 
 addCodeHook(Customer, "customer_code", "CUS");
+
+// Class diagram (Figure 2): +fullName(): string
+Customer.prototype.fullName = function () {
+  return `${this.first_name} ${this.last_name}`;
+};
