@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  {{> head}}
+  {{> hr-head}}
   <body class="antialiased">
     {{> pages/error}}
     {{> scripts}}

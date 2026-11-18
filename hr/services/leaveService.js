@@ -64,11 +64,15 @@ export async function createLeave(b, user) {
     );
   });
 }
-export async function decideLeave(id, status, user) {
+export async function decideLeave(id, status, user, decisionRemarks = "") {
   need(
     ["approved", "rejected", "cancelled"].includes(status),
     "Invalid decision",
   );
+  need(typeof decisionRemarks === "string", "Decision remarks must be text.");
+  const remarks = decisionRemarks.trim();
+  need(remarks.length <= 255, "Decision remarks must not exceed 255 characters.");
+  need(status !== "rejected" || remarks.length > 0, "A rejection reason is required.");
   return sequelize.transaction(async (t) => {
     // Employee first: all leave operations use one lock order.
     const [ref] = await rows(
@@ -116,8 +120,9 @@ export async function decideLeave(id, status, user) {
       );
     }
     await execute(
-      "UPDATE leave_requests SET status=:status,approved_by_id=:actor,updated_at=NOW() WHERE id=:id",
-      { status, actor: status === "cancelled" ? null : user.employee_id, id },
+      "UPDATE leave_requests SET status=:status,approved_by_id=:actor,decision_remarks=:remarks,updated_at=NOW() WHERE id=:id",
+      { status, actor: status === "cancelled" ? null : user.employee_id,
+        remarks: status === "cancelled" ? null : remarks || null, id },
       t,
     );
   });

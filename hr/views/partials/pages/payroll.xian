@@ -7,10 +7,6 @@
     Prepare payroll</button
   >{{/if}}
 </div>
-<div class="note">
-  Academic rates only. Employer shares are excluded. Review config/payroll.js
-  before operational use.
-</div>
 <section class="panel">
   <div class="panel-heading">
     <h2>Payroll runs <span class="badge">{{runs.length}}</span></h2>

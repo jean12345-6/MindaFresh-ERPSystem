@@ -1,59 +1,21 @@
 <div class="page-heading">
-    <div>
-        <h1>Attendance</h1>
-        <p>Read-only daily time records from the shared Attendance module.</p>
-    </div>
-
-    <a class="btn" href="/attendance">Today’s month</a>
+  <div><h1>Attendance / Daily Time Record</h1>
+    <p>Cutoff: {{date start}} – {{date end}}. Employees are sorted A–Z by last name.</p>
+  </div>
 </div>
-
 {{> forms/attendanceFilter}}
+{{#each attendanceGroups}}
 <section class="panel">
-    <div class="panel-heading">
-        <h2>Daily time records</h2>
-        <span class="muted">{{date start}} – {{date end}} · {{attendance.length}} records</span>
-    </div>
-
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th>Date</th>
-                    <th>Time in</th>
-                    <th>Lunch out</th>
-                    <th>Lunch in</th>
-                    <th>Time out</th>
-                    <th>Hours</th>
-                    <th>Late min.</th>
-                    <th>Undertime min.</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each attendance}}
-                    <tr>
-                        <td>{{employee_name}}</td>
-                        <td>{{date log_date}}</td>
-                        <td>{{time_in_display}}</td>
-                        <td>{{lunch_out_display}}</td>
-                        <td>{{lunch_in_display}}</td>
-                        <td>{{time_out_display}}</td>
-                        <td>{{hours_worked}}</td>
-                        <td>{{late_minutes}}</td>
-                        <td>{{undertime_minutes}}</td>
-                        <td><span class="badge">{{status}}</span></td>
-                    </tr>
-                {{else}}
-                    <tr>
-                        <td colspan="10" class="empty">No records for these dates. Confirm Attendance writes to the same mindafresh_db, then check the date range and employee.</td>
-                    </tr>
-                {{/each}}
-            </tbody>
-        </table>
-    </div>
-    <div class="signature-lines">
-        <span>Prepared by</span>
-        <span>Approved by</span>
-    </div>
+  <div class="panel-heading">
+    <div><h2>{{last_name}}, {{first_name}}</h2><p class="muted">{{employee_code}} · {{department}}</p></div>
+    <span class="muted">{{date @root.start}} – {{date @root.end}}</span>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Present days</th><th>Late days</th><th>Absent days</th><th>Leave days</th><th>Late minutes</th><th>Undertime minutes</th><th>Overtime</th><th>Regular hours</th></tr></thead>
+    <tbody><tr><td>{{days_present}}</td><td>{{days_late}}</td><td>{{days_absent}}</td><td>{{days_on_leave}}</td><td>{{late_minutes}}</td><td>{{undertime_minutes}}</td><td>{{overtime_display}}</td><td>{{hours_worked_display}}</td></tr></tbody>
+  </table></div>
+  <div class="signature-lines"><span>Employee signature</span><span>Verified by</span></div>
 </section>
+{{else}}
+<section class="panel"><p class="empty">No employees for this cutoff.</p></section>
+{{/each}}

@@ -10,7 +10,7 @@ export function previousDate(date) {
 export function summarizeRecords(employees, logs, start, end) {
   dateRange(start, end);
   return employees.map(e => {
-    const result = { employee_id: e.id, employee_code: e.employee_code, days_present: 0, days_late: 0, days_absent: 0, days_on_leave: 0, late_minutes: 0, undertime_minutes: 0, hours_worked: 0 };
+    const result = { employee_id: e.id, employee_code: e.employee_code, days_present: 0, days_late: 0, days_absent: 0, days_on_leave: 0, late_minutes: 0, undertime_minutes: 0, overtime_minutes: 0, hours_worked: 0 };
     for (const log of logs) {
       if (Number(log.employee_id) !== Number(e.id) || log.log_date < start || log.log_date > end || log.log_date < e.hire_date) continue;
       if (["present", "late"].includes(log.status)) result.days_present++;
@@ -19,6 +19,7 @@ export function summarizeRecords(employees, logs, start, end) {
       if (log.status === "on_leave") result.days_on_leave++;
       result.late_minutes += Number(log.late_minutes || 0);
       result.undertime_minutes += Number(log.undertime_minutes || 0);
+      result.overtime_minutes += Number(log.overtime_minutes || 0);
       result.hours_worked += Number(log.hours_worked || 0);
     }
     result.hours_worked = Math.round(result.hours_worked * 100) / 100;
@@ -62,7 +63,7 @@ export function createAttendanceService(db = { rows, execute, transaction: callb
     dateRange(dateFrom, dateTo);
     await closeDays(dateTo);
     const employees = await db.rows("SELECT id,employee_code,hire_date FROM employees WHERE status='active' ORDER BY id");
-    const logs = await db.rows("SELECT employee_id,log_date,status,late_minutes,undertime_minutes,hours_worked FROM attendance_logs WHERE log_date BETWEEN :start AND :end", { start: dateFrom, end: dateTo });
+    const logs = await db.rows("SELECT employee_id,log_date,status,late_minutes,undertime_minutes,overtime_minutes,hours_worked FROM attendance_logs WHERE log_date BETWEEN :start AND :end", { start: dateFrom, end: dateTo });
     return summarizeRecords(employees, logs, dateFrom, dateTo);
   }
   return { closeDays, getSummary };

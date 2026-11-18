@@ -1,0 +1,26 @@
+<dialog
+  id="addEmployeeDialog"
+  class="employee-modal"
+  aria-labelledby="addEmployeeTitle"
+>
+  <div class="dialog-heading">
+    <div>
+      <h2 id="addEmployeeTitle">Add employee</h2>
+      <p>Create a new MindaFresh employee record.</p>
+    </div>
+
+    <button
+      type="button"
+      class="employee-modal-close"
+      data-close
+      aria-label="Close employee form"
+    >
+      &times;
+    </button>
+  </div>
+
+  {{> forms/employeeForm
+      formAction="/employees"
+      isEmployeeModal=true
+  }}
+</dialog>

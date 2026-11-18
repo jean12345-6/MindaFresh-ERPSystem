@@ -68,6 +68,9 @@ const context = {
   pendingLeaves: [],
   runs: [run],
   attendance: [],
+  month: "2026-10", start: "2026-10-16", end: "2026-10-31", secondCutoff: true,
+  employeesForFilter: employees,
+  attendanceGroups: [{last_name:"Reyes",first_name:"Marco",employee_code:"EMP-0002",days_present:12,days_late:1,days_absent:0,days_on_leave:1,late_minutes:25,undertime_minutes:10,overtime_display:"3 h 45 m",hours_worked_display:"95.50"}],
   employee: employees[1],
   run,
   item: items[0],
@@ -92,6 +95,15 @@ test("all .xian pages render through the actual XianFire hbs engine", async () =
       !html.includes("window.PEOPLEPAY_SERVER"),
       file + " does not boot a client-side app",
     );
+    if (file === "attendance.xian") {
+      assert.ok(html.includes("Reyes, Marco"));
+      assert.ok(html.includes("3 h 45 m"));
+      assert.ok(html.includes("95.50"));
+    }
+    if (file === "leaves.xian") {
+      assert.ok(html.includes('name="decision_remarks"'));
+      assert.ok(html.includes('value="rejected"'));
+    }
     if (html.includes("<form"))
       assert.ok(html.includes("test-token"), file + " has a CSRF token");
   }

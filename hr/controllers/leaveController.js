@@ -26,7 +26,7 @@ export const storeLeave = async (req, res, next) => {
 
 export const updateLeave = async (req, res, next) => {
   try {
-    await decideLeave(req.params.id, req.body.status, req.user);
+    await decideLeave(req.params.id, req.body.status, req.user, req.body.decision_remarks);
     req.flash("success_msg", "Leave request " + req.body.status + ".");
     res.redirect("/leaves");
   } catch (error) {

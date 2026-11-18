@@ -1,29 +1,45 @@
 import { rows } from "../models/db.js";
 import { dateRange } from "../services/dates.js";
-import { manilaToday } from "../services/attendanceService.js";
+import { manilaToday, getSummary, summarizeRecords } from "../services/attendanceService.js";
 import { getWorkspaceData } from "../services/workspaceService.js";
 
 export const attendancePage = async (req, res, next) => {
   try {
-    const data = await getWorkspaceData(req.user);
     const today = manilaToday();
-    const start = String(req.query.start || today.slice(0, 8) + "01");
-    const end = String(req.query.end || today);
+    const month = String(req.query.month || today.slice(0, 7));
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw Error("Select a valid month.");
+    const cutoff = String(req.query.cutoff || (Number(today.slice(8, 10)) <= 15 ? "1" : "2"));
+    if (!["1", "2"].includes(cutoff)) throw Error("Select a valid cutoff.");
+    const [year, monthNumber] = month.split("-").map(Number);
+    const lastDay = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+    const start = month + (cutoff === "1" ? "-01" : "-16");
+    const end = month + "-" + (cutoff === "1" ? "15" : String(lastDay));
     dateRange(start, end);
     const employeeId = req.query.employee_id ? Number(req.query.employee_id) : null;
     if (employeeId !== null && (!Number.isInteger(employeeId) || employeeId < 1)) throw Error("Select a valid employee.");
-    data.attendance = await rows("SELECT a.*,CONCAT(e.first_name,' ',e.last_name) AS employee_name FROM attendance_logs a JOIN employees e ON e.id=a.employee_id WHERE a.log_date BETWEEN :start AND :end" + (employeeId ? " AND a.employee_id=:employeeId" : "") + " ORDER BY a.log_date,e.last_name,e.first_name", { start, end, employeeId });
-    const time = value => value ? (typeof value === "string" ? value.replace("T", " ").slice(11, 16) : new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Manila", hour: "2-digit", minute: "2-digit" }).format(value)) : "—";
-    for (const log of data.attendance) for (const key of ["time_in", "lunch_out", "lunch_in", "time_out"]) log[key + "_display"] = time(log[key]);
-    const employees = data.employees.map(e => ({...e, selected: e.id === employeeId}));
-    res.render("attendance", { start, end, employeesForFilter: employees,
-      title: "Attendance",
-      activeAttendance: true,
-      ...data,
+    const summaries = await getSummary(start, end);
+    const data = await getWorkspaceData(req.user);
+    const employees = data.employees.filter(e => e.hire_date <= end).sort((a, b) =>
+      a.last_name.localeCompare(b.last_name, "en", { sensitivity: "base" }) ||
+      a.first_name.localeCompare(b.first_name, "en", { sensitivity: "base" }) || Number(a.id) - Number(b.id));
+    if (employeeId !== null && !employees.some(e => Number(e.id) === employeeId)) throw Error("Employee not found for this cutoff.");
+    const summaryById = new Map(summaries.map(s => [Number(s.employee_id), s]));
+    // getSummary in this project returns active employees. Preserve historical DTRs too.
+    const historical = employees.filter(e => !summaryById.has(Number(e.id)));
+    if (historical.length) {
+      const logs = await rows("SELECT employee_id,log_date,status,late_minutes,undertime_minutes,overtime_minutes,hours_worked FROM attendance_logs WHERE log_date BETWEEN :start AND :end", { start, end });
+      for (const summary of summarizeRecords(historical, logs, start, end)) summaryById.set(Number(summary.employee_id), summary);
+    }
+    const attendanceGroups = employees.filter(e => employeeId === null || Number(e.id) === employeeId).map(e => {
+      const summary = summaryById.get(Number(e.id));
+      const ot = Number(summary.overtime_minutes || 0);
+      return { ...e, ...summary, overtime_display: Math.floor(ot / 60) + " h " + (ot % 60) + " m",
+        hours_worked_display: Number(summary.hours_worked || 0).toFixed(2) };
     });
-  } catch (error) {
-    next(error);
-  }
+    res.render("attendance", { ...data, title: "Attendance", activeAttendance: true,
+      month, start, end, firstCutoff: cutoff === "1", secondCutoff: cutoff === "2",
+      employeesForFilter: employees.map(e => ({ ...e, selected: Number(e.id) === employeeId })), attendanceGroups });
+  } catch (error) { next(error); }
 };
 
 export const reportsPage = async (req, res, next) => {

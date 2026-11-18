@@ -14,7 +14,7 @@ test("summary matches shared blueprint fields and counts late as present", () =>
   {employee_id:1,log_date:"2026-11-05",status:"on_leave"},
   {employee_id:9,log_date:"2026-11-05",status:"present"},
  ], "2026-11-01", "2026-11-05");
- assert.deepEqual(summary, [{employee_id:1,employee_code:"EMP-0001",days_present:2,days_late:1,days_absent:1,days_on_leave:1,late_minutes:25,undertime_minutes:30,hours_worked:15.08}]);
+ assert.deepEqual(summary, [{employee_id:1,employee_code:"EMP-0001",days_present:2,days_late:1,days_absent:1,days_on_leave:1,late_minutes:25,undertime_minutes:30,overtime_minutes:0,hours_worked:15.08}]);
 });
 test("Manila calendar remains correct across the UTC date boundary", () => {
  assert.equal(manilaToday(new Date("2026-11-01T16:30:00Z")), "2026-11-02");
@@ -45,7 +45,7 @@ test("Attendance closing is idempotent, excludes holidays, today and approved pa
  assert.equal(summary[0].days_absent,2);
  assert.equal(summary[0].days_on_leave,1);
 });
-for (const role of ["employee", "cashier", "inventory_staff"]) {
+for (const role of ["employee", "cashier", "inventory_staff", "rider"]) {
  test(`${role} sees own released payslips and can cancel only own leave`, async () => {
   assert.ok(isSelfService(role));
   const queries=[];
@@ -86,7 +86,7 @@ test("flash messages preserve arrays and are consumed once", async () => {
 
 test("shared sign-in returns canonical fields, hides hashes, and rejects disabled employees", async () => {
  const bcrypt = (await import("bcryptjs")).default;
- const {createAuthService} = await import("../services/authService.js");
+ const {createAuthService} = await import("../services/hrAuthService.js");
  const password = await bcrypt.hash("local-test-password", 4);
  const account = { id: 9, employee_id: 1, employee_code: "EMP-0001", first_name: "Ana", last_name: "Cruz", username: "ana.cashier", role: "cashier", status: "active", employee_status: "active", password };
  let updated = 0;

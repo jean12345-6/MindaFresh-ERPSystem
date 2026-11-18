@@ -13,6 +13,7 @@ export const LeaveRequest = sequelize.define("LeaveRequest", {
   days: { type: DataTypes.INTEGER, allowNull: false },
   reason: DataTypes.STRING(255),
   status: { type: DataTypes.STRING(20), allowNull: false, defaultValue: "pending" },
+  decision_remarks: DataTypes.STRING(255),
   approved_by_id: DataTypes.INTEGER.UNSIGNED
 }, { tableName: "leave_requests" });
 

@@ -1,3 +1,4 @@
+import { STAFF_ROLES } from "../utils/roles.js";
 import bcrypt from "bcryptjs";
 import { sequelize, rows } from "../models/db.js";
 import { Employee } from "../models/employeeModel.js";
@@ -59,14 +60,7 @@ export const createUser = async (req, res, next) => {
       "Password must be 10–72 bytes.",
     );
     need(
-      [
-        "admin",
-        "hr_staff",
-        "accountant",
-        "cashier",
-        "inventory_staff",
-        "employee",
-      ].includes(role),
+      STAFF_ROLES.includes(role),
       "Invalid role.",
     );
     need(
@@ -127,14 +121,7 @@ export const updateUser = async (req, res, next) => {
     const { status, role } = req.body;
     need(["active", "disabled"].includes(status), "Invalid account status.");
     need(
-      [
-        "admin",
-        "hr_staff",
-        "accountant",
-        "cashier",
-        "inventory_staff",
-        "employee",
-      ].includes(role),
+      STAFF_ROLES.includes(role),
       "Invalid role.",
     );
     await sequelize.transaction(async (transaction) => {
@@ -260,17 +247,7 @@ export const usersPage = async (req, res, next) => {
         employee.status === "active" &&
         !data.users.some((account) => account.employee_id === employee.id),
     );
-    const roles =
-      req.user.role === "admin"
-        ? [
-            "admin",
-            "hr_staff",
-            "accountant",
-            "cashier",
-            "inventory_staff",
-            "employee",
-          ]
-        : ["hr_staff", "accountant", "cashier", "inventory_staff", "employee"];
+    const roles = STAFF_ROLES.filter(role => req.user.role === "admin" || role !== "admin");
     for (const account of data.users)
       account.can_manage =
         req.user.role === "admin" || account.role !== "admin";

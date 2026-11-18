@@ -30,6 +30,8 @@
           <th>Paid leave</th>
           <th>Holiday</th>
           <th>Late / undertime</th>
+          <th>OT minutes</th>
+          <th class="amount">OT pay</th>
           <th class="amount">Gross</th>
           <th class="amount">Net</th>
           <th></th>
@@ -43,6 +45,8 @@
           <td>{{paid_leave_days}}</td>
           <td>{{paid_holiday_days}}</td>
           <td>{{late_minutes}} / {{undertime_minutes}} min</td>
+          <td>{{overtime_minutes}}</td>
+          <td class="amount">{{money overtime_pay}}</td>
           <td class="amount">{{money gross_pay}}</td>
           <td class="amount">{{money net_pay}}</td>
           <td>

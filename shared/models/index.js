@@ -20,7 +20,19 @@ import { JournalLine } from "./JournalLine.js";
 import { SalaryRelease } from "./SalaryRelease.js";
 import { Remittance } from "./Remittance.js";
 
-// HR
+// HR (Fate): keep the same model instances for shared and legacy HR imports.
+import { Department } from "./Department.js";
+import { LeaveRequest } from "./LeaveRequest.js";
+import { PayrollRun } from "./PayrollRun.js";
+import { PayrollItem } from "./PayrollItem.js";
+Department.hasMany(Employee, { foreignKey: "department_id" });
+Employee.belongsTo(Department, { foreignKey: "department_id" });
+Employee.hasMany(LeaveRequest, { foreignKey: "employee_id" });
+LeaveRequest.belongsTo(Employee, { foreignKey: "employee_id" });
+PayrollRun.hasMany(PayrollItem, { foreignKey: "payroll_run_id" });
+PayrollItem.belongsTo(PayrollRun, { foreignKey: "payroll_run_id" });
+Employee.hasMany(PayrollItem, { foreignKey: "employee_id" });
+PayrollItem.belongsTo(Employee, { foreignKey: "employee_id" });
 User.belongsTo(Employee, { foreignKey: "employee_id" });
 Employee.hasOne(User, { foreignKey: "employee_id" });
 
@@ -60,7 +72,7 @@ Remittance.belongsTo(Employee, { as: "RecordedBy", foreignKey: "recorded_by_id" 
 
 export {
   sequelize,
-  Employee, User,
+  Employee, User, Department, LeaveRequest, PayrollRun, PayrollItem,
   Category, Product, StockLevel, StockMovement,
   Customer, CartItem, Order, OrderItem, ProductReview,
   Account, JournalEntry, JournalLine, SalaryRelease, Remittance

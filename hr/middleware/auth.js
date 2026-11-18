@@ -1,5 +1,5 @@
 import { isSelfService } from "../utils/roles.js";
-import { sessionUser } from "../services/authService.js";
+import { sessionUser } from "../services/hrAuthService.js";
 
 export const requireAuth = async (req, res, next) => {
   if (!(req.session.user?.user_id || req.session.userId)) return res.redirect("/login");
