@@ -1,6 +1,6 @@
 // shared/models/index.js — all models and their associations.
-// This file has the 10 models the Online Shop uses plus the 5 POS models (Bren). Each owner adds the rest of the 26
-// (departments, leave_requests, payroll, attendance, accounting).
+// This file has the 11 models the Online Shop uses. Each owner adds the rest of the 26
+// (departments, leave_requests, payroll, suppliers, purchase orders, sales, attendance, accounting).
 import { sequelize } from "../config/database.js";
 import { Employee } from "./Employee.js";
 import { User } from "./User.js";
@@ -12,11 +12,34 @@ import { Customer } from "./Customer.js";
 import { CartItem } from "./CartItem.js";
 import { Order } from "./Order.js";
 import { OrderItem } from "./OrderItem.js";
+import { ProductReview } from "./ProductReview.js";
+// POS (Bren)
 import { Supplier } from "./Supplier.js";
 import { PurchaseOrder } from "./PurchaseOrder.js";
 import { PurchaseOrderItem } from "./PurchaseOrderItem.js";
 import { Sale } from "./Sale.js";
 import { SaleItem } from "./SaleItem.js";
+// Accounting (Jean)
+import { Account } from "./Account.js";
+import { JournalEntry } from "./JournalEntry.js";
+import { JournalLine } from "./JournalLine.js";
+import { SalaryRelease } from "./SalaryRelease.js";
+import { Remittance } from "./Remittance.js";
+
+// POS (Bren)
+Product.hasMany(StockMovement, { foreignKey: "product_id" });
+StockMovement.belongsTo(Sale, { foreignKey: "sale_id" });
+StockMovement.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
+Supplier.hasMany(PurchaseOrder, { foreignKey: "supplier_id" });
+PurchaseOrder.belongsTo(Supplier, { foreignKey: "supplier_id" });
+PurchaseOrder.belongsTo(Employee, { foreignKey: "employee_id" });
+PurchaseOrder.hasMany(PurchaseOrderItem, { foreignKey: "purchase_order_id" });
+PurchaseOrderItem.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
+PurchaseOrderItem.belongsTo(Product, { foreignKey: "product_id" });
+Sale.belongsTo(Employee, { foreignKey: "employee_id" });
+Sale.hasMany(SaleItem, { foreignKey: "sale_id" });
+SaleItem.belongsTo(Sale, { foreignKey: "sale_id" });
+SaleItem.belongsTo(Product, { foreignKey: "product_id" });
 
 // HR
 User.belongsTo(Employee, { foreignKey: "employee_id" });
@@ -30,19 +53,6 @@ StockLevel.belongsTo(Product, { foreignKey: "product_id" });
 StockMovement.belongsTo(Product, { foreignKey: "product_id" });
 StockMovement.belongsTo(Employee, { foreignKey: "employee_id" });
 StockMovement.belongsTo(Order, { foreignKey: "order_id" });
-StockMovement.belongsTo(Sale, { foreignKey: "sale_id" });
-StockMovement.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
-Product.hasMany(StockMovement, { foreignKey: "product_id" });
-Supplier.hasMany(PurchaseOrder, { foreignKey: "supplier_id" });
-PurchaseOrder.belongsTo(Supplier, { foreignKey: "supplier_id" });
-PurchaseOrder.belongsTo(Employee, { foreignKey: "employee_id" });
-PurchaseOrder.hasMany(PurchaseOrderItem, { foreignKey: "purchase_order_id" });
-PurchaseOrderItem.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
-PurchaseOrderItem.belongsTo(Product, { foreignKey: "product_id" });
-Sale.belongsTo(Employee, { foreignKey: "employee_id" });
-Sale.hasMany(SaleItem, { foreignKey: "sale_id" });
-SaleItem.belongsTo(Sale, { foreignKey: "sale_id" });
-SaleItem.belongsTo(Product, { foreignKey: "product_id" });
 
 // Shop
 CartItem.belongsTo(Customer, { foreignKey: "customer_id" });
@@ -51,13 +61,29 @@ Customer.hasMany(CartItem, { foreignKey: "customer_id" });
 Order.belongsTo(Customer, { foreignKey: "customer_id" });
 Customer.hasMany(Order, { foreignKey: "customer_id" });
 Order.hasMany(OrderItem, { foreignKey: "order_id" });
+Order.belongsTo(Employee, { foreignKey: "delivered_by_id", as: "DeliveredBy" });
 OrderItem.belongsTo(Order, { foreignKey: "order_id" });
 OrderItem.belongsTo(Product, { foreignKey: "product_id" });
+ProductReview.belongsTo(Customer, { foreignKey: "customer_id" });
+ProductReview.belongsTo(Product, { foreignKey: "product_id" });
+ProductReview.belongsTo(Order, { foreignKey: "order_id" });
+Product.hasMany(ProductReview, { foreignKey: "product_id" });
+Customer.hasMany(ProductReview, { foreignKey: "customer_id" });
+
+// Accounting (Jean)
+JournalEntry.hasMany(JournalLine, { foreignKey: "journal_entry_id" });
+JournalLine.belongsTo(JournalEntry, { foreignKey: "journal_entry_id" });
+JournalLine.belongsTo(Account, { foreignKey: "account_id" });
+Account.hasMany(JournalLine, { foreignKey: "account_id" });
+JournalEntry.belongsTo(Employee, { as: "PostedBy", foreignKey: "posted_by_id" });
+SalaryRelease.belongsTo(Employee, { as: "ReleasedBy", foreignKey: "released_by_id" });
+Remittance.belongsTo(Employee, { as: "RecordedBy", foreignKey: "recorded_by_id" });
 
 export {
   sequelize,
   Employee, User,
   Category, Product, StockLevel, StockMovement,
   Supplier, PurchaseOrder, PurchaseOrderItem, Sale, SaleItem,
-  Customer, CartItem, Order, OrderItem
+  Customer, CartItem, Order, OrderItem, ProductReview,
+  Account, JournalEntry, JournalLine, SalaryRelease, Remittance
 };

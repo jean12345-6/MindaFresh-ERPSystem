@@ -11,5 +11,6 @@ const pesoFormat = new Intl.NumberFormat("en-PH", {
 });
 
 export function peso(n) {
-  return "₱" + pesoFormat.format(round2(n || 0));
+  const v = round2(n || 0);
+  return (v < 0 ? "-₱" : "₱") + pesoFormat.format(Math.abs(v));
 }

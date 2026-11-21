@@ -16,7 +16,31 @@ export const Order = sequelize.define("Order", {
   order_status: { type: DataTypes.STRING(20), allowNull: false, defaultValue: "pending" },
   delivery_address: { type: DataTypes.STRING(255), allowNull: false },
   ordered_at: { type: DataTypes.DATE, allowNull: false },
-  delivered_at: DataTypes.DATE
+  delivered_at: DataTypes.DATE,
+  delivered_by_id: DataTypes.INTEGER.UNSIGNED // the rider (employee) who delivered it; v2.5 migration 007
 }, { tableName: "orders" });
 
 addCodeHook(Order, "order_code", "ORD");
+
+// State machine (Figure 11): the one-step moves allowed from each status.
+// The first entry is the next delivery step; cancelled / returned are the side exits.
+export const ORDER_FLOW = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["out_for_delivery", "cancelled"],
+  out_for_delivery: ["delivered", "cancelled"],
+  delivered: ["returned"],
+  cancelled: [],
+  returned: []
+};
+// Who may cancel at which status: customers only while pending, the admin until delivery
+export const CANCEL_RULES = { customer: ["pending"], admin: ["pending", "confirmed", "out_for_delivery"] };
+
+// Class diagram (Figure 2): +nextStatuses(): OrderStatus[]
+Order.prototype.nextStatuses = function () {
+  return ORDER_FLOW[this.order_status] ?? [];
+};
+
+// Class diagram (Figure 2): +canCancel(role): boolean   (role = "customer" | "admin")
+Order.prototype.canCancel = function (role) {
+  return (CANCEL_RULES[role] ?? []).includes(this.order_status);
+};
