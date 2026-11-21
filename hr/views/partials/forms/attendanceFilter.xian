@@ -1,1 +1,15 @@
-<form method="get" action="/attendance" class="attendance-filter"><label>From<input type="date" name="start" value="{{start}}" required></label><label>Through<input type="date" name="end" value="{{end}}" required></label><label>Employee<select name="employee_id"><option value="">All employees</option>{{#each employeesForFilter}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{employee_code}} · {{full_name}}</option>{{/each}}</select></label><button class="btn primary" type="submit">Apply filters</button><button class="btn" type="button" data-print>Print DTR</button></form>
+<form method="get" action="/attendance" class="attendance-filter">
+  <label>Month<input type="month" name="month" value="{{month}}" required /></label>
+  <label>Cutoff<select name="cutoff">
+    <option value="1" {{#if firstCutoff}}selected{{/if}}>1–15</option>
+    <option value="2" {{#if secondCutoff}}selected{{/if}}>16–month end</option>
+  </select></label>
+  <label>Employee<select name="employee_id">
+    <option value="">All employees</option>
+    {{#each employeesForFilter}}
+    <option value="{{id}}" {{#if selected}}selected{{/if}}>{{last_name}}, {{first_name}} · {{employee_code}}</option>
+    {{/each}}
+  </select></label>
+  <button class="btn primary" type="submit">Apply filters</button>
+  <button class="btn" type="button" data-print>Print DTR</button>
+</form>

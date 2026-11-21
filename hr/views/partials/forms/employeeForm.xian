@@ -93,7 +93,16 @@
       >
     </div>
     <div class="form-actions">
-      <a class="btn" href="/employees">Cancel</a
-      ><button class="btn primary">Save employee</button>
+      {{#if isEmployeeModal}}
+        <button type="button" class="btn" data-close>
+          Cancel
+        </button>
+      {{else}}
+        <a class="btn" href="/employees">Cancel</a>
+      {{/if}}
+
+      <button type="submit" class="btn primary">
+        Save employee
+      </button>
     </div>
   </form>

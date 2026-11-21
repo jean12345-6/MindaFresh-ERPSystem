@@ -40,6 +40,14 @@
         <td class="amount">{{money item.tardiness_deduction}}</td>
       </tr>
       <tr>
+        <td>Overtime minutes</td>
+        <td class="amount">{{item.overtime_minutes}}</td>
+      </tr>
+      <tr>
+        <td>Overtime pay</td>
+        <td class="amount">{{money item.overtime_pay}}</td>
+      </tr>
+      <tr>
         <td><strong>Gross pay</strong></td>
         <td class="amount"><strong>{{money item.gross_pay}}</strong></td>
       </tr>

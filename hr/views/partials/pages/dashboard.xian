@@ -1,3 +1,4 @@
+{{#if accountingStatusUnavailable}}{{/if}}
 <div class="page-heading">
   <div>
     <h1>Dashboard</h1>

@@ -17,9 +17,17 @@ export async function getWorkspaceData(user, query = rows) {
           (employee ? " WHERE employee_id=:id" : ""),
         { id },
       );
-  const runs = await query(
-    `SELECT r.*,s.status AS release_status, 0 AS is_posted FROM payroll_runs r LEFT JOIN salary_releases s ON s.payroll_run_id=r.id ${employee ? "WHERE s.status='released'" : accountant ? "WHERE r.status='approved'" : ""} ORDER BY r.id DESC`,
-  );
+  let accountingStatusUnavailable = false;
+  let runs;
+  const payrollSql = 
+    `SELECT r.*,s.status AS release_status, EXISTS(SELECT 1 FROM journal_entries j WHERE j.source_module='hr' AND j.entry_type='payroll' AND j.reference_code=r.payroll_code AND j.status='posted') AS is_posted FROM payroll_runs r LEFT JOIN salary_releases s ON s.payroll_run_id=r.id ${employee ? "WHERE s.status='released'" : accountant ? "WHERE r.status='approved'" : ""} ORDER BY r.id DESC`;
+  try { runs = await query(payrollSql); } catch (error) {
+    const cause = error.parent || error.original || error;
+    if (cause.code !== "ER_BAD_FIELD_ERROR" || !String(cause.sqlMessage || cause.message).includes("j.status")) throw error;
+    // Older local integration fixtures have no Accounting status field. Never infer a posting.
+    accountingStatusUnavailable = true;
+    runs = await query(payrollSql.replace(/EXISTS\(SELECT 1 FROM journal_entries j WHERE[^`]+?\) AS is_posted/, "0 AS is_posted"));
+  }
   for (const r of runs)
     r.items = await query(
       "SELECT * FROM payroll_items WHERE payroll_run_id=:rid" +
@@ -79,6 +87,7 @@ export async function getWorkspaceData(user, query = rows) {
     log.employee_name =
       employeeMap.get(log.employee_id)?.full_name || "Unknown employee";
   return {
+    accountingStatusUnavailable,
     employees,
     departments,
     leaves,

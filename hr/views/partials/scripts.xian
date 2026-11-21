@@ -1,2 +1,5 @@
+{{> tablePagination}}
 <script src="/js/dialogs.js" defer></script>
 <script src="/js/sidebar.js" type="module"></script>
+
+<script src="/js/table-pagination.js" type="module"></script>

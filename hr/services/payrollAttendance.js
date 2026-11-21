@@ -26,6 +26,7 @@ export async function getPayrollDays(employee, start, end, transaction) {
     unpaid_days: 0,
     late_minutes: 0,
     undertime_minutes: 0,
+    overtime_minutes: 0,
   };
   for (const d of dates) {
     const holiday = holidays.find((h) => h.holiday_date === d);
@@ -48,6 +49,7 @@ export async function getPayrollDays(employee, start, end, transaction) {
       result.days_worked++;
       result.late_minutes += Number(l.late_minutes);
       result.undertime_minutes += Number(l.undertime_minutes);
+      result.overtime_minutes += Number(l.overtime_minutes || 0);
     } else if (leave && leave.leave_type !== "unpaid") result.paid_leave_days++;
     else result.unpaid_days++;
   }

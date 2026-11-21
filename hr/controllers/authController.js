@@ -1,5 +1,5 @@
 import { STAFF_ROLES } from "../utils/roles.js";
-import { login } from "../services/authService.js";
+import { login } from "../services/hrAuthService.js";
 
 export const loginPage = (req, res) => {
   res.render("login", { title: "Sign in" });

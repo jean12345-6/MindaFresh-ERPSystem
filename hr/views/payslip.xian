@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  {{> head}}
+  {{> hr-head}}
   <body class="antialiased">
     {{> sidebar}}
     <div class="sidebar-backdrop" data-sidebar-close></div>
@@ -10,7 +10,7 @@
         {{> messages}}
         {{> pages/payslip}}
       </main>
-      {{> footer}}
+      {{> hr-footer}}
     </div>
     {{> scripts}}
   </body>

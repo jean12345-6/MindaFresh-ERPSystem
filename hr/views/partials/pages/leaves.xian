@@ -56,24 +56,26 @@
           <td>{{leave_type}}<small>{{reason}}</small></td>
           <td>{{date start_date}} – {{date end_date}}</td>
           <td>{{days}}</td>
-          <td><span class="badge">{{status}}</span></td>
+          <td><span class="badge">{{status}}</span>{{#if decision_remarks}}<small>{{decision_remarks}}</small>{{/if}}</td>
           <td>
             {{#if can_review}}
-            <form method="post" action="/leaves/{{id}}/update" class="actions">
-              <input type="hidden" name="_csrf" value="{{@root.csrf}}" /><input
-                type="hidden"
-                name="return_to"
-                value="/leaves"
-              /><button
-                class="btn small primary"
-                name="status"
-                value="approved"
-              >
-                Approve</button
-              ><button class="btn small" name="status" value="rejected">
-                Reject
-              </button>
-            </form>
+              <div class="actions">
+                <button
+                  type="button"
+                  class="btn small primary"
+                  data-open="approveLeave-{{id}}"
+                >
+                  Approve
+                </button>
+
+                <button
+                  type="button"
+                  class="btn small"
+                  data-open="rejectLeave-{{id}}"
+                >
+                  Reject
+                </button>
+              </div>
             {{/if}}{{#if can_cancel}}
             <form method="post" action="/leaves/{{id}}/update">
               <input type="hidden" name="_csrf" value="{{@root.csrf}}" /><input
@@ -97,3 +99,121 @@
   </div>
 </section>
 {{> modals/leaveDialog}}
+{{#each leaves}}
+  {{#if can_review}}
+    <dialog
+      id="approveLeave-{{id}}"
+      aria-labelledby="approveTitle-{{id}}"
+    >
+      <div class="dialog-heading">
+        <h2 id="approveTitle-{{id}}">Approve leave</h2>
+        <button type="button" class="btn small" data-close>
+          Close
+        </button>
+      </div>
+
+      <form
+        method="post"
+        action="/leaves/{{id}}/update"
+        class="form-content"
+      >
+        <input
+          type="hidden"
+          name="_csrf"
+          value="{{@root.csrf}}"
+        />
+        <input type="hidden" name="return_to" value="/leaves" />
+        <input type="hidden" name="status" value="approved" />
+
+        <p>
+          Approve <strong>{{employee_name}}</strong>’s
+          leave request <strong>{{leave_code}}</strong>?
+        </p>
+
+        <p class="muted">
+          {{leave_type}} · {{date start_date}} –
+          {{date end_date}} · {{days}} day(s)
+        </p>
+
+        <div class="form-grid">
+          <label class="full">
+            Approval comment (optional)
+            <textarea
+              name="decision_remarks"
+              maxlength="255"
+              rows="4"
+              placeholder="Enter an optional comment"
+            ></textarea>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close>
+            Cancel
+          </button>
+          <button type="submit" class="btn primary">
+            Confirm approval
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog
+      id="rejectLeave-{{id}}"
+      aria-labelledby="rejectTitle-{{id}}"
+    >
+      <div class="dialog-heading">
+        <h2 id="rejectTitle-{{id}}">Reject leave</h2>
+        <button type="button" class="btn small" data-close>
+          Close
+        </button>
+      </div>
+
+      <form
+        method="post"
+        action="/leaves/{{id}}/update"
+        class="form-content"
+      >
+        <input
+          type="hidden"
+          name="_csrf"
+          value="{{@root.csrf}}"
+        />
+        <input type="hidden" name="return_to" value="/leaves" />
+        <input type="hidden" name="status" value="rejected" />
+
+        <p>
+          Reject <strong>{{employee_name}}</strong>’s
+          leave request <strong>{{leave_code}}</strong>?
+        </p>
+
+        <p class="muted">
+          {{leave_type}} · {{date start_date}} –
+          {{date end_date}} · {{days}} day(s)
+        </p>
+
+        <div class="form-grid">
+          <label class="full">
+            Rejection reason (required)
+            <textarea
+              name="decision_remarks"
+              maxlength="255"
+              rows="4"
+              placeholder="Explain why this request is rejected"
+              required
+            ></textarea>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close>
+            Cancel
+          </button>
+          <button type="submit" class="btn primary">
+            Confirm rejection
+          </button>
+        </div>
+      </form>
+    </dialog>
+  {{/if}}
+{{/each}}

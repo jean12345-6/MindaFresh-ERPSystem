@@ -4,9 +4,16 @@
     <p>One employee master record shared across all MindaFresh modules.</p>
   </div>
   <div class="actions">
-    <a href="/reports/employees/export" class="btn">Export CSV</a>{{#if
-    canManageHR}}<a href="/employees/create" class="btn primary">Add employee</a
-    >{{/if}}
+    <a href="/reports/employees/export" class="btn">Export CSV</a>
+    {{#if canManageHR}}
+<button
+  type="button"
+  class="btn primary"
+  data-open="addEmployeeDialog"
+>
+  Add employee
+</button>
+{{/if}}
   </div>
 </div>
 <section class="panel">
@@ -64,4 +71,8 @@
       </tbody>
     </table>
   </div>
+
+  {{#if canManageHR}}
+  {{> modals/employeeDialog}}
+  {{/if}}
 </section>

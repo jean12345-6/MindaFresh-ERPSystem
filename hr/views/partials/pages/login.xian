@@ -1,1 +1,116 @@
-<main class="login-container"><section class="panel login-panel"><a class="brand" href="/login"><img class="brand-logo" src="/images/mindafresh-logo.svg" alt="MindaFresh logo"><strong>MindaFresh <span>PeoplePay</span></strong></a><h1>Sign in</h1><p class="muted">Use your shared MindaFresh staff account.</p>{{> messages}}<form method="post" action="/login"><input type="hidden" name="_csrf" value="{{csrf}}"><input type="hidden" name="return_to" value="/login"><label>Username<input name="username" autocomplete="username" required maxlength="50"></label><label>Password<input type="password" name="password" autocomplete="current-password" required maxlength="72"></label><button class="btn primary full-button">Sign in</button></form><p class="muted">Need an account? Contact your administrator.</p></section></main>
+<main class="pp-signin">
+  <section class="pp-signin-brand" aria-labelledby="pp-brand-title">
+    <a href="/login" class="pp-signin-logo">
+      <img
+        src="/images/mindafresh-logo.svg"
+        alt="MindaFresh"
+        width="52"
+        height="52"
+      >
+      <span>
+        <strong>MindaFresh</strong>
+        <small>PeoplePay · Human Resources & Payroll</small>
+      </span>
+    </a>
+
+    <div class="pp-signin-intro">
+      <span class="pp-signin-tag">YOUR PEOPLE. YOUR WORKSPACE.</span>
+
+      <h1 id="pp-brand-title">
+        Taking care of people.<br>
+        Keeping work moving.
+      </h1>
+
+      <p>
+        A connected workspace for employee records, leave requests,
+        attendance and payroll.
+      </p>
+
+      <div class="pp-signin-features">
+        <div>
+          <span class="pp-feature-number">01</span>
+          <span>
+            <strong>People in one place</strong>
+            <small>Organized employee records and staff accounts.</small>
+          </span>
+        </div>
+
+        <div>
+          <span class="pp-feature-number">02</span>
+          <span>
+            <strong>Less paperwork</strong>
+            <small>File leave requests and track their status.</small>
+          </span>
+        </div>
+
+        <div>
+          <span class="pp-feature-number">03</span>
+          <span>
+            <strong>Connected payroll</strong>
+            <small>Attendance records, payroll reviews and payslips.</small>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <p class="pp-signin-company">
+      MindaFresh Food Distribution, Inc.<br>
+      Calapan City, Oriental Mindoro
+    </p>
+  </section>
+
+  <section class="pp-signin-form-area" aria-labelledby="pp-signin-title">
+    <div class="pp-signin-card">
+      <span class="pp-signin-eyebrow">MINDAFRESH PEOPLEPAY</span>
+
+      <h2 id="pp-signin-title">Good to have you back.</h2>
+      <p class="pp-signin-description">
+        Sign in to your staff workspace.
+      </p>
+
+      <div class="pp-signin-messages">
+        {{> messages}}
+      </div>
+
+      <form method="post" action="/login" class="pp-signin-form">
+        <input type="hidden" name="_csrf" value="{{csrf}}">
+        <input type="hidden" name="return_to" value="/login">
+
+        <label for="pp-username">Username</label>
+        <input
+          id="pp-username"
+          name="username"
+          type="text"
+          placeholder="Enter your username"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          maxlength="50"
+          required
+        >
+
+        <label for="pp-password">Password</label>
+        <input
+          id="pp-password"
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          maxlength="72"
+          required
+        >
+
+        <button type="submit" class="pp-signin-submit">
+          Sign in <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <p class="pp-signin-help">
+        Need an account or a password reset?<br>
+        Contact your system administrator.
+      </p>
+    </div>
+
+    <p class="pp-signin-footer">Part of MindaFresh ERP</p>
+  </section>
+</main>

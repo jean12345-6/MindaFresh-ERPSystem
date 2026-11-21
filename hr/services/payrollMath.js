@@ -8,6 +8,7 @@ export function computePay({
   unpaid_days = 0,
   late_minutes = 0,
   undertime_minutes = 0,
+  overtime_minutes = 0,
 }) {
   for (const n of [
     daily_rate,
@@ -17,6 +18,7 @@ export function computePay({
     unpaid_days,
     late_minutes,
     undertime_minutes,
+    overtime_minutes,
   ])
     if (!Number.isFinite(n) || n < 0) throw Error("Invalid payroll input");
   const basic_pay = round(
@@ -26,7 +28,8 @@ export function computePay({
     basic_pay,
     round((daily_rate / c.minutesPerDay) * (late_minutes + undertime_minutes)),
   );
-  const gross_pay = round(basic_pay - tardiness_deduction),
+  const overtime_pay = round((daily_rate / 480) * 1.25 * overtime_minutes);
+  const gross_pay = round(basic_pay - tardiness_deduction + overtime_pay),
     sss = round(gross_pay * c.sssRate),
     philhealth = round(gross_pay * c.philhealthRate),
     pagibig = Math.min(c.pagibigHalfMonthCap, round(gross_pay * c.pagibigRate));
@@ -44,6 +47,8 @@ export function computePay({
     unpaid_days,
     late_minutes,
     undertime_minutes,
+    overtime_minutes,
+    overtime_pay,
     basic_pay,
     tardiness_deduction,
     gross_pay,

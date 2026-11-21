@@ -26,24 +26,50 @@ import { JournalLine } from "./JournalLine.js";
 import { SalaryRelease } from "./SalaryRelease.js";
 import { Remittance } from "./Remittance.js";
 
+// HR (Fate)
+import { Department } from "./Department.js";
+import { LeaveRequest } from "./LeaveRequest.js";
+import { PayrollRun } from "./PayrollRun.js";
+import { PayrollItem } from "./PayrollItem.js";
+
+Department.hasMany(Employee, { foreignKey: "department_id" });
+Employee.belongsTo(Department, { foreignKey: "department_id" });
+
+Employee.hasMany(LeaveRequest, { foreignKey: "employee_id" });
+LeaveRequest.belongsTo(Employee, { foreignKey: "employee_id" });
+
+PayrollRun.hasMany(PayrollItem, { foreignKey: "payroll_run_id" });
+PayrollItem.belongsTo(PayrollRun, { foreignKey: "payroll_run_id" });
+
+Employee.hasMany(PayrollItem, { foreignKey: "employee_id" });
+PayrollItem.belongsTo(Employee, { foreignKey: "employee_id" });
+
+User.belongsTo(Employee, { foreignKey: "employee_id" });
+Employee.hasOne(User, { foreignKey: "employee_id" });
+
 // POS (Bren)
 Product.hasMany(StockMovement, { foreignKey: "product_id" });
 StockMovement.belongsTo(Sale, { foreignKey: "sale_id" });
-StockMovement.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
+StockMovement.belongsTo(PurchaseOrder, {
+  foreignKey: "purchase_order_id",
+});
+
 Supplier.hasMany(PurchaseOrder, { foreignKey: "supplier_id" });
 PurchaseOrder.belongsTo(Supplier, { foreignKey: "supplier_id" });
 PurchaseOrder.belongsTo(Employee, { foreignKey: "employee_id" });
-PurchaseOrder.hasMany(PurchaseOrderItem, { foreignKey: "purchase_order_id" });
-PurchaseOrderItem.belongsTo(PurchaseOrder, { foreignKey: "purchase_order_id" });
+
+PurchaseOrder.hasMany(PurchaseOrderItem, {
+  foreignKey: "purchase_order_id",
+});
+PurchaseOrderItem.belongsTo(PurchaseOrder, {
+  foreignKey: "purchase_order_id",
+});
 PurchaseOrderItem.belongsTo(Product, { foreignKey: "product_id" });
+
 Sale.belongsTo(Employee, { foreignKey: "employee_id" });
 Sale.hasMany(SaleItem, { foreignKey: "sale_id" });
 SaleItem.belongsTo(Sale, { foreignKey: "sale_id" });
 SaleItem.belongsTo(Product, { foreignKey: "product_id" });
-
-// HR
-User.belongsTo(Employee, { foreignKey: "employee_id" });
-Employee.hasOne(User, { foreignKey: "employee_id" });
 
 // POS
 Product.belongsTo(Category, { foreignKey: "category_id" });
@@ -81,7 +107,7 @@ Remittance.belongsTo(Employee, { as: "RecordedBy", foreignKey: "recorded_by_id" 
 
 export {
   sequelize,
-  Employee, User,
+  Employee, User, Department, LeaveRequest, PayrollRun, PayrollItem,
   Category, Product, StockLevel, StockMovement,
   Supplier, PurchaseOrder, PurchaseOrderItem, Sale, SaleItem,
   Customer, CartItem, Order, OrderItem, ProductReview,
