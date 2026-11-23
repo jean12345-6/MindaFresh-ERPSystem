@@ -2,5 +2,13 @@
   "name": "mindafresh-erp",
   "private": true,
   "type": "module",
-  "scripts": { "sync": "node shared/sync.js" }
+  "scripts": {
+    "start": "node server.js",
+    "sync": "node shared/sync.js",
+    "postinstall": "node deploy/install-modules.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "description": "MindaFresh ERP: five modules behind one gateway (see DEPLOY.md)"
 }

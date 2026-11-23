@@ -16,8 +16,7 @@ export const Order = sequelize.define("Order", {
   order_status: { type: DataTypes.STRING(20), allowNull: false, defaultValue: "pending" },
   delivery_address: { type: DataTypes.STRING(255), allowNull: false },
   ordered_at: { type: DataTypes.DATE, allowNull: false },
-  delivered_at: DataTypes.DATE,
-  delivered_by_id: DataTypes.INTEGER.UNSIGNED // the rider (employee) who delivered it; v2.5 migration 007
+  delivered_at: DataTypes.DATE
 }, { tableName: "orders" });
 
 addCodeHook(Order, "order_code", "ORD");

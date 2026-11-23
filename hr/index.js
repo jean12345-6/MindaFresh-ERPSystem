@@ -29,8 +29,12 @@ if (
     "Set a unique SESSION_SECRET with at least 32 characters in .env.",
   );
 }
-if (process.env.DB_NAME !== "mindafresh_db") {
-  throw new Error("DB_NAME must be mindafresh_db.");
+if (
+  process.env.DB_NAME !== "mindafresh_db" &&
+  !/_mindafresh_db$/.test(process.env.DB_NAME || "") &&
+  process.env.ALLOW_ANY_DB_NAME !== "1"
+) {
+  throw new Error("DB_NAME must be mindafresh_db (or a hosting name ending in _mindafresh_db).");
 }
 
 app.disable("x-powered-by");
