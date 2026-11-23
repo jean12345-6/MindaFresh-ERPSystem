@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/style.css">
 
   <script
-    src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+    src="/html5-qrcode.min.js"
     defer>
   </script>
 
@@ -546,7 +546,7 @@
             <button
               type="button"
               class="qr-open-btn"
-              id="start-qr-btn"
+              id="start-qr-btn" hidden
             >
               📷 Tap to Scan QR
             </button>
@@ -573,7 +573,7 @@
             role="status"
             aria-live="polite"
           >
-            Camera is off. Tap the button to scan.
+            Starting camera automatically...
           </span>
 
           <div class="punch-grid">
@@ -793,7 +793,7 @@
     function resetCameraUI() {
       cameraContainer.classList.remove('active');
 
-      startButton.hidden = false;
+      startButton.hidden = true;
       startButton.disabled = false;
       startButton.textContent = '📷 Tap to Scan QR';
 
@@ -976,6 +976,13 @@
     }
 
     startButton.addEventListener('click', startCamera);
+
+    // AUTO-START CAMERA WHEN PAGE LOADS
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startCamera, { once: true });
+    } else {
+      startCamera();
+    }
     cancelButton.addEventListener('click', stopCamera);
 
     window.addEventListener('pagehide', () => {
