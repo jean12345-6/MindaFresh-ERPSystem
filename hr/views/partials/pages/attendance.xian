@@ -1,21 +1,78 @@
 <div class="page-heading">
-  <div><h1>Attendance / Daily Time Record</h1>
-    <p>Cutoff: {{date start}} – {{date end}}. Employees are sorted A–Z by last name.</p>
+  <div>
+    <h1>Attendance / Daily Time Record</h1>
+    <p>
+      Cutoff: {{date start}} – {{date end}}.
+      Grouped by department, with employees sorted A–Z.
+    </p>
   </div>
 </div>
+
 {{> forms/attendanceFilter}}
-{{#each attendanceGroups}}
-<section class="panel">
-  <div class="panel-heading">
-    <div><h2>{{last_name}}, {{first_name}}</h2><p class="muted">{{employee_code}} · {{department}}</p></div>
-    <span class="muted">{{date @root.start}} – {{date @root.end}}</span>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Present days</th><th>Late days</th><th>Absent days</th><th>Leave days</th><th>Late minutes</th><th>Undertime minutes</th><th>Overtime</th><th>Regular hours</th></tr></thead>
-    <tbody><tr><td>{{days_present}}</td><td>{{days_late}}</td><td>{{days_absent}}</td><td>{{days_on_leave}}</td><td>{{late_minutes}}</td><td>{{undertime_minutes}}</td><td>{{overtime_display}}</td><td>{{hours_worked_display}}</td></tr></tbody>
-  </table></div>
-  <div class="signature-lines"><span>Employee signature</span><span>Verified by</span></div>
-</section>
+
+{{#each attendanceDepartments}}
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <h2>{{department_name}}</h2>
+        <p class="muted">
+          {{employee_count}} employee(s)
+        </p>
+      </div>
+
+      <span class="muted">
+        {{date @root.start}} – {{date @root.end}}
+      </span>
+    </div>
+
+    <div class="table-wrap">
+      <table data-pagination="false">
+        <caption class="muted">
+          {{department_name}} · Cutoff attendance totals
+        </caption>
+
+        <thead>
+          <tr>
+            <th scope="col">Employee</th>
+            <th scope="col">Present days</th>
+            <th scope="col">Late days</th>
+            <th scope="col">Absent days</th>
+            <th scope="col">Leave days</th>
+            <th scope="col">Late minutes</th>
+            <th scope="col">Undertime minutes</th>
+            <th scope="col">Overtime</th>
+            <th scope="col">Regular hours</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{#each employees}}
+            <tr>
+              <td>
+                <strong>{{last_name}}, {{first_name}}</strong>
+                <small>{{employee_code}}</small>
+              </td>
+              <td>{{days_present}}</td>
+              <td>{{days_late}}</td>
+              <td>{{days_absent}}</td>
+              <td>{{days_on_leave}}</td>
+              <td>{{late_minutes}}</td>
+              <td>{{undertime_minutes}}</td>
+              <td>{{overtime_display}}</td>
+              <td>{{hours_worked_display}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="signature-lines">
+      <span>Prepared by</span>
+      <span>Verified by</span>
+    </div>
+  </section>
 {{else}}
-<section class="panel"><p class="empty">No employees for this cutoff.</p></section>
+  <section class="panel">
+    <p class="empty">No employees for this cutoff.</p>
+  </section>
 {{/each}}

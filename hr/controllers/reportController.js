@@ -36,9 +36,76 @@ export const attendancePage = async (req, res, next) => {
       return { ...e, ...summary, overtime_display: Math.floor(ot / 60) + " h " + (ot % 60) + " m",
         hours_worked_display: Number(summary.hours_worked || 0).toFixed(2) };
     });
-    res.render("attendance", { ...data, title: "Attendance", activeAttendance: true,
-      month, start, end, firstCutoff: cutoff === "1", secondCutoff: cutoff === "2",
-      employeesForFilter: employees.map(e => ({ ...e, selected: Number(e.id) === employeeId })), attendanceGroups });
+    res.render("attendance", {
+  ...data,
+  title: "Attendance",
+  activeAttendance: true,
+  month,
+  start,
+  end,
+  firstCutoff: cutoff === "1",
+  secondCutoff: cutoff === "2",
+  employeesForFilter: employees.map(employee => ({
+    ...employee,
+    selected: Number(employee.id) === employeeId,
+  })),
+  attendanceGroups,
+  attendanceDepartments,
+});
+      const departmentsById = new Map(
+  data.departments.map(department => [
+    Number(department.id),
+    department.name,
+  ]),
+);
+
+const groupedDepartments = new Map();
+
+for (const employee of attendanceGroups) {
+  const departmentId = Number(employee.department_id) || null;
+
+  const departmentName =
+    departmentsById.get(departmentId) ||
+    employee.department ||
+    "Unassigned";
+
+  // Group by department ID so departments with similar names stay separate.
+  const key = departmentId === null ? "unassigned" : departmentId;
+
+  if (!groupedDepartments.has(key)) {
+    groupedDepartments.set(key, {
+      department_id: departmentId,
+      department_name: departmentName,
+      employees: [],
+    });
+  }
+
+  groupedDepartments.get(key).employees.push(employee);
+}
+
+const compareNames = (a, b) =>
+  String(a || "").localeCompare(String(b || ""), "en", {
+    sensitivity: "base",
+  });
+
+const attendanceDepartments = Array.from(
+  groupedDepartments.values(),
+).sort(
+  (a, b) =>
+    compareNames(a.department_name, b.department_name) ||
+    Number(a.department_id) - Number(b.department_id),
+);
+
+for (const department of attendanceDepartments) {
+  department.employees.sort(
+    (a, b) =>
+      compareNames(a.last_name, b.last_name) ||
+      compareNames(a.first_name, b.first_name) ||
+      Number(a.id) - Number(b.id),
+  );
+
+  department.employee_count = department.employees.length;
+}
   } catch (error) { next(error); }
 };
 
