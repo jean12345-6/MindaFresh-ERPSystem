@@ -19,50 +19,74 @@
   salary release.
 </div>
 {{/if}}
+{{#each payrollDepartments}}
+  <section class="panel">
+    <div class="panel-heading">
+      <h2>
+        {{department_name}}
+        <span class="badge">{{employee_count}}</span>
+      </h2>
+      <span class="muted">Employees sorted by last name</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Employee</th>
+            <th scope="col">Worked</th>
+            <th scope="col">Paid leave</th>
+            <th scope="col">Holiday</th>
+            <th scope="col">Late / undertime</th>
+            <th scope="col">OT minutes</th>
+            <th scope="col" class="amount">OT pay</th>
+            <th scope="col" class="amount">Gross</th>
+            <th scope="col" class="amount">Net</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{#each employees}}
+            <tr>
+              <td>
+                <strong>{{employee_name}}</strong>
+                <small>{{employee_code}}</small>
+              </td>
+              <td>{{days_worked}} days</td>
+              <td>{{paid_leave_days}}</td>
+              <td>{{paid_holiday_days}}</td>
+              <td>
+                {{late_minutes}} / {{undertime_minutes}} min
+              </td>
+              <td>{{overtime_minutes}}</td>
+              <td class="amount">{{money overtime_pay}}</td>
+              <td class="amount">{{money gross_pay}}</td>
+              <td class="amount">{{money net_pay}}</td>
+              <td>
+                <a
+                  href="/payslips/{{@root.run.id}}/{{employee_id}}"
+                  class="text-link"
+                >
+                  Payslip
+                </a>
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{{else}}
+  <section class="panel">
+    <p class="empty">No employee calculations for this run.</p>
+  </section>
+{{/each}}
+
 <section class="panel">
-  <div class="panel-heading"><h2>Employee calculations</h2></div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <th>Worked</th>
-          <th>Paid leave</th>
-          <th>Holiday</th>
-          <th>Late / undertime</th>
-          <th>OT minutes</th>
-          <th class="amount">OT pay</th>
-          <th class="amount">Gross</th>
-          <th class="amount">Net</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each run.items}}
-        <tr>
-          <td>{{employee_name}}</td>
-          <td>{{days_worked}} days</td>
-          <td>{{paid_leave_days}}</td>
-          <td>{{paid_holiday_days}}</td>
-          <td>{{late_minutes}} / {{undertime_minutes}} min</td>
-          <td>{{overtime_minutes}}</td>
-          <td class="amount">{{money overtime_pay}}</td>
-          <td class="amount">{{money gross_pay}}</td>
-          <td class="amount">{{money net_pay}}</td>
-          <td>
-            <a
-              href="/payslips/{{@root.run.id}}/{{employee_id}}"
-              class="text-link"
-              >Payslip</a
-            >
-          </td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
   <div class="panel-total">
-    <strong>Total net payroll</strong><strong>{{money run.total_net}}</strong>
+    <strong>Total net payroll</strong>
+    <strong>{{money run.total_net}}</strong>
   </div>
 </section>
 {{#if run.is_draft}}

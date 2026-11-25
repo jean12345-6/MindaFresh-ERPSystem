@@ -5,6 +5,7 @@ import { Employee } from "../models/employeeModel.js";
 import { Department } from "../models/departmentModel.js";
 import { User } from "../models/userModel.js";
 import { employeeInput, need } from "../services/validation.js";
+import { groupByDepartment } from "../utils/groupByDepartment.js";
 
 export const saveEmployee = async (req, res, next) => {
   try {
@@ -160,32 +161,44 @@ export const employeesPage = async (req, res, next) => {
     const { getWorkspaceData } = await import(
       "../services/workspaceService.js"
     );
+
     const data = await getWorkspaceData(req.user);
     const search = String(req.query.search || "").trim();
-    const status = ["active", "inactive", "resigned"].includes(req.query.status)
+
+    const status = ["active", "inactive", "resigned"].includes(
+      req.query.status,
+    )
       ? req.query.status
       : "";
-    data.employees = data.employees.filter(
-      (employee) =>
+
+    data.employees = data.employees.filter(employee => {
+      const searchable = [
+        employee.full_name,
+        employee.employee_code,
+        employee.position,
+        employee.department,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return (
         (!status || employee.status === status) &&
-        (
-          employee.full_name +
-          " " +
-          employee.employee_code +
-          " " +
-          employee.position +
-          " " +
-          employee.department
-        )
-          .toLowerCase()
-          .includes(search.toLowerCase()),
+        searchable.includes(search.toLowerCase())
+      );
+    });
+
+    const employeeDepartments = groupByDepartment(
+      data.employees,
+      data.departments,
     );
+
     res.render("employees", {
+      ...data,
       title: "Employees",
       activeEmployees: true,
       search,
       status,
-      ...data,
+      employeeDepartments,
     });
   } catch (error) {
     next(error);

@@ -5,6 +5,7 @@ import {
   approvePayroll,
 } from "../services/payrollService.js";
 import { need } from "../services/validation.js";
+import { groupByDepartment } from "../utils/groupByDepartment.js";
 
 export const payrollPage = async (req, res, next) => {
   try {
@@ -31,12 +32,48 @@ export const storePayroll = async (req, res, next) => {
 export const payrollDetailsPage = async (req, res, next) => {
   try {
     const data = await getWorkspaceData(req.user);
-    const run = data.runs.find((run) => run.id === Number(req.params.id));
+
+    const run = data.runs.find(
+      run => Number(run.id) === Number(req.params.id),
+    );
+
     need(run, "Payroll run not found or unavailable for your role.");
+
+    const employeesById = new Map(
+      data.employees.map(employee => [
+        Number(employee.id),
+        employee,
+      ]),
+    );
+
+    // Add display metadata only; preserve saved payroll amounts.
+    const displayItems = run.items.map(item => {
+      const employee = employeesById.get(
+        Number(item.employee_id),
+      );
+
+      return {
+        ...item,
+        department_id: employee?.department_id ?? null,
+        department: employee?.department || "Unassigned",
+        first_name: employee?.first_name || "",
+        last_name: employee?.last_name || "",
+        employee_code: employee?.employee_code || "",
+        employee_name:
+          item.employee_name ||
+          employee?.full_name ||
+          "Unknown employee",
+      };
+    });
+
     res.render("payroll-detail", {
       title: run.payroll_code,
       activePayroll: true,
       run,
+      payrollDepartments: groupByDepartment(
+        displayItems,
+        data.departments,
+      ),
     });
   } catch (error) {
     next(error);
