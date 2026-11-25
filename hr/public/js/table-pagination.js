@@ -14,6 +14,8 @@ export function initializeTablePagination(root = document) {
     if (!table.tHead || !table.tBodies.length || table.dataset.paginated || table.dataset.pagination === "false") return;
     table.dataset.paginated = "true";
     const rows = Array.from(table.tBodies).flatMap(body => Array.from(body.rows)).filter(row => !row.querySelector("td.empty"));
+    // No controls for empty, summary-only, or already single-page tables.
+    if (rows.length <= 10) return;
     const controls = template.content.firstElementChild.cloneNode(true);
     const heading = table.closest("section")?.querySelector("h2")?.textContent.trim() || "Records";
     controls.setAttribute("aria-label", heading + " pagination");

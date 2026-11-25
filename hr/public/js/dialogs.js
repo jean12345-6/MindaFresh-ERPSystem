@@ -16,4 +16,3 @@ document.querySelectorAll("form[data-confirm]").forEach((form) => {
   });
 });
 
-document.querySelectorAll("[data-print]").forEach(button => button.addEventListener("click", () => window.print()));

@@ -1,5 +1,7 @@
 {{> tablePagination}}
-<script src="/js/dialogs.js" defer></script>
-<script src="/js/sidebar.js" type="module"></script>
+<script src="/js/dialogs.js?v=20261125" defer></script>
+<script src="/js/sidebar.js?v=20261125" type="module"></script>
 
-<script src="/js/table-pagination.js" type="module"></script>
+<script src="/js/table-pagination.js?v=20261125" type="module"></script>
+
+<script src="/js/hr-ui.js?v=20261125" defer></script>
