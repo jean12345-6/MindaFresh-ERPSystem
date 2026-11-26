@@ -264,7 +264,7 @@ export async function punch(code) {
 
       await exec(
         `UPDATE attendance_logs
-         SET log_code = CONCAT('ATT-', LPAD(id, 4, '0'))
+         SET log_code = CONCAT('ATT-', LPAD(id, GREATEST(4, CHAR_LENGTH(id)), '0'))
          WHERE employee_id = :employee_id
            AND log_date = :date
            AND log_code IS NULL`,
@@ -523,7 +523,7 @@ export async function closeDays(from, to) {
         if (inserted.length && !inserted[0].log_code) {
           await exec(
             `UPDATE attendance_logs
-             SET log_code = CONCAT('ATT-', LPAD(id, 4, '0'))
+             SET log_code = CONCAT('ATT-', LPAD(id, GREATEST(4, CHAR_LENGTH(id)), '0'))
              WHERE id = :id`,
             { id: inserted[0].id },
             transaction
