@@ -259,6 +259,8 @@
   color: #fff;
 }
 
+.dtr-page-gap { padding: 0 4px; color: #866b5d; font-weight: 700; align-self: center; }
+
 .dtr-page-btn:disabled {
   opacity: .4;
   cursor: not-allowed;
@@ -701,6 +703,7 @@
   </div>
 </dialog>
 
+<script src="/pagination.js"></script>
 <script>
 (() => {
   "use strict";
@@ -764,9 +767,16 @@
 
     addButton("Previous", currentPage - 1, currentPage === 1, false);
 
-    for (let p = 1; p <= totalPages; p++) {
-      addButton(String(p), p, false, p === currentPage);
-    }
+    window.pageList(currentPage, totalPages).forEach(p => {
+      if (p === "…") {
+        const gap = document.createElement("span");
+        gap.className = "dtr-page-gap";
+        gap.textContent = "…";
+        buttons.appendChild(gap);
+      } else {
+        addButton(String(p), p, false, p === currentPage);
+      }
+    });
 
     addButton(
       "Next",
