@@ -498,7 +498,7 @@
                 </tr>
               </thead>
 
-              <tbody data-paginate="15" data-paginate-label="logs">
+              <tbody>
                 {{#each rows}}
                   <tr>
                     <td>{{date log_date}}</td>
@@ -556,7 +556,7 @@
                     </td>
                   </tr>
                 {{else}}
-                  <tr data-no-paginate>
+                  <tr>
                     <td colspan="12" class="logs-empty">
                       No attendance records found for the selected date range.
                     </td>
@@ -779,7 +779,6 @@
     </div>
   </div>
 
-  <script src="/pagination.js"></script>
   <script>
     const editOverlay = document.getElementById('editLogOverlay');
     const viewOverlay = document.getElementById('viewLogOverlay');

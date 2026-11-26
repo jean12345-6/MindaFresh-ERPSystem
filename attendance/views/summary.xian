@@ -228,8 +228,6 @@
       color: #fff;
     }
 
-    .summary-page-gap { padding: 0 4px; color: #846a5c; font-weight: 700; }
-
     .summary-page-btn:disabled {
       opacity: .4;
       cursor: not-allowed;
@@ -700,7 +698,6 @@
   </div>
 </dialog>
 
-<script src="/pagination.js"></script>
 <script>
 (() => {
   "use strict";
@@ -827,23 +824,16 @@
       )
     );
 
-    window.pageList(currentPage, totalPages).forEach(page => {
-      if (page === "…") {
-        const gap = document.createElement("span");
-        gap.className = "summary-page-gap";
-        gap.textContent = "…";
-        pageButtons.appendChild(gap);
-      } else {
-        pageButtons.appendChild(
-          createPageButton(
-            String(page),
-            page,
-            false,
-            page === currentPage
-          )
-        );
-      }
-    });
+    for (let page = 1; page <= totalPages; page++) {
+      pageButtons.appendChild(
+        createPageButton(
+          String(page),
+          page,
+          false,
+          page === currentPage
+        )
+      );
+    }
 
     pageButtons.appendChild(
       createPageButton(
